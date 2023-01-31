@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<FlowInstance xmlns="http://www.oeplatform.org/version/2.0/schemas/flowinstance"
+              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:schemaLocation="http://www.oeplatform.org/version/2.0/schemas/flowinstance schema-1430.xsd">
+    <Header>
+        <Flow>
+            <FamilyID>253</FamilyID>
+            <Version>8</Version>
+            <FlowID>1430</FlowID>
+            <Name>
+                <![CDATA[Bestalla nybyggnadskarta]]>
+            </Name>
+        </Flow>
+        <FlowInstanceID>113718</FlowInstanceID>
+        <Status>
+            <ID>8621</ID>
+            <Name>
+                <![CDATA[Inskickat]]>
+            </Name>
+        </Status>
+        <Poster>
+            <Firstname>
+                <![CDATA[Test Testorsson]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[Testorsson]]>
+            </Lastname>
+            <Email>
+                <![CDATA[test@testmail.se]]>
+            </Email>
+            <ID>45914</ID>
+        </Poster>
+        <Owner>
+            <Firstname>
+                <![CDATA[Test Testorsson]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[Testorsson]]>
+            </Lastname>
+            <Email>
+                <![CDATA[test@testmail.se]]>
+            </Email>
+            <ID>45914</ID>
+        </Owner>
+        <Posted>2022-09-13T09:07:42</Posted>
+        <Editor>
+            <Firstname>
+                <![CDATA[Test Testorsson]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[Testorsson]]>
+            </Lastname>
+            <Email>
+                <![CDATA[test@testmail.se]]>
+            </Email>
+            <ID>45914</ID>
+        </Editor>
+        <Updated>2022-09-13T10:48:59</Updated>
+        <FirstSubmitted>2022-09-13T10:48:59</FirstSubmitted>
+        <LastSubmitted>2022-09-13T10:48:59</LastSubmitted>
+    </Header>
+    <Values>
+        <applyAs>
+            <QueryID>37025</QueryID>
+            <Name>
+                <![CDATA[Ansaker du som privatperson eller faretag?]]>
+            </Name>
+            <Value>Privatperson</Value>
+        </applyAs>
+        <clientPrivate>
+            <QueryID>37027</QueryID>
+            <Name>
+                <![CDATA[Bestallare]]>
+            </Name>
+            <Firstname>
+                <![CDATA[Test Testorsson]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[Testorsson]]>
+            </Lastname>
+            <Address>
+                <![CDATA[testorsson]]>
+            </Address>
+            <ZipCode>
+                <![CDATA[XXX XX]]>
+            </ZipCode>
+            <PostalAddress>
+                <![CDATA[SUNDSVALL]]>
+            </PostalAddress>
+            <Email>
+                <![CDATA[test@testmail.se]]>
+            </Email>
+            <SocialSecurityNumber>
+                <![CDATA[XXXXXXXXXXXX]]>
+            </SocialSecurityNumber>
+            <ContactBySMS>
+                <![CDATA[false]]>
+            </ContactBySMS>
+        </clientPrivate>
+    </Values>
+</FlowInstance>

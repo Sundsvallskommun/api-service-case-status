@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<FlowInstance>
+    <Header>
+        <Flow>
+            <FamilyID>382</FamilyID>
+            <Version>1</Version>
+            <FlowID>1105</FlowID>
+            <Name>
+                <![CDATA[Anm�lan - eldstad/r�kkanal]]>
+            </Name>
+        </Flow>
+        <FlowInstanceID>2212</FlowInstanceID>
+        <Posted>2022-03-16T16:41:32</Posted>
+        <FirstSubmitted>2022-03-16T16:41:32</FirstSubmitted>
+        <LastSubmitted>2022-03-16T16:41:32</LastSubmitted>
+    </Header>
+    <Values>
+        <type>
+            <QueryID>28890</QueryID>
+            <Name>
+                <![CDATA[Ans�ker du som]]>
+            </Name>
+            <Value>F�retag/f�rening</Value>
+        </type>
+        <applicant>
+            <QueryID>28913</QueryID>
+            <Name>
+                <![CDATA[Kontaktuppgifter till s�kande/byggherre]]>
+            </Name>
+            <applicantName>
+                <![CDATA[ankas ab]]>
+            </applicantName>
+            <applicantAttention>
+                <![CDATA[ankas att]]>
+            </applicantAttention>
+            <applicantAddress>
+                <![CDATA[andgatan99]]>
+            </applicantAddress>
+            <applicantPostalCode>
+                <![CDATA[88888]]>
+            </applicantPostalCode>
+            <applicantCity>
+                <![CDATA[ankeborg]]>
+            </applicantCity>
+            <applicantPhone>
+                <![CDATA[0701112233]]>
+            </applicantPhone>
+            <applicantMail>
+                <![CDATA[kalle@anka.se]]>
+            </applicantMail>
+        </applicant>
+        <otherInvoiceCompany>
+            <QueryID>28918</QueryID>
+            <Name>
+                <![CDATA[Vill du ange en annan fakturaadress eller betalningsansvarig?]]>
+            </Name>
+            <Value>Nej</Value>
+        </otherInvoiceCompany>
+    </Values>
+</FlowInstance>

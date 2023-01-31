@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<FlowInstance>
+    <Header>
+        <Flow>
+            <FamilyID>382</FamilyID>
+            <Version>1</Version>
+            <FlowID>1105</FlowID>
+            <Name>
+                <![CDATA[Anm�lan - eldstad/r�kkanal]]>
+            </Name>
+        </Flow>
+        <FlowInstanceID>2212</FlowInstanceID>
+        <Posted>2022-03-16T16:41:32</Posted>
+        <FirstSubmitted>2022-03-16T16:41:32</FirstSubmitted>
+        <LastSubmitted>2022-03-16T16:41:32</LastSubmitted>
+    </Header>
+    <Values>
+        <companyType>
+            <QueryID>28891</QueryID>
+            <Name>
+                <![CDATA[Ans�ker du f�r ett f�retag/f�rening som har en juridisk eller fysisk person som bolagsform?]]>
+            </Name>
+            <Value>Fysisk person (Enskild firma)</Value>
+        </companyType>
+        <applicationDescription>
+            <QueryID>28894</QueryID>
+            <Name>
+                <![CDATA[Beskriv i text vad (anm�lan/ans�kan) g�ller]]>
+            </Name>
+            <Value>
+                <![CDATA[teswt]]>
+            </Value>
+        </applicationDescription>
+        <applicant>
+            <QueryID>28913</QueryID>
+            <Name>
+                <![CDATA[Kontaktuppgifter till s�kande/byggherre]]>
+            </Name>
+            <applicantIdentifier>
+                <![CDATA[XXXXXXXX-XXXX]]>
+            </applicantIdentifier>
+            <applicantName>
+                <![CDATA[ankas ab]]>
+            </applicantName>
+            <applicantAttention>
+                <![CDATA[ankas att]]>
+            </applicantAttention>
+            <applicantAddress>
+                <![CDATA[andgatan99]]>
+            </applicantAddress>
+            <applicantPostalCode>
+                <![CDATA[88888]]>
+            </applicantPostalCode>
+            <applicantCity>
+                <![CDATA[ankeborg]]>
+            </applicantCity>
+            <applicantPhone>
+                <![CDATA[0701112233]]>
+            </applicantPhone>
+            <applicantMail>
+                <![CDATA[kalle@anka.se]]>
+            </applicantMail>
+        </applicant>
+        <otherInvoiceCompany>
+            <QueryID>28918</QueryID>
+            <Name>
+                <![CDATA[Vill du ange en annan fakturaadress eller betalningsansvarig?]]>
+            </Name>
+            <Value>Nej</Value>
+        </otherInvoiceCompany>
+    </Values>
+</FlowInstance>

@@ -1,0 +1,8 @@
+{
+  "system": "BYGGR",
+  "caseType": "NYBYGGNAD_ANSOKAN_OM_BYGGLOV",
+  "externalCaseId": "string",
+  "caseId": "string",
+  "status": "INVALID",
+  "timestamp": "2022-08-10T12:25:48.098Z"
+}

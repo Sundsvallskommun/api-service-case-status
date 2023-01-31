@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "^\/casemanagement\/cases\/.*\/status"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "casemanagement_200.json",
+    "status": 200
+  }
+}

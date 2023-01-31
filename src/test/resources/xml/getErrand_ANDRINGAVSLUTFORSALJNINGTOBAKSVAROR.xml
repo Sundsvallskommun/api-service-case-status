@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<FlowInstance>
+    <Header>
+        <Flow>
+            <FamilyID>381</FamilyID>
+            <Version>1</Version>
+            <FlowID>1100</FlowID>
+            <Name>
+                <![CDATA[�ndring eller avslut av tillst�ndspliktig f�rs�ljning av tobaksvaror - anm�lan]]>
+            </Name>
+        </Flow>
+        <FlowInstanceID>2101</FlowInstanceID>
+        <Status>
+            <ID>6498</ID>
+            <Name>
+                <![CDATA[Inskickat]]>
+            </Name>
+        </Status>
+        <Poster>
+            <Firstname>
+                <![CDATA[test]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[testorsson]]>
+            </Lastname>
+            <ID>26738</ID>
+        </Poster>
+        <Owner>
+            <Firstname>
+                <![CDATA[test]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[testorsson]]>
+            </Lastname>
+            <ID>26738</ID>
+        </Owner>
+        <Posted>2022-01-20T11:29:38</Posted>
+        <FirstSubmitted>2022-01-20T11:29:38</FirstSubmitted>
+        <LastSubmitted>2022-01-20T11:29:38</LastSubmitted>
+    </Header>
+    <Values>
+        <getCompanyName>
+            <QueryID>28607</QueryID>
+            <Name>
+                <![CDATA[H�mtning av f�retagsuppgifter]]>
+            </Name>
+            <Value>Nej, jag vill fylla i mina f�retagsuppgifter sj�lv</Value>
+        </getCompanyName>
+        <company>
+            <QueryID>28611</QueryID>
+            <Name>
+                <![CDATA[Ditt f�retag]]>
+            </Name>
+            <Foretagets_namn>
+                <![CDATA[Ciggis AB]]>
+            </Foretagets_namn>
+            <Organisationsnummer>
+                <![CDATA[XXXXXX-XXXX]]>
+            </Organisationsnummer>
+            <Utdelningsadress>
+                <![CDATA[Testv�gen 1]]>
+            </Utdelningsadress>
+            <Postnummer>
+                <![CDATA[12345]]>
+            </Postnummer>
+            <Postort>
+                <![CDATA[Sundsvall]]>
+            </Postort>
+            <Foretagets_telefonnummer>
+                <![CDATA[070123456789]]>
+            </Foretagets_telefonnummer>
+            <Foretagets_e-postadress>
+                <![CDATA[test@ciggis.se]]>
+            </Foretagets_e-postadress>
+        </company>
+        <companyForm>
+            <QueryID>28612</QueryID>
+            <Name>
+                <![CDATA[F�retagsform]]>
+            </Name>
+            <Value>Aktiebolag</Value>
+        </companyForm>
+        <contact>
+            <QueryID>28613</QueryID>
+            <Name>
+                <![CDATA[Dina kontaktuppgifter]]>
+            </Name>
+            <Firstname>
+                <![CDATA[test]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[testorsson]]>
+            </Lastname>
+            <Email>
+                <![CDATA[test.testorsson@test.se]]>
+            </Email>
+            <SocialSecurityNumber>
+                <![CDATA[XXXXXXXXXXXX]]>
+            </SocialSecurityNumber>
+            <ContactBySMS>
+                <![CDATA[false]]>
+            </ContactBySMS>
+        </contact>
+        <invoiceAddressSameAsCompanyAddress>
+            <QueryID>28614</QueryID>
+            <Name>
+                <![CDATA[�r fakturaadressen samma som f�retagets adress?]]>
+            </Name>
+            <Value>Ja</Value>
+        </invoiceAddressSameAsCompanyAddress>
+        <attention>
+            <QueryID>28616</QueryID>
+            <Name>
+                <![CDATA[Fakturareferens]]>
+            </Name>
+            <Value>
+                <![CDATA[Test]]>
+            </Value>
+        </attention>
+        <registrationType>
+            <QueryID>28618</QueryID>
+            <Name>
+                <![CDATA[Vad g�ller anm�lan?]]>
+            </Name>
+            <Value>Upph�rande av tillst�nd f�r f�rs�ljning av tobaksvaror</Value>
+        </registrationType>
+        <typeOfBusiness>
+            <QueryID>28619</QueryID>
+            <Name>
+                <![CDATA[Typ av verksamhet]]>
+            </Name>
+            <Value>Detaljhandel</Value>
+        </typeOfBusiness>
+        <pointOfSaleName>
+            <QueryID>28620</QueryID>
+            <Name>
+                <![CDATA[Ange det f�rs�ljningsst�lle som anm�lan g�ller]]>
+            </Name>
+            <Forsaljningsstallets_namn>
+                <![CDATA[Ciggeliciggis]]>
+            </Forsaljningsstallets_namn>
+        </pointOfSaleName>
+        <salesEndsPeriodFrom>
+            <QueryID>28630</QueryID>
+            <Name>
+                <![CDATA[F�rs�ljning av tobak upph�r fr�n och med:]]>
+            </Name>
+            <StartDate>2022-01-28</StartDate>
+        </salesEndsPeriodFrom>
+        <causeEnd>
+            <QueryID>28631</QueryID>
+            <Name>
+                <![CDATA[Orsak till upph�randet av tillst�nd]]>
+            </Name>
+            <Value>Avveckling av verksamheten</Value>
+        </causeEnd>
+    </Values>
+</FlowInstance>

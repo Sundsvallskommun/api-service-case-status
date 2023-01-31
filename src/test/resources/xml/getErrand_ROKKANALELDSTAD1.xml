@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<FlowInstance>
+
+    <Header>
+        <Flow>
+            <FamilyID>382</FamilyID>
+            <Version>1</Version>
+            <FlowID>1105</FlowID>
+            <Name>
+                <![CDATA[Anm�lan - eldstad/r�kkanal]]>
+            </Name>
+        </Flow>
+        <FlowInstanceID>2527</FlowInstanceID>
+        <Posted>2022-07-18T09:26:10</Posted>
+        <FirstSubmitted>2022-07-18T09:26:10</FirstSubmitted>
+        <LastSubmitted>2022-07-18T09:26:10</LastSubmitted>
+    </Header>
+    <Values>
+        <type>
+            <QueryID>28890</QueryID>
+            <Name>
+                <![CDATA[Ans�ker du som]]>
+            </Name>
+            <Value>Privat</Value>
+        </type>
+        <property>
+            <QueryID>28893</QueryID>
+            <Name>
+                <![CDATA[Ange adress eller fastighetsbeteckning]]>
+            </Name>
+            <PropertyUnitDesignation>
+                <![CDATA[SUNDSVALL TEST 1:107 ]]>
+            </PropertyUnitDesignation>
+            <PropertyUnitNumber>220063867</PropertyUnitNumber>
+            <PropertyObjectIdentity>909a6a80-ba3d-90ec-e040-ed8f66444c3f</PropertyObjectIdentity>
+        </property>
+        <applicationDescription>
+            <QueryID>28894</QueryID>
+            <Name>
+                <![CDATA[Beskriv i text vad (anm�lan/ans�kan) g�ller]]>
+            </Name>
+            <Value>
+                <![CDATA[Test test test f�r fels�kning av kartproblem i e-tj�nsterna.]]>
+            </Value>
+        </applicationDescription>
+        <applicant>
+            <QueryID>28911</QueryID>
+            <Name>
+                <![CDATA[Kontaktuppgifter till s�kande/byggherre]]>
+            </Name>
+            <Firstname>
+                <![CDATA[test]]>
+            </Firstname>
+            <Lastname>
+                <![CDATA[testorsson]]>
+            </Lastname>
+            <Address>
+                <![CDATA[Testvägen 69]]>
+            </Address>
+            <ZipCode>
+                <![CDATA[XXXXX]]>
+            </ZipCode>
+            <PostalAddress>
+                <![CDATA[Sundsvall]]>
+            </PostalAddress>
+            <Phone>
+                <![CDATA[07X-XXXXXXX]]>
+            </Phone>
+            <Email>
+                <![CDATA[test.testorsson@test.se]]>
+            </Email>
+            <MobilePhone>
+                <![CDATA[07XXXXXXXX]]>
+            </MobilePhone>
+            <SocialSecurityNumber>
+                <![CDATA[XXXXXXXXXXXX]]>
+            </SocialSecurityNumber>
+        </applicant>
+    </Values>
+</FlowInstance>

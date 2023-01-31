@@ -1,0 +1,513 @@
+openapi: 3.0.1
+info:
+  title: Incident
+  contact: { }
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: "2.0"
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /sendincident:
+    post:
+      tags:
+        - Incident resources
+      summary: Send a single Incident
+      operationId: sendIncident
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IncidentSaveRequest'
+        required: true
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IncidentSaveResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /statusupdate:
+    patch:
+      tags:
+        - Incident resources
+      summary: Update the status for a specific incident
+      operationId: updateIncidentStatus
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /validstatuses:
+    get:
+      tags:
+        - Valid list resources
+      summary: Get a list of valid statuses
+      operationId: getValidstatuses
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ValidStatusResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /validcategories:
+    get:
+      tags:
+        - Valid list resources
+      summary: Get a list of valid categories
+      operationId: getValidCategories
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ValidCategoryResponse'
+  /validcategories/oep:
+    get:
+      tags:
+        - Valid list resources
+      summary: Get a list of valid categories in oep format
+      operationId: getValidOepCategories
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/ValidOepCategoryReponse'
+  /setincidentfeedback:
+    get:
+      tags:
+        - Incident resources
+      summary: Set type of errand
+      operationId: setIncidentFeedback
+      parameters:
+        - name: errandid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: feedback
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /listincidents:
+    get:
+      tags:
+        - Incident resources
+      summary: Get list of incidents
+      operationId: getAllIncidents
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IncidentListResponse'
+  /internal/oep/status/{externalCaseId}:
+    get:
+      tags:
+        - Incident resources
+      summary: Get status for a OeP incident
+      operationId: getStatusForOeP
+      parameters:
+        - name: externalCaseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IncidentOepResponse'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /getincident/{id}:
+    get:
+      tags:
+        - Incident resources
+      summary: Get a single incident
+      operationId: getIncident
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/IncidentResponse'
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /api-docs:
+    get:
+      tags:
+        - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
+components:
+  schemas:
+    AttachmentRequest:
+      required:
+        - category
+        - extension
+        - file
+        - mimeType
+      type: object
+      properties:
+        category:
+          type: string
+          description: The attachment category type
+          example: Adress
+        extension:
+          type: string
+          description: The attachment extension type
+          example: .txt
+        mimeType:
+          type: string
+          description: The attachment content type
+          example: text/plain
+        note:
+          type: string
+          description: The attachment note
+          example: a small note about this file
+        file:
+          type: string
+          description: The attachment (file) content as a BASE64-encoded string
+          example: aGVsbG8gd29ybGQK
+      description: Attachments
+    IncidentSaveRequest:
+      required:
+        - category
+        - description
+        - personId
+      type: object
+      properties:
+        personId:
+          type: string
+          description: A uuid string representing a person
+          example: 58f96da8-6d76-4fa6-bb92-64f71fdc6aa5
+        phoneNumber:
+          type: string
+          description: Mobile number. Should start with 07x
+          example: "0701234578"
+        email:
+          type: string
+          description: Reporters e-mail address
+          example: someemail@somehost.se
+        contactMethod:
+          type: string
+          description: The way the reporter want to be contacted
+          example: email
+        category:
+          type: integer
+          description: 'The category id for the incident '
+          format: int32
+          example: 15
+        description:
+          type: string
+          description: Description of the incident
+          example: A description
+        mapCoordinates:
+          type: string
+          description: The map coordinates for the incident
+          example: "62.23162,17.27403"
+        externalCaseId:
+          type: string
+          description: The external case id for this incident
+          example: "1234"
+        attachments:
+          type: array
+          description: Attachments
+          items:
+            $ref: '#/components/schemas/AttachmentRequest'
+    Problem:
+      type: object
+      properties:
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
+        detail:
+          type: string
+    StatusType:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        reasonPhrase:
+          type: string
+    IncidentSaveResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        incidentId:
+          type: string
+    ValidStatusResponse:
+      type: object
+      properties:
+        status:
+          type: string
+        status_ID:
+          type: integer
+          format: int32
+    ValidCategoryResponse:
+      type: object
+      properties:
+        category:
+          type: string
+        category_ID:
+          type: integer
+          format: int32
+    ValidOepCategoryReponse:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+    IncidentListResponse:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        externalCaseId:
+          type: string
+        status:
+          type: string
+    IncidentOepResponse:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        externalCaseId:
+          type: string
+        statusId:
+          type: integer
+          format: int32
+        statusText:
+          type: string
+    AttachmentResponse:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        category:
+          type: string
+        extension:
+          type: string
+        mimeType:
+          type: string
+        note:
+          type: string
+        file:
+          type: string
+        name:
+          type: string
+    IncidentResponse:
+      type: object
+      properties:
+        incidentId:
+          type: string
+        externalCaseId:
+          type: string
+        personId:
+          type: string
+        created:
+          type: string
+        updated:
+          type: string
+        phoneNumber:
+          type: string
+        email:
+          type: string
+        contactMethod:
+          type: string
+        category:
+          type: integer
+          format: int32
+        description:
+          type: string
+        status:
+          type: string
+        attachments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AttachmentResponse'
+  securitySchemes: { }

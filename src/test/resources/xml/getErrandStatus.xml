@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<Status>
+    <statusID>6535</statusID>
+    <name>Inskickat</name>
+    <newExternalMessagesDisallowed>false</newExternalMessagesDisallowed>
+    <addExternalMessage>false</addExternalMessage>
+    <addInternalMessage>false</addInternalMessage>
+    <isRestrictedAdminDeletable>true</isRestrictedAdminDeletable>
+    <contentType>SUBMITTED</contentType>
+</Status>

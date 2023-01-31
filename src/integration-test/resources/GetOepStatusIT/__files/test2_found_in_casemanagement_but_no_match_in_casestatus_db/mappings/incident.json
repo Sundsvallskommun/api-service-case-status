@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/incident/api/internal/oep/status/1308f4ca-f7d6-4c88-9098-64be43b3a905"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "test2_found_in_casemanagement_but_no_match_in_casestatus_db/responses/incident.json",
+    "status": 200
+  }
+}

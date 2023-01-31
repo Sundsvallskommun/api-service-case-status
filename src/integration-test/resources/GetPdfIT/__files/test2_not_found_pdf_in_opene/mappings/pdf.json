@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPattern": "/api/instanceapi/getinstance/fel/pdf.*"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "test2_not_found_pdf_in_opene/responses/pdf.json",
+    "status": 404
+  }
+}

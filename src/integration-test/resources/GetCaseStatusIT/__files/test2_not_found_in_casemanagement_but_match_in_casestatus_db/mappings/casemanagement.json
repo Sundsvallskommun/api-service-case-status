@@ -1,0 +1,13 @@
+{
+  "request": {
+    "method": "GET",
+    "url": "/casemanagement/cases/100757/status"
+  },
+  "response": {
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "test2_not_found_in_casemanagement_but_match_in_casestatus_db/responses/casemanagement.json",
+    "status": 500
+  }
+}

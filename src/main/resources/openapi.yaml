@@ -1,0 +1,239 @@
+openapi: 3.0.1
+info:
+  title: CaseStatus
+  contact: { }
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+  version: "2.0"
+servers:
+  - url: http://localhost:8080
+    description: Generated server url
+paths:
+  /{organizationNumber}/statuses:
+    get:
+      tags:
+        - Status Resources
+      summary: Get organization statuses
+      operationId: getOrganisationStatuses
+      parameters:
+        - name: organizationNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CaseStatusResponse'
+  /{externalCaseId}/status:
+    get:
+      tags:
+        - Status Resources
+      summary: Get case status
+      operationId: getCaseStatus
+      parameters:
+        - name: externalCaseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CaseStatusResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /{externalCaseId}/pdf:
+    get:
+      tags:
+        - Status Resources
+      summary: Get case PDF
+      operationId: getCasePdf
+      parameters:
+        - name: externalCaseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/CasePdfResponse'
+  /{externalCaseId}/oepstatus:
+    get:
+      tags:
+        - Status Resources
+      summary: Get OEP status
+      operationId: getOepStatus
+      parameters:
+        - name: externalCaseId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/OepStatusResponse'
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+        "404":
+          description: Not Found
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /api-docs:
+    get:
+      tags:
+        - API
+      summary: OpenAPI
+      operationId: getApiDocs
+      responses:
+        "200":
+          description: OK
+          content:
+            application/yaml:
+              schema:
+                type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
+components:
+  schemas:
+    Problem:
+      type: object
+      properties:
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        status:
+          $ref: '#/components/schemas/StatusType'
+        title:
+          type: string
+        detail:
+          type: string
+    StatusType:
+      type: object
+      properties:
+        statusCode:
+          type: integer
+          format: int32
+        reasonPhrase:
+          type: string
+    CaseStatusResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        externalCaseId:
+          type: string
+        caseType:
+          type: string
+        status:
+          type: string
+        firstSubmitted:
+          type: string
+        lastStatusChange:
+          type: string
+        openEErrand:
+          type: boolean
+    CasePdfResponse:
+      type: object
+      properties:
+        externalCaseId:
+          type: string
+        base64:
+          type: string
+    OepStatusResponse:
+      type: object
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+  securitySchemes: { }
