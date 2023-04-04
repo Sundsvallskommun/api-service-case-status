@@ -12,6 +12,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 import java.net.URI;
+import java.time.LocalDate;
 import java.util.Map;
 
 @Component
@@ -65,7 +66,7 @@ public class OpenEClient {
                 .host(properties.getBaseUrl())
                 .port(properties.getPort())
                 .path(path)
-                .queryParam("fromDate", "2021-01-01")
+                .queryParam("fromDate", LocalDate.now().minusDays(1).toString())
                 .build(parameters);
     }
 
