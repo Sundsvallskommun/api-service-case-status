@@ -21,7 +21,7 @@
         <published.container.port.sandbox>8722</published.container.port.sandbox>
         <published.container.port.test>9075</published.container.port.test>
         <published.container.port.production>9075</published.container.port.production>
-        <testcontainers.version>1.17.6</testcontainers.version>
+        <testcontainers.version>1.18.0</testcontainers.version>
         <openapi-generator-maven-plugin>6.5.0</openapi-generator-maven-plugin>
         <generated-sources-path>${project.build.directory}/generated-sources
         </generated-sources-path>
