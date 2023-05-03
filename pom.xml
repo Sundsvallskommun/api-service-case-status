@@ -6,7 +6,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.35</version>
+        <version>2.0.1</version>
         <relativePath/>
     </parent>
 
@@ -132,6 +132,7 @@
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
                                 <sourceFolder>${generated-sources-java-path}</sourceFolder>
                                 <generateSupportingFiles>false</generateSupportingFiles>
                                 <dateLibrary>java8</dateLibrary>
@@ -160,6 +161,7 @@
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
                             <configOptions>
+                                <useSpringBoot3>true</useSpringBoot3>
                                 <sourceFolder>${generated-sources-java-path}</sourceFolder>
                                 <generateSupportingFiles>false</generateSupportingFiles>
                                 <dateLibrary>java8-localdatetime</dateLibrary>
