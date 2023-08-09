@@ -52,15 +52,17 @@ public class OpenEClient {
 
 	private byte[] getBytes(URI url) throws IOException {
 
-		final var response = HttpClients.custom()
+		final var httpClient = HttpClients.custom()
 			.setDefaultCredentialsProvider(getCredentials())
-			.build()
-			.execute(new HttpGet(url));
+			.build();
 
-		if (response.getCode() == 200) {
-			return EntityUtils.toByteArray(response.getEntity());
-		}
-		throw new OpenEException(response.toString());
+		return httpClient.execute(new HttpGet(url), responseHandler -> {
+			if (responseHandler.getCode() == 200) {
+				return EntityUtils.toByteArray(responseHandler.getEntity());
+			}
+
+			throw new OpenEException(responseHandler.getEntity().toString());
+		});
 	}
 
 	private URI buildUrl(String path, Map<String, String> parameters) {
