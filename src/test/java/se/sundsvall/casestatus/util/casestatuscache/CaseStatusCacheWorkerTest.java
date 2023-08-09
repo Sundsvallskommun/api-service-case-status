@@ -56,7 +56,7 @@ class CaseStatusCacheWorkerTest {
 
         caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
 
-        verify(openEIntegration, times(1)).getErrandIds(any());
+        verify(openEIntegration).getErrandIds(any());
         verify(openEIntegration, times(2)).getErrand(any());
         verify(openEIntegration, times(2)).getErrandStatus(any());
         verify(dbIntegration, times(2)).writeToCompanyTable(any());
@@ -78,7 +78,7 @@ class CaseStatusCacheWorkerTest {
 
         caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
 
-        verify(openEIntegration, times(1)).getErrandIds(any());
+        verify(openEIntegration).getErrandIds(any());
         verify(openEIntegration, times(2)).getErrand(any());
         verify(openEIntegration, times(2)).getErrandStatus(any());
         verify(dbIntegration, times(2)).writeToPrivateTable(any());
@@ -102,15 +102,15 @@ class CaseStatusCacheWorkerTest {
 
         caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
 
-        verify(openEIntegration, times(1)).getErrandIds(any());
+        verify(openEIntegration).getErrandIds(any());
         verify(openEIntegration, times(4)).getErrand(any());
         verify(openEIntegration, times(4)).getErrandStatus(any());
         verify(dbIntegration, times(2)).writeToCompanyTable(any());
-        verify(dbIntegration, times(1)).writeToPrivateTable(any());
-        verify(dbIntegration, times(1)).writeToUnknownTable(any());
+        verify(dbIntegration).writeToPrivateTable(any());
+        verify(dbIntegration).writeToUnknownTable(any());
         verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any());
-        verify(mapper, times(1)).toCachePrivateCaseStatus(any(), any(), any());
-        verify(mapper, times(1)).toCacheUnknowCaseStatus(any(), any());
+        verify(mapper).toCachePrivateCaseStatus(any(), any(), any());
+        verify(mapper).toCacheUnknowCaseStatus(any(), any());
         verifyNoMoreInteractions(openEIntegration);
         verifyNoMoreInteractions(mapper);
     }

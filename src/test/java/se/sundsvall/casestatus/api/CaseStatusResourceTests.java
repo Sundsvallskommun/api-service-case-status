@@ -57,7 +57,7 @@ class CaseStatusResourceTests {
                 .jsonPath("$.key").isEqualTo("status")
                 .jsonPath("$.value").isEqualTo("someValue");
 
-        verify(mockCaseStatusService, times(1)).getOepStatus(caseStatusServiceArgumentCaptor.capture());
+        verify(mockCaseStatusService).getOepStatus(caseStatusServiceArgumentCaptor.capture());
         verifyNoMoreInteractions(mockCaseStatusService);
 
         assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");
@@ -90,7 +90,7 @@ class CaseStatusResourceTests {
                 .jsonPath("$.lastStatusChange").isEqualTo("someLastStatusChangeValue")
                 .jsonPath("$.openEErrand").isEqualTo(true);
 
-        verify(mockCaseStatusService, times(1)).getCaseStatus(caseStatusServiceArgumentCaptor.capture());
+        verify(mockCaseStatusService).getCaseStatus(caseStatusServiceArgumentCaptor.capture());
         verifyNoMoreInteractions(mockCaseStatusService);
 
         assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");
@@ -114,7 +114,7 @@ class CaseStatusResourceTests {
                 .jsonPath("$.externalCaseId").isEqualTo("someExternalCaseId")
                 .jsonPath("$.base64").isEqualTo("someBase64String");
 
-        verify(mockCaseStatusService, times(1)).getCasePdf(caseStatusServiceArgumentCaptor.capture());
+        verify(mockCaseStatusService).getCasePdf(caseStatusServiceArgumentCaptor.capture());
         verifyNoMoreInteractions(mockCaseStatusService);
 
         assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");
@@ -148,7 +148,7 @@ class CaseStatusResourceTests {
                 .jsonPath("$[0].lastStatusChange").isEqualTo("someLastStatusChangeValue")
                 .jsonPath("$[0].openEErrand").isEqualTo(true);
 
-        verify(mockCaseStatusService, times(1)).getCaseStatuses(caseStatusServiceArgumentCaptor.capture());
+        verify(mockCaseStatusService).getCaseStatuses(caseStatusServiceArgumentCaptor.capture());
         verifyNoMoreInteractions(mockCaseStatusService);
 
         assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("5591621234");

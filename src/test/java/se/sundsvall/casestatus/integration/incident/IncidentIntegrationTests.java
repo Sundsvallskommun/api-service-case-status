@@ -43,7 +43,7 @@ class IncidentIntegrationTests {
         assertThat(result.get().getStatusId()).isEqualTo(incidentStatus.getStatusId());
         assertThat(result.get().getStatusText()).isEqualTo(incidentStatus.getStatusText());
 
-        verify(mockIncidentClient, times(1)).getIncidentStatusForExternalCaseId(any(String.class));
+        verify(mockIncidentClient).getIncidentStatusForExternalCaseId(any(String.class));
         verifyNoMoreInteractions(mockIncidentClient);
     }
 
@@ -55,7 +55,7 @@ class IncidentIntegrationTests {
 
         assertThat(result).isEmpty();
 
-        verify(mockIncidentClient, times(1)).getIncidentStatusForExternalCaseId(any(String.class));
+        verify(mockIncidentClient).getIncidentStatusForExternalCaseId(any(String.class));
         verifyNoMoreInteractions(mockIncidentClient);
     }
 }
