@@ -42,7 +42,7 @@ class DbIntegrationTests {
 
         assertThat(result).isNotNull();
 
-        verify(mockCaseStatusReader, times(1)).getExternalCaseIdStatus(any(String.class));
+        verify(mockCaseStatusReader).getExternalCaseIdStatus(any(String.class));
         verifyNoMoreInteractions(mockCaseStatusReader);
         verifyNoInteractions(mockCacheWriter);
     }
@@ -56,7 +56,7 @@ class DbIntegrationTests {
 
         assertThat(result).isNotNull().hasSize(2);
 
-        verify(mockCaseStatusReader, times(1)).getOrganizationStatuses(any(String.class));
+        verify(mockCaseStatusReader).getOrganizationStatuses(any(String.class));
         verifyNoMoreInteractions(mockCaseStatusReader);
         verifyNoInteractions(mockCacheWriter);
     }
@@ -67,7 +67,7 @@ class DbIntegrationTests {
 
         dbIntegration.writeToCompanyTable(CacheCompanyCaseStatus.builder().build());
 
-        verify(mockCacheWriter, times(1)).writeToCompanyTable(any(CacheCompanyCaseStatus.class));
+        verify(mockCacheWriter).writeToCompanyTable(any(CacheCompanyCaseStatus.class));
         verifyNoMoreInteractions(mockCacheWriter);
         verifyNoInteractions(mockCaseStatusReader);
 
@@ -79,7 +79,7 @@ class DbIntegrationTests {
 
         dbIntegration.writeToPrivateTable(CachePrivateCaseStatus.builder().build());
 
-        verify(mockCacheWriter, times(1)).writeToPrivateTable(any(CachePrivateCaseStatus.class));
+        verify(mockCacheWriter).writeToPrivateTable(any(CachePrivateCaseStatus.class));
         verifyNoMoreInteractions(mockCacheWriter);
         verifyNoInteractions(mockCaseStatusReader);
 
@@ -91,7 +91,7 @@ class DbIntegrationTests {
 
         dbIntegration.writeToUnknownTable(CacheUnknownCaseStatus.builder().build());
 
-        verify(mockCacheWriter, times(1)).writeToUnknownTable(any(CacheUnknownCaseStatus.class));
+        verify(mockCacheWriter).writeToUnknownTable(any(CacheUnknownCaseStatus.class));
         verifyNoMoreInteractions(mockCacheWriter);
         verifyNoInteractions(mockCaseStatusReader);
 
@@ -106,7 +106,7 @@ class DbIntegrationTests {
 
         assertThat(result).isNotNull().isPresent();
 
-        verify(mockCaseStatusReader, times(1)).getCaseManagementOpenEStatus(any(String.class));
+        verify(mockCaseStatusReader).getCaseManagementOpenEStatus(any(String.class));
         verifyNoMoreInteractions(mockCaseStatusReader);
         verifyNoInteractions(mockCacheWriter);
     }
@@ -119,7 +119,7 @@ class DbIntegrationTests {
 
         assertThat(result).isNotNull();
 
-        verify(mockCaseStatusReader, times(1)).getIncidentOpenEStatus(any(Integer.class));
+        verify(mockCaseStatusReader).getIncidentOpenEStatus(any(Integer.class));
         verifyNoMoreInteractions(mockCaseStatusReader);
         verifyNoInteractions(mockCacheWriter);
     }
@@ -132,7 +132,7 @@ class DbIntegrationTests {
 
         assertThat(result).isNotNull();
 
-        verify(mockCaseStatusReader, times(1)).getMapCaseTypeEnumText(any(String.class));
+        verify(mockCaseStatusReader).getMapCaseTypeEnumText(any(String.class));
         verifyNoMoreInteractions(mockCaseStatusReader);
         verifyNoInteractions(mockCacheWriter);
     }

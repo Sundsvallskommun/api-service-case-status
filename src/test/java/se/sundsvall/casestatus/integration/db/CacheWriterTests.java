@@ -1,5 +1,17 @@
 package se.sundsvall.casestatus.integration.db;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.SQLSyntaxErrorException;
+
+import javax.sql.DataSource;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -10,42 +22,33 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+
 import se.sundsvall.casestatus.integration.db.domain.CacheCompanyCaseStatus;
 import se.sundsvall.casestatus.integration.db.domain.CachePrivateCaseStatus;
 import se.sundsvall.casestatus.integration.db.domain.CacheUnknownCaseStatus;
 
-import javax.sql.DataSource;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.SQLSyntaxErrorException;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
-public class CacheWriterTests {
+class CacheWriterTests {
 
-    @Mock
-    private NamedParameterJdbcTemplate mockJdbcTemplate;
+	@Mock
+	private NamedParameterJdbcTemplate mockJdbcTemplate;
 
-    @InjectMocks
-    private CacheWriter cacheWriter;
+	@InjectMocks
+	private CacheWriter cacheWriter;
 
-    @Mock
-    JdbcTemplate jdbcTemplate;
-    @Mock
-    DataSource dataSource;
-    @Mock
-    Connection connection;
-    @Mock
-    CallableStatement callableStatement;
+	@Mock
+	private JdbcTemplate jdbcTemplate;
 
-    @Test
+	@Mock
+	private DataSource dataSource;
+
+	@Mock
+	private Connection connection;
+
+	@Mock
+	private CallableStatement callableStatement;
+
+	@Test
     void writeToCompanyTable_ok() {
 
         when(mockJdbcTemplate.update(any(String.class), any(SqlParameterSource.class))).thenReturn(0);
@@ -61,11 +64,11 @@ public class CacheWriterTests {
                 .withOrganisationNumber("someOrganisationNumber")
                 .build());
 
-        verify(mockJdbcTemplate, times(1)).update(any(String.class), any(SqlParameterSource.class));
+        verify(mockJdbcTemplate).update(any(String.class), any(SqlParameterSource.class));
         verifyNoMoreInteractions(mockJdbcTemplate);
     }
 
-    @Test
+	@Test
     void writeToCompanyTable_error() {
 
         when(mockJdbcTemplate.update(any(String.class), any(SqlParameterSource.class))).thenThrow(new BadSqlGrammarException("", "", new SQLSyntaxErrorException()));
@@ -81,12 +84,11 @@ public class CacheWriterTests {
                 .withOrganisationNumber("someOrganisationNumber")
                 .build());
 
-        verify(mockJdbcTemplate, times(1)).update(any(String.class), any(SqlParameterSource.class));
+        verify(mockJdbcTemplate).update(any(String.class), any(SqlParameterSource.class));
         verifyNoMoreInteractions(mockJdbcTemplate);
     }
 
-
-    @Test
+	@Test
     void writeToPrivateTable_ok() {
 
         when(mockJdbcTemplate.update(any(String.class), any(SqlParameterSource.class))).thenReturn(0);
@@ -102,11 +104,11 @@ public class CacheWriterTests {
                 .withPersonId("somePersonId")
                 .build());
 
-        verify(mockJdbcTemplate, times(1)).update(any(String.class), any(SqlParameterSource.class));
+        verify(mockJdbcTemplate).update(any(String.class), any(SqlParameterSource.class));
         verifyNoMoreInteractions(mockJdbcTemplate);
     }
 
-    @Test
+	@Test
     void writeToPrivateTable_error() {
 
         when(mockJdbcTemplate.update(any(String.class), any(SqlParameterSource.class))).thenThrow(new BadSqlGrammarException("", "", new SQLSyntaxErrorException()));
@@ -122,11 +124,11 @@ public class CacheWriterTests {
                 .withPersonId("somePersonId")
                 .build());
 
-        verify(mockJdbcTemplate, times(1)).update(any(String.class), any(SqlParameterSource.class));
+        verify(mockJdbcTemplate).update(any(String.class), any(SqlParameterSource.class));
         verifyNoMoreInteractions(mockJdbcTemplate);
     }
 
-    @Test
+	@Test
     void writeToUnknownTable_ok() {
 
         when(mockJdbcTemplate.update(any(String.class), any(SqlParameterSource.class))).thenReturn(0);
@@ -141,11 +143,11 @@ public class CacheWriterTests {
                 .withLastStatusChange("someLastSubmittedStatusChange")
                 .build());
 
-        verify(mockJdbcTemplate, times(1)).update(any(String.class), any(SqlParameterSource.class));
+        verify(mockJdbcTemplate).update(any(String.class), any(SqlParameterSource.class));
         verifyNoMoreInteractions(mockJdbcTemplate);
     }
 
-    @Test
+	@Test
     void writeToUnknownTable_error() {
 
         when(mockJdbcTemplate.update(any(String.class), any(SqlParameterSource.class))).thenThrow(new BadSqlGrammarException("", "", new SQLSyntaxErrorException()));
@@ -160,12 +162,11 @@ public class CacheWriterTests {
                 .withLastStatusChange("someLastSubmittedStatusChange")
                 .build());
 
-        verify(mockJdbcTemplate, times(1)).update(any(String.class), any(SqlParameterSource.class));
+        verify(mockJdbcTemplate).update(any(String.class), any(SqlParameterSource.class));
         verifyNoMoreInteractions(mockJdbcTemplate);
     }
 
-
-    @Test
+	@Test
     void mergeCaseStatusCache() throws SQLException {
 
         when(mockJdbcTemplate.getJdbcTemplate()).thenReturn(jdbcTemplate);
@@ -174,34 +175,34 @@ public class CacheWriterTests {
         when(connection.prepareCall(any())).thenReturn(callableStatement);
         when(callableStatement.executeUpdate()).thenReturn(12);
 
-        var result = cacheWriter.mergeCaseStatusCache();
+        final var result = cacheWriter.mergeCaseStatusCache();
 
         assertThat(result).isEqualTo(12);
-        verify(mockJdbcTemplate, times(1)).getJdbcTemplate();
-        verify(jdbcTemplate, times(1)).getDataSource();
-        verify(dataSource, times(1)).getConnection();
-        verify(connection, times(1)).prepareCall(any());
-        verify(callableStatement, times(1)).executeUpdate();
-        verify(connection, times(1)).close();
+        verify(mockJdbcTemplate).getJdbcTemplate();
+        verify(jdbcTemplate).getDataSource();
+        verify(dataSource).getConnection();
+        verify(connection).prepareCall(any());
+        verify(callableStatement).executeUpdate();
+        verify(callableStatement).close();
+        verify(connection).close();
         verifyNoMoreInteractions(mockJdbcTemplate, jdbcTemplate, dataSource, connection, callableStatement);
     }
 
-    @Test
-    void testToString() {
-        var result = CachePrivateCaseStatus.builder()
-                .withStatus("someStatus")
-                .withContentType("someContentType")
-                .withFlowInstanceID("SomeFlowInstanceId")
-                .withFamilyID("someFamilyId")
-                .withErrandType("someErrandType")
-                .withFirstSubmitted("someFirstSubmittedDate")
-                .withLastStatusChange("someLastSubmittedStatusChange")
-                .withPersonId("somePersonId")
-                .build();
+	@Test
+	void testToString() {
+		final var result = CachePrivateCaseStatus.builder()
+			.withStatus("someStatus")
+			.withContentType("someContentType")
+			.withFlowInstanceID("SomeFlowInstanceId")
+			.withFamilyID("someFamilyId")
+			.withErrandType("someErrandType")
+			.withFirstSubmitted("someFirstSubmittedDate")
+			.withLastStatusChange("someLastSubmittedStatusChange")
+			.withPersonId("somePersonId")
+			.build();
 
-        assertThat(result.toString()).isEqualTo("CachePrivateCaseStatus(super=AbstractCacheCaseStatus(flowInstanceID=SomeFlowInstanceId, familyID=someFamilyId, status=someStatus, errandType=someErrandType, contentType=someContentType, firstSubmitted=someFirstSubmittedDate, lastStatusChange=someLastSubmittedStatusChange), personId=somePersonId)");
+		assertThat(result).hasToString(
+			"CachePrivateCaseStatus(super=AbstractCacheCaseStatus(flowInstanceID=SomeFlowInstanceId, familyID=someFamilyId, status=someStatus, errandType=someErrandType, contentType=someContentType, firstSubmitted=someFirstSubmittedDate, lastStatusChange=someLastSubmittedStatusChange), personId=somePersonId)");
 
-    }
-
-
+	}
 }
