@@ -11,12 +11,12 @@ import lombok.experimental.SuperBuilder;
 @SuperBuilder(setterPrefix = "with")
 @ToString
 public abstract class AbstractCacheCaseStatus {
-    private String flowInstanceID;
-    private String familyID;
-    private String status;
-    private String errandType;
-    private String contentType;
-    private String firstSubmitted;
-    private String lastStatusChange;
 
+	private String flowInstanceID;
+	private String familyID;
+	private String status;
+	private String errandType;
+	private String contentType;
+	private String firstSubmitted;
+	private String lastStatusChange;
 }

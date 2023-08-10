@@ -1,5 +1,8 @@
 package se.sundsvall.casestatus.util.casestatuscache;
 
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,47 +10,44 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 
 @Configuration
 @EnableScheduling
 @Component
 public class CaseStatusCache {
-    @Value("${cache.isprod}")
-    private boolean isProd;
 
-    private final CaseStatusCacheWorker caseStatusCacheWorker;
+	@Value("${cache.isprod}")
+	private boolean isProd;
 
-    private static final Logger LOG = LoggerFactory.getLogger(CaseStatusCacheWorker.class);
+	private final CaseStatusCacheWorker caseStatusCacheWorker;
 
-    public CaseStatusCache(CaseStatusCacheWorker caseStatusCacheWorker) {
-        this.caseStatusCacheWorker = caseStatusCacheWorker;
-    }
+	private static final Logger LOG = LoggerFactory.getLogger(CaseStatusCache.class);
 
-    @Scheduled(initialDelayString = "#{@caseStatusCacheProperties.getInitialdelay().toSeconds()}", fixedRateString = "#{@caseStatusCacheProperties.getFixedrate().toSeconds()}", timeUnit = TimeUnit.SECONDS)
-    public void scheduledCacheJob() {
-        LOG.info("CacheJob run started");
+	public CaseStatusCache(CaseStatusCacheWorker caseStatusCacheWorker) {
+		this.caseStatusCacheWorker = caseStatusCacheWorker;
+	}
 
-        Arrays.stream(FamilyId.values()).forEach(familyId -> {
-                    if (familyId.getValue() != 0) {
-                        caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
-                    }
-                }
+	@Scheduled(initialDelayString = "#{@caseStatusCacheProperties.getInitialdelay().toSeconds()}", fixedRateString = "#{@caseStatusCacheProperties.getFixedrate().toSeconds()}", timeUnit = TimeUnit.SECONDS)
+	public void scheduledCacheJob() {
+		LOG.info("CacheJob run started");
 
-        );
-        var result = mergeCaseStatusCache();
-        LOG.info("CacheJob run completed, {} rows were affected", result);
-    }
+		Arrays.stream(FamilyId.values()).forEach(familyId -> {
+			if (familyId.getValue() != 0) {
+				caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
+			}
+		});
 
-    private int mergeCaseStatusCache() {
-        return caseStatusCacheWorker.mergeCaseStatusCache();
-    }
+		final var result = mergeCaseStatusCache();
+		LOG.info("CacheJob run completed, {} rows were affected", result);
+	}
 
-    public boolean isProduction() {
-        return isProd;
-    }
+	private int mergeCaseStatusCache() {
+		return caseStatusCacheWorker.mergeCaseStatusCache();
+	}
 
+	public boolean isProduction() {
+		return isProd;
+	}
 }

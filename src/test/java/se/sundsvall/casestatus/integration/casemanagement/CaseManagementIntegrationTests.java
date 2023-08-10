@@ -38,7 +38,7 @@ class CaseManagementIntegrationTests {
         
         assertThat(result).isNotNull().isPresent();
         
-        verify(mockCaseManagementClient, times(1)).getCaseStatusForExternalCaseId(any(String.class));
+        verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(any(String.class));
         verifyNoMoreInteractions(mockCaseManagementClient);
     }
     
@@ -51,7 +51,7 @@ class CaseManagementIntegrationTests {
         
         assertThat(result).isNotNull().isNotPresent();
         
-        verify(mockCaseManagementClient, times(1)).getCaseStatusForExternalCaseId(any(String.class));
+        verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(any(String.class));
         verifyNoMoreInteractions(mockCaseManagementClient);
     }
     
@@ -64,7 +64,7 @@ class CaseManagementIntegrationTests {
         
         assertThat(result).isNotNull().hasSize(3);
         
-        verify(mockCaseManagementClient, times(1)).getCaseStatusForOrganizationNumber(any(String.class));
+        verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(any(String.class));
         verifyNoMoreInteractions(mockCaseManagementClient);
     }
     
@@ -77,7 +77,7 @@ class CaseManagementIntegrationTests {
         
         assertThat(result).isNotNull().isEmpty();
         
-        verify(mockCaseManagementClient, times(1)).getCaseStatusForOrganizationNumber(any(String.class));
+        verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(any(String.class));
         verifyNoMoreInteractions(mockCaseManagementClient);
     }
 }
