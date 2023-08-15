@@ -1,6 +1,7 @@
 package openapi;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
@@ -18,7 +19,6 @@ import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.util.ResourceUtils;
 
 import net.javacrumbs.jsonunit.core.Option;
-import net.javacrumbs.jsonunit.core.internal.Options;
 
 @ActiveProfiles("it")
 @SpringBootTest(
@@ -51,7 +51,7 @@ class OpenApiSpecificationIT {
         String currentOpenApiSpecification = getCurrentOpenApiSpecification();
 
         assertThatJson(toJson(existingOpenApiSpecification))
-            .withOptions(new Options(Option.IGNORING_ARRAY_ORDER))
+            .withOptions(IGNORING_ARRAY_ORDER)
             .whenIgnoringPaths("servers")
             .isEqualTo(toJson(currentOpenApiSpecification));
     }
