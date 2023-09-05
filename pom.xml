@@ -18,7 +18,6 @@
     <properties>
         <docker.image.name>ms-casestatus</docker.image.name>
         <exposed.app.port>8080</exposed.app.port>
-        <published.container.port.sandbox>8722</published.container.port.sandbox>
         <published.container.port.test>9075</published.container.port.test>
         <published.container.port.production>9075</published.container.port.production>
         <openapi-generator-maven-plugin>7.0.0</openapi-generator-maven-plugin>
