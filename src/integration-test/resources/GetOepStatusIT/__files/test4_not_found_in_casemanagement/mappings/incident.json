@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "url": "/incident/internal/oep/1308f4ca-f7d6-4c88-9098-64be43b3a905/status"
+    "url": "/incident/incident/internal/oep/1308f4ca-f7d6-4c88-9098-64be43b3a905/status"
   },
   "response": {
     "headers": {
