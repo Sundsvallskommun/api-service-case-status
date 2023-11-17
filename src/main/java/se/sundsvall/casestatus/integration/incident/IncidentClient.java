@@ -12,6 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 )
 interface IncidentClient {
 
-    @GetMapping("/api/internal/oep/status/{externalCaseId}")
+    @GetMapping("/internal/oep/{externalCaseId}/status")
     IncidentOepResponse getIncidentStatusForExternalCaseId(@PathVariable("externalCaseId") final String externalCaseId);
 }

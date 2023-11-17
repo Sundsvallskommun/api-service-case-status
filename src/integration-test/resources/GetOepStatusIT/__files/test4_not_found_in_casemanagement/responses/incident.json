@@ -1,7 +1,15 @@
 {
+  "instance": "string",
   "type": "string",
-  "status": 404,
+  "parameters": {
+    "additionalProp1": {},
+    "additionalProp2": {},
+    "additionalProp3": {}
+  },
   "title": "string",
   "detail": "string",
-  "instance": "string"
+  "status": {
+    "statusCode": 404,
+    "reasonPhrase": "Not Found"
+  }
 }
