@@ -2,7 +2,6 @@ package se.sundsvall.casestatus.integration.citizen;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -24,28 +23,28 @@ class CitizenIntegrationTests {
 	private CitizenIntegration citizenIntegration;
 
 	@Test
-    void getPersonID_ok() {
+	void getPersonID_ok() {
 
-        when(mockCitizenClient.getPersonID(any(String.class))).thenReturn("someGUID");
+		when(mockCitizenClient.getPersonID(any(String.class))).thenReturn("someGUID");
 
-        final var result = citizenIntegration.getPersonID("someExternalCaseId");
+		final var result = citizenIntegration.getPersonID("someExternalCaseId");
 
-        assertThat(result).isEqualTo("someGUID");
+		assertThat(result).isEqualTo("someGUID");
 
-        verify(mockCitizenClient).getPersonID(any(String.class));
-        verifyNoMoreInteractions(mockCitizenClient);
-    }
+		verify(mockCitizenClient).getPersonID(any(String.class));
+		verifyNoMoreInteractions(mockCitizenClient);
+	}
 
 	@Test
-    void getPersonID_error() {
-        when(mockCitizenClient.getPersonID(any(String.class)))
-                .thenThrow(Problem.builder().build());
+	void getPersonID_error() {
+		when(mockCitizenClient.getPersonID(any(String.class)))
+			.thenThrow(Problem.builder().build());
 
-        final var result = citizenIntegration.getPersonID("someGUID");
+		final var result = citizenIntegration.getPersonID("someGUID");
 
-        assertThat(result).isEmpty();
+		assertThat(result).isEmpty();
 
-        verify(mockCitizenClient).getPersonID(any(String.class));
-        verifyNoMoreInteractions(mockCitizenClient);
-    }
+		verify(mockCitizenClient).getPersonID(any(String.class));
+		verifyNoMoreInteractions(mockCitizenClient);
+	}
 }

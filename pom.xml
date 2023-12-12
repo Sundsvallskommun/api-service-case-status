@@ -6,26 +6,22 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>3.4</version>
+        <version>4.0</version>
         <relativePath/>
     </parent>
-
     <groupId>se.sundsvall.casestatus</groupId>
     <artifactId>api-service-casestatus</artifactId>
     <version>2.0</version>
     <name>api-service-casestatus</name>
-
     <properties>
         <docker.image.name>ms-casestatus</docker.image.name>
         <exposed.app.port>8080</exposed.app.port>
         <published.container.port.test>9075</published.container.port.test>
         <published.container.port.production>9075</published.container.port.production>
         <openapi-generator-maven-plugin>7.1.0</openapi-generator-maven-plugin>
-        <generated-sources-path>${project.build.directory}/generated-sources
-        </generated-sources-path>
+        <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
-
     <dependencies>
         <!-- Test -->
         <dependency>
@@ -65,7 +61,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
-            <version>3.1.5</version>
         </dependency>
         <!-- Database -->
         <dependency>
@@ -102,7 +97,6 @@
             <version>0.3.7</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -122,10 +116,10 @@
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
+                            <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <sourceFolder>${generated-sources-java-path}</sourceFolder>
-                                <generateSupportingFiles>false</generateSupportingFiles>
                                 <dateLibrary>java8</dateLibrary>
                                 <apiPackage>generated</apiPackage>
                                 <modelPackage>generated.se.sundsvall.incident</modelPackage>
@@ -137,8 +131,6 @@
                             </configOptions>
                         </configuration>
                     </execution>
-
-
                     <execution>
                         <id>case-management-api</id>
                         <goals>
@@ -151,10 +143,10 @@
                             <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
+                            <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <sourceFolder>${generated-sources-java-path}</sourceFolder>
-                                <generateSupportingFiles>false</generateSupportingFiles>
                                 <dateLibrary>java8-localdatetime</dateLibrary>
                                 <apiPackage>generated</apiPackage>
                                 <modelPackage>generated.se.sundsvall.casemanagement</modelPackage>
@@ -168,7 +160,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
@@ -188,7 +179,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
@@ -205,5 +195,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
