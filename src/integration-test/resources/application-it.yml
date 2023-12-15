@@ -1,0 +1,48 @@
+cache:
+  isprod: false
+  scheduled:
+    fixedrate: 1d
+    initialdelay: 1m
+integration:
+  case-management:
+    base-url: http://localhost:${wiremock.server.port}/casemanagement
+    oauth2:
+      client-id: dummy
+      client-secret: dummy
+      token-uri: http://localhost:${wiremock.server.port}/token
+  citizen:
+    base-url: http://localhost:${wiremock.server.port}/citizen
+    oauth2:
+      client-id: dummy
+      client-secret: dummy
+      token-uri: http://localhost:${wiremock.server.port}/token
+  db:
+    case-status:
+      driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+      password: ''
+      url: jdbc:tc:mariadb:10.6:///casestatus?TC_INITSCRIPT=db/casestatus.sql
+      username: sa
+  incident:
+    base-url: http://localhost:${wiremock.server.port}/incident
+    oauth2:
+      client-id: dummy
+      client-secret: dummy
+      token-uri: http://localhost:${wiremock.server.port}/token
+  open-e:
+    base-url: localhost
+    basic-auth:
+      password: dummy
+      username: dummy
+    port: ${wiremock.server.port}
+    scheme: http
+spring:
+  flyway:
+    enabled: false
+  jpa:
+    hibernate:
+      ddl-auto: none
+  main:
+    banner-mode: 'off'
+  sql:
+    init:
+      mode: always
