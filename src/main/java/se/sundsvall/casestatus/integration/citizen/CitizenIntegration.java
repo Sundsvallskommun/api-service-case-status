@@ -7,23 +7,23 @@ import org.springframework.stereotype.Component;
 @Component
 public class CitizenIntegration {
 
-    static final String INTEGRATION_NAME = "Citizen";
+	static final String INTEGRATION_NAME = "Citizen";
 
-    private static final Logger LOG = LoggerFactory.getLogger(CitizenIntegration.class);
+	private static final Logger LOG = LoggerFactory.getLogger(CitizenIntegration.class);
 
-    private final CitizenClient client;
+	private final CitizenClient client;
 
-    public CitizenIntegration(final CitizenClient client) {
-        this.client = client;
-    }
+	public CitizenIntegration(final CitizenClient client) {
+		this.client = client;
+	}
 
-    public String getPersonID(final String personNumber) {
-        try {
-            return client.getPersonID(personNumber);
-        } catch (Exception e) {
-            LOG.info("Unable to get personId for person", e);
-            return "";
-        }
-    }
+	public String getPersonId(final String personNumber) {
+		try {
+			return client.getPersonId(personNumber);
+		} catch (final Exception e) {
+			LOG.info("Unable to get personId for person", e);
+			return "";
+		}
+	}
 
 }

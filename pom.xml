@@ -19,6 +19,8 @@
         <published.container.port.test>9075</published.container.port.test>
         <published.container.port.production>9075</published.container.port.production>
         <openapi-generator-maven-plugin>7.1.0</openapi-generator-maven-plugin>
+        <jsoup.version>1.17.1</jsoup.version>
+        <xsoup.version>0.3.7</xsoup.version>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
@@ -27,11 +29,6 @@
         <dependency>
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-testcontainers</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -89,12 +86,12 @@
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.17.1</version>
+            <version>${jsoup.version}</version>
         </dependency>
         <dependency>
             <groupId>us.codecraft</groupId>
             <artifactId>xsoup</artifactId>
-            <version>0.3.7</version>
+            <version>${xsoup.version}</version>
         </dependency>
     </dependencies>
     <build>
@@ -104,7 +101,6 @@
                 <artifactId>openapi-generator-maven-plugin</artifactId>
                 <version>${openapi-generator-maven-plugin}</version>
                 <executions>
-
                     <execution>
                         <id>api-service-incident</id>
                         <goals>
