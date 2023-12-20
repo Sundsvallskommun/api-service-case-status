@@ -62,7 +62,7 @@ public class CaseStatusCacheWorker {
 
 					}
 					case PRIVATE -> {
-						final var personId = citizenIntegration.getPersonID(privateOrOrganisation.getValue());
+						final var personId = citizenIntegration.getPersonId(privateOrOrganisation.getValue());
 						if ((personId == null) || personId.isEmpty()) {
 							LOG.info("Unable to get personId, will not cache errand with Id: {}, of family: {}", flowInstanceID, familyID);
 							continue;
@@ -73,7 +73,6 @@ public class CaseStatusCacheWorker {
 					default -> dbIntegration.writeToUnknownTable(mapper.toCacheUnknowCaseStatus(statusDocument, errandDocument));
 				}
 			}
-
 		}
 	}
 
@@ -81,20 +80,14 @@ public class CaseStatusCacheWorker {
 		if (familyID.isApplicant() && !flowInstance.select("type").isEmpty()) {
 			return parseApplicantInfo(flowInstance);
 		}
-		switch (familyID) {
-			case NYBYGGNADSKARTA: 
-				return Xsoup.select(flowInstance.first(), "clientEstablishment/text()").get() != null ? new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/OrganizationNumber/text()").get())
-					: new ImmutablePair<>(PRIVATE, Xsoup.select(flowInstance.first(), "clientPrivate/SocialSecurityNumber/text()").get());
-	        case
-	        	ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR, 
-	        	TILLSTANDFORSALJNINGTOBAKSVAROR,
-	        	ANMALANFORSELJNINGSERVERINGFOLKOL,
-	        	FORSALJNINGECIGGARETTER:
-				return new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()").get() != null ? Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()").get()
+		return switch (familyID) {
+			case NYBYGGNADSKARTA -> Xsoup.select(flowInstance.first(), "clientEstablishment/text()").get() != null ? new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/OrganizationNumber/text()").get())
+				: new ImmutablePair<>(PRIVATE, Xsoup.select(flowInstance.first(), "clientPrivate/SocialSecurityNumber/text()").get());
+			case ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR, TILLSTANDFORSALJNINGTOBAKSVAROR, ANMALANFORSELJNINGSERVERINGFOLKOL, FORSALJNINGECIGGARETTER -> new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()")
+				.get() != null ? Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()").get()
 					: Xsoup.select(flowInstance.first(), "chooseCompany/organizationNumber/text()").get());
-
-			default: return new ImmutablePair<>("", "");
-		}
+			default -> new ImmutablePair<>("", "");
+		};
 	}
 
 	private Pair<String, String> parseApplicantInfo(Elements openEObj) {

@@ -25,26 +25,26 @@ class CitizenIntegrationTests {
 	@Test
 	void getPersonID_ok() {
 
-		when(mockCitizenClient.getPersonID(any(String.class))).thenReturn("someGUID");
+		when(mockCitizenClient.getPersonId(any(String.class))).thenReturn("someGUID");
 
-		final var result = citizenIntegration.getPersonID("someExternalCaseId");
+		final var result = citizenIntegration.getPersonId("someExternalCaseId");
 
 		assertThat(result).isEqualTo("someGUID");
 
-		verify(mockCitizenClient).getPersonID(any(String.class));
+		verify(mockCitizenClient).getPersonId(any(String.class));
 		verifyNoMoreInteractions(mockCitizenClient);
 	}
 
 	@Test
 	void getPersonID_error() {
-		when(mockCitizenClient.getPersonID(any(String.class)))
+		when(mockCitizenClient.getPersonId(any(String.class)))
 			.thenThrow(Problem.builder().build());
 
-		final var result = citizenIntegration.getPersonID("someGUID");
+		final var result = citizenIntegration.getPersonId("someGUID");
 
 		assertThat(result).isEmpty();
 
-		verify(mockCitizenClient).getPersonID(any(String.class));
+		verify(mockCitizenClient).getPersonId(any(String.class));
 		verifyNoMoreInteractions(mockCitizenClient);
 	}
 }
