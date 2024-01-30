@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import se.sundsvall.casestatus.Application;
@@ -14,6 +15,7 @@ import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 
 @Testcontainers
 @WireMockAppTestSuite(files = "classpath:/GetOrganisationStatusesIT/", classes = Application.class)
+@Sql(scripts = {"/db/truncate.sql", "/db/casestatus.sql"})
 class GetOrganisationStatusesIT extends AbstractAppTest {
 
 	private static final String PATH = "/1234561235/statuses";

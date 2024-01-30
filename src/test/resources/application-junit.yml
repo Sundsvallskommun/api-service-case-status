@@ -3,6 +3,7 @@ cache:
   scheduled:
     fixedrate: 1d
     initialdelay: 1m
+    shedlock-lock-at-most-for: PT10M
 integration:
   case-management:
     base-url: http://case-management.url
