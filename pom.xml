@@ -20,6 +20,7 @@
         <published.container.port.production>9075</published.container.port.production>
         <jsoup.version>1.17.2</jsoup.version>
         <xsoup.version>0.3.7</xsoup.version>
+        <shedlock.version>5.10.2</shedlock.version>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
@@ -87,6 +88,22 @@
             <groupId>us.codecraft</groupId>
             <artifactId>xsoup</artifactId>
             <version>${xsoup.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-spring</artifactId>
+            <version>${shedlock.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>net.javacrumbs.shedlock</groupId>
+            <artifactId>shedlock-provider-jdbc-template</artifactId>
+            <version>${shedlock.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+            <version>4.2.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
     <build>

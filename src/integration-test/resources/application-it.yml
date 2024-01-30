@@ -3,6 +3,7 @@ cache:
   scheduled:
     fixedrate: 1d
     initialdelay: 1m
+    shedlock-lock-at-most-for: PT10M
 integration:
   case-management:
     base-url: http://localhost:${wiremock.server.port}/casemanagement
@@ -20,7 +21,8 @@ integration:
     case-status:
       driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
       password: ''
-      url: jdbc:tc:mariadb:10.6:///casestatus?TC_INITSCRIPT=db/casestatus.sql
+      # Using 4 '/' is a workaround to this bug https://github.com/testcontainers/testcontainers-java/issues/4121
+      url: jdbc:tc:mariadb:10.6:////ms-casestatus
       username: sa
   incident:
     base-url: http://localhost:${wiremock.server.port}/incident
@@ -37,12 +39,12 @@ integration:
     scheme: http
 spring:
   flyway:
-    enabled: false
+    enabled: true
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: verify
   main:
     banner-mode: 'off'
   sql:
     init:
-      mode: always
+      mode: never

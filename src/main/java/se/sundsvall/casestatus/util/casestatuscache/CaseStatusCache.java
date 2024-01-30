@@ -3,6 +3,7 @@ package se.sundsvall.casestatus.util.casestatuscache;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +30,7 @@ public class CaseStatusCache {
 		this.caseStatusCacheWorker = caseStatusCacheWorker;
 	}
 
+	@SchedulerLock(name = "cache_job", lockAtMostFor = "${cache.scheduled.shedlock-lock-at-most-for}")
 	@Scheduled(initialDelayString = "#{@caseStatusCacheProperties.getInitialdelay().toSeconds()}", fixedRateString = "#{@caseStatusCacheProperties.getFixedrate().toSeconds()}", timeUnit = TimeUnit.SECONDS)
 	public void scheduledCacheJob() {
 		LOG.info("CacheJob run started");
