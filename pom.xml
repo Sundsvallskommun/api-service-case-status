@@ -21,6 +21,7 @@
         <jsoup.version>1.17.2</jsoup.version>
         <xsoup.version>0.3.7</xsoup.version>
         <shedlock.version>5.10.2</shedlock.version>
+        <awaitility.version>4.2.0</awaitility.version>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
     </properties>
@@ -102,7 +103,7 @@
         <dependency>
             <groupId>org.awaitility</groupId>
             <artifactId>awaitility</artifactId>
-            <version>4.2.0</version>
+            <version>${awaitility.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
