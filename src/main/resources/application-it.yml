@@ -7,28 +7,14 @@ cache:
 integration:
   case-management:
     base-url: http://localhost:${wiremock.server.port}/casemanagement
-    oauth2:
-      client-id: dummy
-      client-secret: dummy
-      token-uri: http://localhost:${wiremock.server.port}/token
   citizen:
     base-url: http://localhost:${wiremock.server.port}/citizen
-    oauth2:
-      client-id: dummy
-      client-secret: dummy
-      token-uri: http://localhost:${wiremock.server.port}/token
   open-e:
     base-url: http://localhost:${wiremock.server.port:}/opene
     password: somePassword
     username: someUsername
-    connect-timeout: 5
-    read-timeout: 30
   incident:
     base-url: http://localhost:${wiremock.server.port}/incident
-    oauth2:
-      client-id: dummy
-      client-secret: dummy
-      token-uri: http://localhost:${wiremock.server.port}/token
   db:
     case-status:
       driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
@@ -43,8 +29,28 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-  main:
-    banner-mode: 'off'
-  sql:
-    init:
-      mode: never
+  security:
+    oauth2:
+      client:
+        provider:
+          citizen:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+          case-management:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+          open-e:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+          incident:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+        registration:
+          citizen:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          case-management:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          open-e:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          incident:
+            client-id: the-client-id
+            client-secret: the-client-secret

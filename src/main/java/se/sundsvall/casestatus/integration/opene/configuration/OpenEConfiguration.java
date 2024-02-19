@@ -6,19 +6,19 @@ import org.springframework.context.annotation.Import;
 
 import se.sundsvall.dept44.configuration.feign.FeignConfiguration;
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
-import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
 import feign.auth.BasicAuthRequestInterceptor;
+import feign.soap.SOAPErrorDecoder;
 
 @Import(FeignConfiguration.class)
-public class OpenEIntegrationConfiguration {
+public class OpenEConfiguration {
 
 	public static final String CLIENT_ID = "open-e";
 
 	@Bean
-	FeignBuilderCustomizer feignBuilderCustomizer(final OpenEIntegrationProperties properties) {
+	FeignBuilderCustomizer feignBuilderCustomizer(final OpenEProperties properties) {
 		return FeignMultiCustomizer.create()
-			.withErrorDecoder(new ProblemErrorDecoder(CLIENT_ID))
+			.withErrorDecoder(new SOAPErrorDecoder())
 			.withRequestTimeoutsInSeconds(properties.connectTimeout(), properties.readTimeout())
 			.withRequestInterceptor(new BasicAuthRequestInterceptor(properties.username(), properties.password()))
 			.composeCustomizersToOne();

@@ -4,23 +4,12 @@ cache:
     fixedrate: 1d
     initialdelay: 1m
     shedlock-lock-at-most-for: PT10M
+
 integration:
   case-management:
     base-url: http://case-management.url
-    connect-timeout: 9s
-    oauth2:
-      client-id: someClientId
-      client-secret: someClientSecret
-      token-uri: http://token.url
-    read-timeout: 10s
   citizen:
     base-url: http://citizen.url
-    connect-timeout: 9s
-    oauth2:
-      client-id: someClientId
-      client-secret: someClientSecret
-      token-uri: http://token.url
-    read-timeout: 10s
   db:
     case-status:
       driver-class-name: org.h2.Driver
@@ -34,20 +23,36 @@ integration:
       username: sa
   incident:
     base-url: http://incident.url
-    connect-timeout: 7s
-    oauth2:
-      client-id: someClientId
-      client-secret: someClientSecret
-      token-uri: http://token.url
-    read-timeout: 8s
   open-e:
     base-url: http://opene.url
     password: somePassword
     username: someUsername
-    connect-timeout: 5
-    read-timeout: 30
+
 spring:
   flyway:
     enabled: false
-  main:
-    banner-mode: 'off'
+  security:
+    oauth2:
+      client:
+        provider:
+          citizen:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          case-management:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          open-e:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          incident:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+        registration:
+          citizen:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          case-management:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          open-e:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          incident:
+            client-id: the-client-id
+            client-secret: the-client-secret
