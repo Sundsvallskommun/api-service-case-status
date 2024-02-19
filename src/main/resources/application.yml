@@ -8,3 +8,16 @@ spring:
   flyway:
     enabled: true
     group: true
+integration:
+  citizen:
+    connect-timeout: 5
+    read-timeout: 30
+  case-management:
+    connect-timeout: 5
+    read-timeout: 30
+  open-e:
+    connect-timeout: 5
+    read-timeout: 30
+  incident:
+    connect-timeout: 5
+    read-timeout: 30

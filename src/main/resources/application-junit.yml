@@ -41,12 +41,11 @@ integration:
       token-uri: http://token.url
     read-timeout: 8s
   open-e:
-    base-url: http://open-e.url
-    basic-auth:
-      password: somePassword
-      username: someUsername
-    connect-timeout: 11s
-    read-timeout: 12s
+    base-url: http://opene.url
+    password: somePassword
+    username: someUsername
+    connect-timeout: 5
+    read-timeout: 30
 spring:
   flyway:
     enabled: false

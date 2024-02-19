@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/api/instanceapi/getinstance/fel/pdf.*"
+    "urlPattern": "/opene/api/instanceapi/getinstance/fel/pdf.*"
   },
   "response": {
     "headers": {

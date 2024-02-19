@@ -1,17 +1,16 @@
 package se.sundsvall.casestatus.integration.opene;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
-
 import java.util.Base64;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+
 @Component
 public class OpenEIntegration {
-
-    static final String INTEGRATION_NAME = "OpenE";
 
     private static final Logger LOG = LoggerFactory.getLogger(OpenEIntegration.class);
 
@@ -25,41 +24,38 @@ public class OpenEIntegration {
 
         try {
             return Optional.of(Base64.getEncoder().encodeToString(client.getPDF(externalCaseId)));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Unable to get pdf for external id {}", externalCaseId, e);
             return Optional.empty();
         }
     }
 
-    public byte[] getErrandIds(FamilyId familyID) {
+    public byte[] getErrandIds(final FamilyId familyID) {
 
         try {
             return client.getErrandIds(String.valueOf(familyID.getValue()));
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Unable to get errandIds for familyId {}", familyID, e);
             return "".getBytes();
         }
-
     }
 
-    public byte[] getErrand(String flowInstanceId) {
+    public byte[] getErrand(final String flowInstanceId) {
         try {
             return client.getErrand(flowInstanceId);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Unable to get errand for flowInstanceId {}", flowInstanceId, e);
             return "".getBytes();
         }
-
     }
 
-    public byte[] getErrandStatus(String flowInstanceId) {
+    public byte[] getErrandStatus(final String flowInstanceId) {
         try {
             return client.getErrandStatus(flowInstanceId);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOG.info("Unable to get errandStatus for flowInstanceId {}", flowInstanceId, e);
             return "".getBytes();
         }
     }
-
 
 }

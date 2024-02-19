@@ -17,6 +17,18 @@ integration:
       client-id: dummy
       client-secret: dummy
       token-uri: http://localhost:${wiremock.server.port}/token
+  open-e:
+    base-url: http://localhost:${wiremock.server.port:}/opene
+    password: somePassword
+    username: someUsername
+    connect-timeout: 5
+    read-timeout: 30
+  incident:
+    base-url: http://localhost:${wiremock.server.port}/incident
+    oauth2:
+      client-id: dummy
+      client-secret: dummy
+      token-uri: http://localhost:${wiremock.server.port}/token
   db:
     case-status:
       driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
@@ -24,25 +36,13 @@ integration:
       # Using 4 '/' is a workaround to this bug https://github.com/testcontainers/testcontainers-java/issues/4121
       url: jdbc:tc:mariadb:10.6:////ms-casestatus
       username: sa
-  incident:
-    base-url: http://localhost:${wiremock.server.port}/incident
-    oauth2:
-      client-id: dummy
-      client-secret: dummy
-      token-uri: http://localhost:${wiremock.server.port}/token
-  open-e:
-    base-url: localhost
-    basic-auth:
-      password: dummy
-      username: dummy
-    port: ${wiremock.server.port}
-    scheme: http
+
 spring:
   flyway:
     enabled: true
   jpa:
     hibernate:
-      ddl-auto: verify
+      ddl-auto: validate
   main:
     banner-mode: 'off'
   sql:

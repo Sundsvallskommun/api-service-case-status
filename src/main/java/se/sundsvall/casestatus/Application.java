@@ -1,12 +1,14 @@
 package se.sundsvall.casestatus;
 
-import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.boot.SpringApplication;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 
 import se.sundsvall.dept44.ServiceApplication;
 
-@ServiceApplication
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 
+@ServiceApplication
+@EnableFeignClients
 @EnableSchedulerLock(defaultLockAtMostFor = "PT30M")
 public class Application {
 
