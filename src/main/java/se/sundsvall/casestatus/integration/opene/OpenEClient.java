@@ -1,87 +1,28 @@
 package se.sundsvall.casestatus.integration.opene;
 
-import java.io.IOException;
-import java.net.URI;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.Map;
+import static se.sundsvall.casestatus.integration.opene.configuration.OpenEConfiguration.CLIENT_ID;
 
-import org.apache.hc.client5.http.auth.AuthScope;
-import org.apache.hc.client5.http.auth.UsernamePasswordCredentials;
-import org.apache.hc.client5.http.classic.methods.HttpGet;
-import org.apache.hc.client5.http.impl.auth.BasicCredentialsProvider;
-import org.apache.hc.client5.http.impl.classic.HttpClients;
-import org.apache.hc.core5.http.io.entity.EntityUtils;
-import org.springframework.stereotype.Component;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 
-import se.sundsvall.casestatus.integration.opene.exception.OpenEException;
+import se.sundsvall.casestatus.integration.opene.configuration.OpenEConfiguration;
 
-@Component
-public class OpenEClient {
+@FeignClient(name = CLIENT_ID, url = "${integration.open-e.base-url}", configuration = OpenEConfiguration.class)
+public interface OpenEClient {
 
-	private static final String ERRANDS_PATH = "/api/instanceapi/getinstances/family/{familyid}";
-	private static final String PDF_PATH = "/api/instanceapi/getinstance/{flowinstanceid}/pdf";
-	private static final String ERRAND_PATH = "/api/instanceapi/getinstance/{flowinstanceid}/xml";
-	private static final String STATUS_PATH = "/api/instanceapi/getstatus/{flowinstanceid}";
+	String TEXT_XML_CHARSET_ISO_8859_1 = "text/xml; charset=ISO-8859-1";
 
-	private static final String FLOW_INSTANCE_ID_ATTRIBUTE_NAME = "flowinstanceid";
-	private static final String FAMILY_ID_ATTRIBUTE_NAME = "familyid";
+	@GetMapping(path = "/api/instanceapi/getinstances/family/{familyid}", produces = TEXT_XML_CHARSET_ISO_8859_1)
+	byte[] getErrandIds(@PathVariable(name = "familyid") final String familyId);
 
-	private final OpenEIntegrationProperties properties;
+	@GetMapping(path = "/api/instanceapi/getinstance/{flowinstanceid}/xml", produces = TEXT_XML_CHARSET_ISO_8859_1)
+	byte[] getErrand(@PathVariable(name = "flowinstanceid") final String id);
 
-	public OpenEClient(OpenEIntegrationProperties properties) {
-		this.properties = properties;
-	}
+	@GetMapping(path = "/api/instanceapi/getstatus/{flowinstanceid}", produces = TEXT_XML_CHARSET_ISO_8859_1)
+	byte[] getErrandStatus(@PathVariable(name = "flowinstanceid") final String id);
 
-	public byte[] getErrandIds(String familyid) throws IOException {
-		return getBytes(buildUrl(ERRANDS_PATH, Map.of(FAMILY_ID_ATTRIBUTE_NAME, familyid)));
-	}
+	@GetMapping(path = "/api/instanceapi/getinstance/{flowinstanceid}/pdf", produces = TEXT_XML_CHARSET_ISO_8859_1)
+	byte[] getPDF(@PathVariable(name = "flowinstanceid") final String id);
 
-	public byte[] getErrand(String id) throws IOException {
-		return getBytes(buildUrl(ERRAND_PATH, Map.of(FLOW_INSTANCE_ID_ATTRIBUTE_NAME, id)));
-	}
-
-	public byte[] getErrandStatus(String id) throws IOException {
-		return getBytes(buildUrl(STATUS_PATH, Map.of(FLOW_INSTANCE_ID_ATTRIBUTE_NAME, id)));
-	}
-
-	public byte[] getPDF(String id) throws IOException {
-		return getBytes(buildUrl(PDF_PATH, Map.of(FLOW_INSTANCE_ID_ATTRIBUTE_NAME, id)));
-	}
-
-	private byte[] getBytes(URI url) throws IOException {
-
-		final var httpClient = HttpClients.custom()
-			.setDefaultCredentialsProvider(getCredentials())
-			.build();
-
-		return httpClient.execute(new HttpGet(url), responseHandler -> {
-			if (responseHandler.getCode() == 200) {
-				return EntityUtils.toByteArray(responseHandler.getEntity());
-			}
-
-			throw new OpenEException(responseHandler.getEntity().toString());
-		});
-	}
-
-	private URI buildUrl(String path, Map<String, String> parameters) {
-		return UriComponentsBuilder.newInstance()
-			.scheme(properties.getScheme())
-			.host(properties.getBaseUrl())
-			.port(properties.getPort())
-			.path(path)
-			.queryParam("fromDate", LocalDate.now(ZoneId.systemDefault()).minusDays(1).toString())
-			.build(parameters);
-	}
-
-	private BasicCredentialsProvider getCredentials() {
-		final var user = properties.getBasicAuth().getUsername();
-		final var password = properties.getBasicAuth().getPassword().toCharArray();
-		final var credsProvider = new BasicCredentialsProvider();
-
-		credsProvider.setCredentials(new AuthScope(null, -1),
-			new UsernamePasswordCredentials(user, password));
-		return credsProvider;
-	}
 }

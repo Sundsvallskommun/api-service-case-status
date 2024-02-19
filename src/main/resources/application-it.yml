@@ -1,0 +1,56 @@
+cache:
+  isprod: false
+  scheduled:
+    fixedrate: 1d
+    initialdelay: 1m
+    shedlock-lock-at-most-for: PT10M
+integration:
+  case-management:
+    base-url: http://localhost:${wiremock.server.port}/casemanagement
+  citizen:
+    base-url: http://localhost:${wiremock.server.port}/citizen
+  open-e:
+    base-url: http://localhost:${wiremock.server.port:}/opene
+    password: somePassword
+    username: someUsername
+  incident:
+    base-url: http://localhost:${wiremock.server.port}/incident
+  db:
+    case-status:
+      driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+      password: ''
+      # Using 4 '/' is a workaround to this bug https://github.com/testcontainers/testcontainers-java/issues/4121
+      url: jdbc:tc:mariadb:10.6:////ms-casestatus
+      username: sa
+
+spring:
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  security:
+    oauth2:
+      client:
+        provider:
+          citizen:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+          case-management:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+          open-e:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+          incident:
+            token-uri: http://localhost:${wiremock.server.port:}/token
+        registration:
+          citizen:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          case-management:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          open-e:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          incident:
+            client-id: the-client-id
+            client-secret: the-client-secret

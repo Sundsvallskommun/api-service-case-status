@@ -1,17 +1,17 @@
 package se.sundsvall.casestatus.integration.incident;
 
-import generated.se.sundsvall.incident.IncidentOepResponse;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Optional;
+import generated.se.sundsvall.incident.IncidentOepResponse;
 
 
 @Component
 public class IncidentIntegration {
 
-    static final String INTEGRATION_NAME = "Incident";
 
     private static final Logger LOG = LoggerFactory.getLogger(IncidentIntegration.class);
 

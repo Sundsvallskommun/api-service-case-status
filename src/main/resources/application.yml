@@ -1,3 +1,17 @@
+integration:
+  citizen:
+    connectTimeout: 5
+    readTimeout: 30
+  case-management:
+    connectTimeout: 5
+    readTimeout: 30
+  open-e:
+    connectTimeout: 5
+    readTimeout: 30
+  incident:
+    connectTimeout: 5
+    readTimeout: 30
+
 openapi:
   name: api-case-status
   title: CaseStatus
@@ -5,6 +19,23 @@ openapi:
 spring:
   application:
     name: api-case-status
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
   flyway:
-    enabled: true
-    group: true
+    enabled: false
+  security:
+    oauth2:
+      client:
+        registration:
+          citizen:
+            authorization-grant-type: client_credentials
+            provider: citizen
+          case-management:
+            authorization-grant-type: client_credentials
+            provider: case-management
+          open-e:
+            authorization-grant-type: client_credentials
+            provider: open-e
+          incident:
+            authorization-grant-type: client_credentials
+            provider: incident

@@ -1,0 +1,58 @@
+cache:
+  isprod: true
+  scheduled:
+    fixedrate: 1d
+    initialdelay: 1m
+    shedlock-lock-at-most-for: PT10M
+
+integration:
+  case-management:
+    base-url: http://case-management.url
+  citizen:
+    base-url: http://citizen.url
+  db:
+    case-status:
+      driver-class-name: org.h2.Driver
+      password: ''
+      url: jdbc:h2:mem:case-status
+      username: sa
+    case-status-cache:
+      driver-class-name: org.h2.Driver
+      password: ''
+      url: jdbc:h2:mem:case-status-cache
+      username: sa
+  incident:
+    base-url: http://incident.url
+  open-e:
+    base-url: http://opene.url
+    password: somePassword
+    username: someUsername
+
+spring:
+  flyway:
+    enabled: false
+  security:
+    oauth2:
+      client:
+        provider:
+          citizen:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          case-management:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          open-e:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          incident:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+        registration:
+          citizen:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          case-management:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          open-e:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          incident:
+            client-id: the-client-id
+            client-secret: the-client-secret
