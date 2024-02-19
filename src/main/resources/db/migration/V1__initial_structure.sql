@@ -1,5 +1,3 @@
-#################### CaseStatus ####################
-drop table if exists MapCaseTypeEnums;
 create table if not exists MapCaseTypeEnums
 (
     ID   int(6) auto_increment
@@ -8,7 +6,7 @@ create table if not exists MapCaseTypeEnums
     Text varchar(255) not null
 )
     charset = latin1;
-drop table if exists caseManagementStatus;
+
 create table if not exists caseManagementStatus
 (
     ID                   int auto_increment
@@ -22,7 +20,6 @@ create table if not exists caseManagementStatus
 )
     charset = latin1;
 
-drop table if exists incidentStatus;
 create table if not exists incidentStatus
 (
     ID             int auto_increment
@@ -36,7 +33,6 @@ create table if not exists incidentStatus
 )
     charset = latin1;
 
-drop table if exists openeStatus;
 create table if not exists openeStatus
 (
     ID           int auto_increment
@@ -50,7 +46,6 @@ create table if not exists openeStatus
 )
     charset = latin1;
 
-drop table if exists refCaseManagementOpene;
 create table if not exists refCaseManagementOpene
 (
     ID               int auto_increment
@@ -71,7 +66,6 @@ create table if not exists refCaseManagementOpene
 create index if not exists openePK
     on refCaseManagementOpene (openePK);
 
-drop table if exists refIncidentOpene;
 create table if not exists refIncidentOpene
 (
     ID           int auto_increment
