@@ -1,29 +1,26 @@
-#################### CaseStatus ####################
-
-alter table `ms-casestatus`.MapCaseTypeEnums
+alter table MapCaseTypeEnums
     change ENUM Enum varchar(255) not null;
 
-rename table `ms-casestatus`.caseManagementStatus to CaseManagementStatus;
-rename table `ms-casestatus`.incidentStatus to IncidentStatus;
-rename table `ms-casestatus`.openeStatus to OpenEStatus;
-rename table `ms-casestatus`.refCaseManagementOpene to RefCaseManagementOpenE;
-rename table `ms-casestatus`.refIncidentOpene to RefIncidentOpenE;
+rename table caseManagementStatus to CaseManagementStatus;
+rename table incidentStatus to IncidentStatus;
+rename table openeStatus to OpenEStatus;
+rename table refCaseManagementOpene to RefCaseManagementOpenE;
+rename table refIncidentOpene to RefIncidentOpenE;
 
-
-CREATE OR REPLACE ALGORITHM = UNDEFINED VIEW `ms-casestatus`.`vStatusCaseManagementOpenE` AS
+CREATE OR REPLACE ALGORITHM = UNDEFINED VIEW `vStatusCaseManagementOpenE` AS
 select `cs`.`caseManagementID` AS `caseManagementID`,
        `os`.`openEID`          AS `openeID`
-from ((`ms-casestatus`.`RefCaseManagementOpenE` `ref`
-    join `ms-casestatus`.`OpenEStatus` `os` on
+from ((`RefCaseManagementOpenE` `ref`
+    join `OpenEStatus` `os` on
     (`ref`.`openEPK` = `os`.`ID`))
-    join `ms-casestatus`.`CaseManagementStatus` `cs` on
+    join `CaseManagementStatus` `cs` on
     (`ref`.`caseManagementPK` = `cs`.`ID`));
 
-CREATE OR REPLACE ALGORITHM = UNDEFINED VIEW `ms-casestatus`.`vStatusIncidentOpenE` AS
+CREATE OR REPLACE ALGORITHM = UNDEFINED VIEW `vStatusIncidentOpenE` AS
 select `incS`.`incidentID` AS `incidentID`,
        `os`.`openEID`      AS `openEID`
-from ((`ms-casestatus`.`RefIncidentOpenE` `ref`
-    join `ms-casestatus`.`OpenEStatus` `os` on
+from ((`RefIncidentOpenE` `ref`
+    join `OpenEStatus` `os` on
     (`ref`.`openEPK` = `os`.`ID`))
-    join `ms-casestatus`.`IncidentStatus` `incS` on
+    join `IncidentStatus` `incS` on
     (`ref`.`incidentPK` = `incS`.`ID`));
