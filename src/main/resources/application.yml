@@ -33,9 +33,6 @@ spring:
           case-management:
             authorization-grant-type: client_credentials
             provider: case-management
-          open-e:
-            authorization-grant-type: client_credentials
-            provider: open-e
           incident:
             authorization-grant-type: client_credentials
             provider: incident

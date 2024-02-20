@@ -39,8 +39,6 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           case-management:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
-          open-e:
-            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           incident:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
         registration:
@@ -48,9 +46,6 @@ spring:
             client-id: the-client-id
             client-secret: the-client-secret
           case-management:
-            client-id: the-client-id
-            client-secret: the-client-secret
-          open-e:
             client-id: the-client-id
             client-secret: the-client-secret
           incident:
