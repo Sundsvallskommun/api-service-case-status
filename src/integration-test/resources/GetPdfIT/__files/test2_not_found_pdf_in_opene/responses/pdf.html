@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<!--[
+  if
+  lt
+  IE
+  7
+]><html lang="sv" class="no-js lt-ie9 lt-ie8 lt-ie7"><![
+  endif
+]-->
+<!--[
+  if
+  IE
+  7
+]><html lang="sv" class="no-js lt-ie9 lt-ie8"><![
+  endif
+]-->
+<!--[
+  if
+  IE
+  8
+]><html lang="sv" class="no-js lt-ie9"><![
+  endif
+]-->
+<!--[
+  if
+  gt
+  IE
+  8
+]><!-->
+<html class="no-js" lang="sv">
+<!--<![
+  endif
+]-->
+
+<head>
+	<META content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
+	<meta content="IE=9; IE=8; IE=EDGE" http-equiv="X-UA-Compatible">
+	<meta content="text/html; charset=ISO-8859-1" http-equiv="Content-Type">
+	<meta content="width=device-width, initial-scale=1, maximum-scale=1" name="viewport">
+	<meta content="Open ePlatform, E-tj&auml;nster Sundsvalls kommun" name="keywords">
+	<meta content="Open ePlatform &auml;r en e-tj&auml;nsteplattform som levereras av Nordic Peak"
+		  name="description">
+	<title>Sundsvalls kommun</title>
+</head>
+
+<body class="override is-internal">
+<header class="clearfix">
+	<div class="cwn"></div>
+	<div class="top container">
+		<div class="headercontainer">
+			<a
+					href="/"><span class="headerlogo"><img alt="Sundsvalls kommuns logotyp"
+														   src="/images/logo.svg"></span><span
+					class="titlecontainer"><span class="headertitle">E-tj&auml;nster</span><span
+					class="headersubtitle">Sundsvalls kommun</span></span></a>
+		</div>
+		<script type="text/javascript">
+            pblProxyModuleURI = '/pbl';
+            pblLanguage = {
+                'GETTING_WORD_DESCRIPTION': 'Hämtar ordförklaring...',
+                'NO_WORD_DESCRIPTION_FOUND': 'Ingen ordförklaring hittades'
+            };
+		</script>
+		<div class="search-wrapper flowbrowser bg-search">
+			<script type="text/javascript">
+                lastSearchEnabled = true;
+			</script>
+			<div class="inner">
+				<h2 class="only-mobile">S&ouml;k tj&auml;nst</h2>
+				<input class="search-field" data-searchmoduleuri="/api/v1" id="bg-search-field" name="search"
+					   placeholder="S&ouml;k bland v&aring;ra e-tj&auml;nster"
+					   type="text"><span
+					class="search-close-btn"></span><a
+					class="btn btn-blue xl search-btn only-desktop" href="#">S&ouml;k</a><a class="btn btn-blue xl search-btn only-tablet-mobile"
+																							href="#"><span
+					class="search-icon"></span></a>
+			</div>
+			<div class="search-result-wrapper grid-view">
+				<div class="inner">
+					<h2 class="search-results-title">S&ouml;kningen p&aring;
+						"<span class="title"></span>"&nbsp;gav&nbsp;<span class="hits"></span>&nbsp;tr&auml;ffar
+					</h2>
+					<div class="category-list">
+						<a class="search-close-btn" href="#">St&auml;ng&nbsp;<i>x</i></a>
+						<div class="column-1"></div>
+						<div class="column-2"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="usercontainer">
+			<div class="user">
+				<div class="dd logged-in" id="logged-in-menu">
+					<a><img src="/images/li_user-2.svg">
+						<h2>
+							<span>Case&nbsp;Status</span>
+						</h2>
+						<div class="toggler">
+							<i>_</i>
+						</div>
+					</a>
+					<div class="submenu" id="logged-in-submenu">
+						<ul>
+							<li class="bordered-link">
+								<a href="/logout" title="Logga ut">Logga ut</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+			<ul aria-controls="notificationsMenu" aria-expanded="false" aria-label="Aviseringar"
+				class="right">
+				<li id="notificationsMenu">
+					<script>
+                        var notificationHandlerUrl = '/notifications';
+					</script>
+					<div class="marker"></div>
+					<a class="submenu-trigger" href="#"><i aria-hidden="true" class="xl">n</i></a>
+					<div class="submenu notification-menu" style="display: none;"></div>
+					<div id="notifications-loading" style="display: none;">
+						<div class="heading-wrapper">
+							<h3>Aviseringar</h3>
+						</div>
+						<article>
+							<div class="inner">
+								<img alt=""
+									 src="/static/b/1/18/pics/loading.gif" style="margin-right: 5px;">H&auml;mtar
+								aviseringar...
+							</div>
+						</article>
+					</div>
+					<div id="notifications-loading-error" style="display: none;">
+						<div class="heading-wrapper">
+							<h3>Aviseringar</h3>
+						</div>
+						<article>
+							<div class="inner">Ett fel uppstod vid h&auml;mtning av aviseringar, v&auml;nligen
+								f&ouml;rs&ouml;k igen senare.
+							</div>
+						</article>
+					</div>
+					<div id="notifications-login-error" style="display: none;">
+						<div class="heading-wrapper">
+							<h3>Aviseringar</h3>
+						</div>
+						<article>
+							<div class="inner">Du har loggats ut, v&auml;nligen f&ouml;rnya sidan
+								och logga in.
+							</div>
+						</article>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<nav>
+		<div class="container">
+			<a class="only-mobile" href="#" id="toggle-search"><span></span></a><a
+				class="only-mobile" href="#"
+				id="toggle-primary"><span></span></a>
+			<ul class="primary">
+				<li class="only-mobile menuheading">Meny</li>
+				<li class="">
+					<a href="/oversikt" tabindex="0"
+					   title="E-tj&auml;nster"><span>E-tj&auml;nster</span></a>
+				</li>
+				<li class="">
+					<a href="/minasidor" tabindex="0" title="Mina sidor"><span>Mina sidor</span></a>
+				</li>
+				<li class="">
+					<a href="/statistik" tabindex="0" title="Statistik"><span>Statistik</span></a>
+				</li>
+				<li class="">
+					<a href="/page/faq" tabindex="0" title="FAQ"><span>FAQ</span></a>
+				</li>
+				<li class=" dd">
+					<div class="marker"></div>
+					<a tabindex="0"
+					   title="Handl&auml;ggning"><span>Handl&auml;ggning<span class="icon">_</span></span></a>
+					<div class="submenu">
+						<ul>
+							<li class="">
+								<a href="/manage/flowinstanceadmin" tabindex="0"
+								   title="Administrera &auml;renden"><span class="icon arrow"><i
+										data-icon-before=">"></i></span><span class="text">Adm. &auml;renden</span></a>
+							</li>
+							<li class="">
+								<a href="/manage/viewpointadministration" tabindex="0"
+								   title="Administration av synpunkter"><span
+										class="icon arrow"><i data-icon-before=">"></i></span><span
+										class="text">Adm. synpunkter</span></a>
+							</li>
+							<li class="">
+								<a href="/manage/accesscontrolledgroupadmin" tabindex="0"
+								   title="Grupper"><span
+										class="icon arrow"><i data-icon-before=">"></i></span><span
+										class="text">Grupper (begr&auml;nsad &aring;tkomst)</span></a>
+							</li>
+						</ul>
+					</div>
+				</li>
+				<li class=" dd">
+					<div class="marker"></div>
+					<a tabindex="0" title="Hj&auml;lp"><span>Hj&auml;lp<span
+							class="icon">_</span></span></a>
+					<div class="submenu">
+						<ul>
+							<li class="">
+								<a href="/hjalp/page/hjalp" tabindex="0"
+								   title="Hj&auml;lp"><span class="icon arrow"><i
+										data-icon-before=">"></i></span><span class="text">om e-tj&auml;nsterna</span></a>
+							</li>
+							<li class="">
+								<a href="/hjalp/page/om bygg- och exploateringskartan 2"
+								   tabindex="0"
+								   title="Hj&auml;lp f&ouml;r bygg- och exploateringskartan"><span
+										class="icon arrow"><i data-icon-before=">"></i></span><span
+										class="text">om bygg- och exploateringskartan</span></a>
+							</li>
+						</ul>
+					</div>
+				</li>
+				<li class=" dd">
+					<div class="marker"></div>
+					<a tabindex="0"
+					   title="Personuppgifter"><span>Personuppgifter<span class="icon">_</span></span></a>
+					<div class="submenu">
+						<ul>
+							<li class="">
+								<a href="/personuppgifter/page/pul" tabindex="0"
+								   title="Om personuppgifter"><span class="icon arrow"><i
+										data-icon-before=">"></i></span><span class="text">Om personuppgifter</span></a>
+							</li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+		</div>
+	</nav>
+</header>
+<div class="top-content"></div>
+<div class="main container" role="main">
+	<div class="top-content"></div>
+	<div class="content-wide ">
+		<div class="contentitem">
+			<h1>Sidan hittades inte</h1>
+			<p>Sidan med adressen https: //opene/api/instanceapi/getinstance/fel/pdf
+				hittades inte, kontrollera adressen.</p>
+			<p>Kontakta administrat&ouml;ren f&ouml;r mer information.</p>
+		</div>
+	</div>
+</div>
+<footer>
+	<div>
+		<ul>
+			<li>
+				<div class="footer-logo">
+					<a href="https://sundsvall.se" target="_blank"><img
+							src="/images/footerlogo.svg"></a>
+				</div>
+			</li>
+			<li>
+				<div class="footer-text">
+					<h3>Kontakta oss</h3>
+					<p>
+						<a href="https://sundsvall.se/kommun-och-politik/mejla-sundsvalls-kommun---myndighetsbrevlador"
+						   target="_blank">Myndighetsbrevl&aring;dor</a>
+					</p>
+			</li>
+			<li>
+				<div class="footer-text">
+					<h3>Bes&ouml;k oss</h3>
+					<p>Sundsvalls kommun</p>
+					<p>Norrmalmsgatan 4, 851 85 Sundsvall</p>
+					<p>Kommunhuset: <a
+							href="https://sundsvall.se/kommun-och-politik/kommunfakta/kommunhuset---oppettider-och-karta"
+							target="_blank">&Ouml;ppettider och karta</a>
+					</p>
+				</div>
+			</li>
+			<div class="clear"></div>
+		</ul>
+	</div>
+	<div class="bottom">
+		<div id="footerwcag">
+			<a href="/hjalp/page/tillganglighet">Tillg&auml;nglighetsredog&ouml;relse</a>
+		</div>
+		<div id="footergdpr">
+			<a href="https://sundsvall.se/kommun-och-politik/overklaga-beslut-rattssakerhet/behandling-av-personuppgifter"
+			   target="_blank">Behandling av personuppgifter</a>
+		</div>
+	</div>
+</footer>
+</body>
+
+</html>
