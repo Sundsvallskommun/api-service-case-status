@@ -11,7 +11,6 @@ import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
 import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 
 @Import(FeignConfiguration.class)
-@EnableConfigurationProperties(CaseManagementProperties.class)
 public class CaseManagementConfiguration {
 
 	public static final String CLIENT_ID = "case-management";
