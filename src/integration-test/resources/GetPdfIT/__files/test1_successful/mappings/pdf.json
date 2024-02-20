@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPattern": "/api/instanceapi/getinstance/1308f4ca-f7d6-4c88-9098-64be43b3a905/pdf.*"
+    "urlPattern": "/opene/api/instanceapi/getinstance/1308f4ca-f7d6-4c88-9098-64be43b3a905/pdf.*"
   },
   "response": {
     "headers": {

@@ -20,7 +20,7 @@
         <published.container.port.production>9075</published.container.port.production>
         <jsoup.version>1.17.2</jsoup.version>
         <xsoup.version>0.3.7</xsoup.version>
-        <shedlock.version>5.10.2</shedlock.version>
+        <shedlock.version>5.11.0</shedlock.version>
         <awaitility.version>4.2.0</awaitility.version>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
         <generated-sources-java-path>src/main/java</generated-sources-java-path>
@@ -192,10 +192,6 @@
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
                     <excludes>
-                        <exclude>**/se/sundsvall/casestatus/Application*</exclude>
-                        <exclude>**/se/sundsvall/casestatus/configuration/*</exclude>
-                        <exclude>**/se/sundsvall/casestatus/integration/**/*Configuration*</exclude>
-                        <exclude>**/se/sundsvall/casestatus/integration/**/*Properties*</exclude>
                         <exclude>**/se/sundsvall/casestatus/util/ContextUtil*</exclude>
                         <exclude>**/generated/**</exclude>
                     </excludes>

@@ -12,8 +12,6 @@ import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 @Component
 public class CaseManagementIntegration {
     
-    static final String INTEGRATION_NAME = "CaseManagement";
-    
     private static final Logger LOG = LoggerFactory.getLogger(CaseManagementIntegration.class);
     
     private final CaseManagementClient client;
