@@ -1,5 +1,3 @@
-#################### CaseStatus ####################
-
 create table if not exists MapCaseTypeEnums
 (
     ID   int(6) auto_increment
@@ -8,6 +6,7 @@ create table if not exists MapCaseTypeEnums
     Text varchar(255) not null
 )
     charset = latin1;
+
 create table if not exists caseManagementStatus
 (
     ID                   int auto_increment
