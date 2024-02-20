@@ -39,3 +39,8 @@ spring:
           incident:
             authorization-grant-type: client_credentials
             provider: incident
+logbook:
+  body-filters:
+    x-path:
+      - key: '//encodedData[string-length(text()) > 0]'
+        value: '[base64]'
