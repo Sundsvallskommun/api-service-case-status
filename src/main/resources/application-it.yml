@@ -1,8 +1,7 @@
 cache:
   isprod: false
   scheduled:
-    fixedrate: 1d
-    initialdelay: 1m
+    cron: "-"
     shedlock-lock-at-most-for: PT10M
 integration:
   case-management:
