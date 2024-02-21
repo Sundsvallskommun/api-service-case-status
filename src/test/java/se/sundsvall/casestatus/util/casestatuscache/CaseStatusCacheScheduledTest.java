@@ -1,12 +1,12 @@
 package se.sundsvall.casestatus.util.casestatuscache;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.test.context.ActiveProfiles;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+import static org.awaitility.Awaitility.await;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -17,17 +17,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-import static org.awaitility.Awaitility.await;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.test.context.ActiveProfiles;
+
+import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 
 @SpringBootTest(properties = {
-	"cache.scheduled.fixedrate=1s",
-	"cache.scheduled.initialdelay=2s",
+	"cache.scheduled.cron=*/2 * * * * *",
 	"spring.flyway.enabled=true",
 	"integration.db.case-status.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
 	"integration.db.case-status.url=jdbc:tc:mariadb:10.6:////ms-casestatus",
@@ -53,7 +53,7 @@ class CaseStatusCacheScheduledTest {
 	void verifyShedLock() throws InterruptedException {
 
 		// Let mock hang
-		doAnswer( invocation -> {
+		doAnswer(invocation -> {
 			mockCalledTime = LocalDateTime.now();
 			await()
 				.forever()
@@ -91,4 +91,5 @@ class CaseStatusCacheScheduledTest {
 		}
 		return null;
 	}
+
 }
