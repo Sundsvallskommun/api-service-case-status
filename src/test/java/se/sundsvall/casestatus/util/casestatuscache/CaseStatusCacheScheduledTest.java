@@ -18,16 +18,20 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
 import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 
 @SpringBootTest(properties = {
-	"cache.scheduled.cron=*/2 * * * * *",
+	"cache.scheduled.cron=* * * * * *", // Setup to execute every second
 	"spring.flyway.enabled=true",
 	"integration.db.case-status.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
 	"integration.db.case-status.url=jdbc:tc:mariadb:10.6:////ms-casestatus",
@@ -37,11 +41,17 @@ import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 @ActiveProfiles("junit")
 class CaseStatusCacheScheduledTest {
 
-	@Autowired
-	private CaseStatusCacheWorker caseStatusCacheWorkerMock;
+	@TestConfiguration
+	public static class CaseStatusCacheWorkerConfiguration {
+		@Bean
+		@Primary
+		public CaseStatusCacheWorker createMock() {
+			return Mockito.mock(CaseStatusCacheWorker.class);
+		}
+	}
 
 	@Autowired
-	private CaseStatusCache caseStatusCache;
+	private CaseStatusCacheWorker caseStatusCacheWorkerMock;
 
 	@Autowired
 	@Qualifier("integration.db.case-status.jdbc-template")
@@ -62,8 +72,7 @@ class CaseStatusCacheScheduledTest {
 		}).when(caseStatusCacheWorkerMock).cacheStatusesForFamilyID(any(FamilyId.class));
 
 		// Make sure scheduling occurs multiple times
-		await()
-			.until(() -> mockCalledTime != null && mockCalledTime.isBefore(mockCalledTime.plusSeconds(2)));
+		await().until(() -> mockCalledTime != null && LocalDateTime.now().isAfter(mockCalledTime.plusSeconds(2)));
 
 		// Verify lock
 		await()
