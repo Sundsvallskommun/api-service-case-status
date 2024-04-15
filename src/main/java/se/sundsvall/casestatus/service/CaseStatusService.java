@@ -118,7 +118,7 @@ public class CaseStatusService {
     
     private String getCaseType(CaseStatusDTO caseStatus) {
         return Optional.ofNullable(caseStatus.getCaseType())
-            .flatMap(caseType -> dbIntegration.getMapCaseTypeEnumText(caseType.name()))
+            .flatMap(dbIntegration::getMapCaseTypeEnumText)
             .orElse(MISSING);
     }
 }

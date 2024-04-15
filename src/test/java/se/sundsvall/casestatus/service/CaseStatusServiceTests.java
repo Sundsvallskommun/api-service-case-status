@@ -88,7 +88,7 @@ class CaseStatusServiceTests {
 		final var caseStatus = new CaseStatusDTO()
 			.caseId("someCaseId")
 			.externalCaseId("someExternalCaseId")
-			.caseType(CaseStatusDTO.CaseTypeEnum.PARKING_PERMIT)
+			.caseType("PARKING_PERMIT")
 			.timestamp(LocalDateTime.now())
 			.status("someStatus");
 

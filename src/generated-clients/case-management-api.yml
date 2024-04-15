@@ -1,14 +1,13 @@
 openapi: 3.0.1
 info:
   title: ms-casemanagementservice
-  contact: { }
+  contact: {}
   license:
     name: MIT License
-    url: https://opensource.org/licenses/MIT
-  version: "3.5"
+    url: 'https://opensource.org/licenses/MIT'
+  version: '7.1'
 servers:
-  - url: http://localhost:9090
-    description: Generated server url
+  - url: /
 tags:
   - name: Status
     description: Status operations
@@ -19,7 +18,7 @@ tags:
   - name: Cases
     description: Cases operations
 paths:
-  /cases/{externalCaseId}:
+  '/cases/{externalCaseId}':
     put:
       tags:
         - Cases
@@ -29,6 +28,8 @@ paths:
         - name: externalCaseId
           in: path
           required: true
+          style: simple
+          explode: false
           schema:
             type: string
       requestBody:
@@ -63,32 +64,32 @@ paths:
                     extension: .pdf
                     file: dGVzdA==
               oneOf:
-                - $ref: '#/components/schemas/PlanningPermissionCaseDTO'
-                - $ref: '#/components/schemas/EnvironmentalCaseDTO'
+                - $ref: '#/components/schemas/ByggRCaseDTO'
+                - $ref: '#/components/schemas/EcosCaseDTO'
                 - $ref: '#/components/schemas/OtherCaseDTO'
         required: true
       responses:
-        "204":
+        '204':
           description: No content
-        "400":
+        '400':
           description: Bad request
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "404":
+        '404':
           description: Not found
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
+        '500':
           description: Internal Server error
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
+        '502':
           description: Bad Gateway
           content:
             application/problem+json:
@@ -98,8 +99,9 @@ paths:
     post:
       tags:
         - Cases
-      description: Creates a case in ByggR or Ecos2 based on caseType. Also persists
-        a connection between externalCaseId and the created case.
+      description: >-
+        Creates a case in ByggR or Ecos2 based on caseType. Also persists a
+        connection between externalCaseId and the created case.
       operationId: postCases
       requestBody:
         content:
@@ -133,12 +135,12 @@ paths:
                     extension: .pdf
                     file: dGVzdA==
               oneOf:
-                - $ref: '#/components/schemas/PlanningPermissionCaseDTO'
-                - $ref: '#/components/schemas/EnvironmentalCaseDTO'
+                - $ref: '#/components/schemas/ByggRCaseDTO'
+                - $ref: '#/components/schemas/EcosCaseDTO'
                 - $ref: '#/components/schemas/OtherCaseDTO'
         required: true
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/json:
@@ -147,31 +149,31 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/CaseResourceResponseDTO'
-        "400":
+        '400':
           description: Bad request
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "404":
+        '404':
           description: Not found
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
+        '500':
           description: Internal Server error
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
+        '502':
           description: Bad Gateway
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /cases/{externalCaseId}/attachments:
+  '/cases/{externalCaseId}/attachments':
     post:
       tags:
         - Attachments
@@ -181,6 +183,8 @@ paths:
         - name: externalCaseId
           in: path
           required: true
+          style: simple
+          explode: false
           schema:
             type: string
       requestBody:
@@ -192,43 +196,44 @@ paths:
                 $ref: '#/components/schemas/AttachmentDTO'
         required: true
       responses:
-        "204":
+        '204':
           description: No content - Successful request.
-        "400":
+        '400':
           description: Bad request
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "404":
+        '404':
           description: Not found
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
+        '500':
           description: Internal Server error
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "501":
+        '501':
           description: Not Implemented
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "502":
+        '502':
           description: Bad Gateway
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /organization/{organizationNumber}/cases/status:
+  '/organization/{organizationNumber}/cases/status':
     get:
       tags:
         - Status
-      description: Returns the latest status for each of the cases where the specified
+      description: >-
+        Returns the latest status for each of the cases where the specified
         organization has the role "applicant".
       operationId: getStatusByOrgNr
       parameters:
@@ -236,32 +241,16 @@ paths:
           in: path
           description: Organization number with 10 or 12 digits.
           required: true
+          style: simple
+          explode: false
           schema:
-            pattern: "^((18|19|20|21)\\d{6}|\\d{6})-(\\d{4})$"
+            pattern: '^((18|19|20|21)\d{6}|\d{6})-(\d{4})$'
             type: string
             description: Organization number with 10 or 12 digits.
             example: 20220622-2396
           example: 20220622-2396
       responses:
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "200":
+        '200':
           description: OK - Successful operation
           content:
             application/json:
@@ -274,45 +263,48 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CaseStatusDTO'
-        "502":
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '502':
           description: Bad Gateway
           content:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/Problem'
-  /cases/{externalCaseId}/status:
+  '/cases/{externalCaseId}/status':
     get:
       tags:
         - Status
-      description: Returns the latest status for the case in the underlying system
+      description: >-
+        Returns the latest status for the case in the underlying system
         connected to the specified externalCaseId.
       operationId: getStatusByExternalCaseId
       parameters:
         - name: externalCaseId
           in: path
           required: true
+          style: simple
+          explode: false
           schema:
             type: string
       responses:
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "200":
+        '200':
           description: OK - Successful operation
           content:
             application/json:
@@ -321,7 +313,25 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/CaseStatusDTO'
-        "502":
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '502':
           description: Bad Gateway
           content:
             application/problem+json:
@@ -331,35 +341,20 @@ paths:
     get:
       tags:
         - CaseMappings
-      description: Returns the connection between externalCaseId and the case in the
+      description: >-
+        Returns the connection between externalCaseId and the case in the
         underlying system.
       operationId: getCaseMapping
       parameters:
         - name: external-case-id
           in: query
           required: false
+          style: form
+          explode: true
           schema:
             type: string
       responses:
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "200":
+        '200':
           description: OK - Successful operation
           content:
             application/json:
@@ -372,6 +367,24 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/CaseMapping'
+        '400':
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '404':
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
+        '500':
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/Problem'
   /api-docs:
     get:
       tags:
@@ -379,15 +392,12 @@ paths:
       summary: OpenAPI
       operationId: getApiDocs
       responses:
-        "200":
+        '200':
           description: OK
           content:
             application/yaml:
               schema:
                 type: string
-      x-auth-type: None
-      x-throttling-tier: Unlimited
-      x-wso2-mutual-ssl: Optional
 components:
   schemas:
     AddressDTO:
@@ -398,13 +408,12 @@ components:
       properties:
         addressCategories:
           type: array
-          description: "An address can have one or more address categories. For example,\
-            \ it can be the same address that is to be used for mail and invoices."
+          description: >-
+            An address can have one or more address categories. For example, it
+            can be the same address that is to be used for mail and invoices.
           items:
             type: string
-            description: "An address can have one or more address categories. For\
-              \ example, it can be the same address that is to be used for mail and\
-              \ invoices."
+            description: Address category
             enum:
               - POSTAL_ADDRESS
               - INVOICE_ADDRESS
@@ -414,7 +423,7 @@ components:
           example: Testargatan
         houseNumber:
           type: string
-          example: "18"
+          example: '18'
         postalCode:
           type: string
           example: 123 45
@@ -433,7 +442,7 @@ components:
           example: Test Testorsson
         propertyDesignation:
           type: string
-          example: SUNDSVALL BALDER 7:2
+          example: 'SUNDSVALL BALDER 7:2'
         appartmentNumber:
           type: string
           example: LGH 1001
@@ -441,287 +450,110 @@ components:
           $ref: '#/components/schemas/CoordinatesDTO'
         isZoningPlanArea:
           type: boolean
+          description: Is the addres in zoning plan area?
         invoiceMarking:
           type: string
-          description: "Only in combination with addressCategory: INVOICE_ADDRESS"
+          description: 'Only in combination with addressCategory: INVOICE_ADDRESS'
         extraParameters:
           type: object
           additionalProperties:
             type: string
-      description: An stakeholder may have one or more addresses. For example one
-        POSTAL_ADDRESS and another INVOICE_ADDRESS.
+            description: Extra parameters for the address.
+          description: Extra parameters for the address.
+      description: Address model
     AttachmentDTO:
       required:
-        - category
         - extension
         - file
+        - mimeType
         - name
       type: object
       properties:
         category:
           type: string
-          enum:
-            - ARIT
-            - FAS
-            - FS2
-            - FAP
-            - FAPL
-            - FPSS
-            - FS
-            - FASSIT
-            - FAS2
-            - FASSIT2
-            - FOTOMON
-            - FÄRG
-            - MAST
-            - MUR
-            - MÅTT
-            - PERSPEKTIV
-            - PLA
-            - PLFA
-            - PLFASE
-            - PLFASESI
-            - PLFASI
-            - PLFA2
-            - PFSI2
-            - PLSE2
-            - PSS2
-            - PLSE
-            - PSS
-            - PLASIT
-            - PFS2
-            - PFSS2
-            - TEVS
-            - UPLA
-            - PLAN
-            - PLANK
-            - PLA2
-            - PSI2
-            - REL
-            - REVRIT
-            - RITNING
-            - TJ
-            - RIT
-            - SEK
-            - SEKSIT
-            - SEKT
-            - SEK2
-            - SESI2
-            - SKYL
-            - UPPM
-            - ANV
-            - ANM
-            - ANMÄ
-            - ANS
-            - ANSFÖ
-            - ANSM
-            - ANSR
-            - ANSS
-            - BEGLST
-            - BERBSA
-            - BLST
-            - OMPLÄ
-            - BULL
-            - DEB
-            - DEL
-            - DELK
-            - DELSLU
-            - DELSTA
-            - DOM
-            - ENER
-            - ENEDEK
-            - FAST
-            - FÖLJREVRIT
-            - FÖRG2
-            - GODFÄ
-            - GRAM
-            - INFOSS
-            - INTSLUT
-            - KM
-            - MOTBKR
-            - OVK
-            - PM
-            - PMINN
-            - PROARB
-            - PROTAU
-            - PROTKS
-            - PROTPLU
-            - PROTSBN
-            - PROSS
-            - PROTS
-            - REMISS
-            - REMS
-            - RÄTT
-            - SKP
-            - SBES
-            - STAB
-            - SVAR
-            - SVAR2år
-            - TJÄ
-            - UNDER
-            - ÄRB
-            - ÖVER
-            - ADRESS
-            - ANSUPA
-            - ANNO
-            - ANSF
-            - ANSSL
-            - ANSUP
-            - ANKVU
-            - ARBI
-            - BEHA
-            - AVPLAN
-            - BANK
-            - BEGSTART
-            - BEK
-            - BEKMOTANS
-            - BEMÖ
-            - BESKA
-            - BESLUT
-            - BIL
-            - BRS
-            - BRAB
-            - BRAD
-            - BROS
-            - DPH
-            - DETALJ
-            - DHBHUR
-            - ELD
-            - EPOS
-            - EXRIT
-            - FAKTU
-            - FAKTUS
-            - FOTO
-            - FUM
-            - FSF
-            - FÖLJ
-            - FÖRB
-            - FÖRK
-            - FÖRR
-            - FÖRGARBO
-            - URÖR
-            - GRA
-            - GRAN
-            - GBLAD
-            - HISSINT
-            - HUR
-            - ARK
-            - INTFAK
-            - INTY
-            - KLA
-            - KOMP
-            - KONT
-            - KPLAN
-            - RAPP
-            - KVAL
-            - LUFT
-            - LUTE
-            - MAIL
-            - MAPL
-            - MATINV
-            - MEDDEL
-            - MIRP
-            - MINN
-            - POIT
-            - PRESENTA
-            - PRES
-            - KPV
-            - PROT
-            - PÅMINNTB
-            - RAP
-            - REMUA
-            - RUE
-            - HBB
-            - RIVA
-            - RIVP
-            - SAK
-            - SAKUT
-            - KPR
-            - KP
-            - KR
-            - SIN
-            - SKR
-            - KA
-            - SKY
-            - SLUT
-            - SCB
-            - STIM
-            - SÅF
-            - TEBY
-            - TEKN
-            - TEKRAP
-            - TILL
-            - TILLVR
-            - SBN
-            - SAKNAS
-            - UND
-            - UKP
-            - UKR
-            - UNDUT
-            - UBGARBO
-            - UTBEU
-            - UTSK
-            - UTSKP
-            - UTSKS
-            - BRAU
-            - UKA
-            - ÅTG
-            - GEO
-            - GRUNDP
-            - GRUNDR
-            - KOND
-            - UKON
-            - KONR
-            - STOMR
-            - TAPL
-            - TSR
-            - KART
-            - NYKA
-            - SITU
-            - TOMTPLBE
-            - VAH
-            - VENT
-            - UVEN
-            - VS
-            - VVSH
-            - ANMALAN_LIVSMEDELSANLAGGNING
-            - ANMALAN_ENSKILT_AVLOPP
-            - ANSOKAN_ENSKILT_AVLOPP
-            - ANMALAN_ANDRING_AVLOPPSANLAGGNING
-            - ANMALAN_ANDRING_AVLOPPSANORDNING
-            - ANMALAN_VARMEPUMP
-            - ANSOKAN_TILLSTAND_VARMEPUMP_MINDRE_AN_100KW
-            - ANMALAN_HALSOSKYDDSVERKSAMHET
-            - SITUATIONSPLAN
-            - SKRIVELSE
-            - MEDICAL_CONFIRMATION
-            - POLICE_REPORT
-            - PASSPORT_PHOTO
-            - SIGNATURE
-            - POWER_OF_ATTORNEY
+          description: The attachment category
+          example: DOCUMENT
         name:
           type: string
-          example: The attachment name
+          description: The attachment name
+          example: Attachment name
         note:
           type: string
+          description: A note on an attachment
           example: A note on an attachment.
         extension:
-          pattern: ^\.(bmp|gif|tif|tiff|jpeg|jpg|png|htm|html|pdf|rtf|docx|txt|xlsx|odt|ods)$
           type: string
+          description: The file extension
           example: .pdf
         mimeType:
-          pattern: ^(application|image|text)/(bmp|gif|tiff|jpeg|png|html|pdf|rtf|vnd.openxmlformats-officedocument.wordprocessingml.document|plain|vnd.openxmlformats-officedocument.spreadsheetml.sheet|vnd.oasis.opendocument.text|vnd.oasis.opendocument.spreadsheet)$
           type: string
+          description: the mime type of the attahcment
           example: application/pdf
         file:
           type: string
           description: Base64-encoded file (plain text)
           format: byte
-          example: ZEdWemRBPT0=
+          example: VmpKMFYyRXhXWGxXYmxKV1lUQndVbFpyVWtKUFVUMDk=
         extraParameters:
           type: object
           additionalProperties:
             type: string
+            description: Extra parameters for the attachment
+          description: Extra parameters for the attachment
+      description: Attachment model
+    ByggRCaseDTO:
+      required:
+        - attachments
+        - caseType
+        - externalCaseId
+        - facilities
+        - stakeholders
+      type: object
+      properties:
+        externalCaseId:
+          type: string
+          description: Case ID from the client.
+          example: caa230c6-abb4-4592-ad9a-34e263c2787b
+        caseType:
+          type: string
+          description: The case type
+          example: NYBYGGNAD_ANSOKAN_OM_BYGGLOV
+        description:
+          type: string
+          description: Some description of the case.
+          example: En fritextbeskrivning av case.
+        caseTitleAddition:
+          type: string
+          description: >-
+            Additions to the case title. Right now only applicable to cases of
+            CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV.
+          example: 'Eldstad/rökkanal, Skylt'
+        stakeholders:
+          type: array
+          description: The stakeholders in the case
+          items:
+            $ref: '#/components/schemas/StakeholderDTO'
+        attachments:
+          type: array
+          description: The attachments in the case
+          items:
+            $ref: '#/components/schemas/AttachmentDTO'
+        extraParameters:
+          type: object
+          additionalProperties:
+            type: string
+            description: Extra parameters for the case.
+          description: Extra parameters for the case.
+        diaryNumber:
+          type: string
+          description: The case diary number
+          example: 2021-1234
+        facilities:
+          type: array
+          description: The facilities in the case
+          items:
+            $ref: '#/components/schemas/FacilityDTO'
+      description: ByggR-cases
     CoordinatesDTO:
       type: object
       properties:
@@ -735,191 +567,90 @@ components:
           description: Decimal Degrees (DD)
           format: double
           example: 17.306616
-    PlanningPermissionCaseDTO:
-      required:
-        - attachments
-        - caseType
-        - externalCaseId
-        - facilities
-        - stakeholders
-      type: object
-      properties:
-        externalCaseId:
-          type: string
-          description: Case ID from the client.
-          example: caa230c6-abb4-4592-ad9a-34e263c2787b
-        caseType:
-          type: string
-          example: NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-          enum:
-            - NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - TILLBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - ANDRING_ANSOKAN_OM_BYGGLOV
-            - STRANDSKYDD_NYBYGGNAD
-            - STRANDSKYDD_ANLAGGANDE
-            - STRANDSKYDD_ANORDNANDE
-            - STRANDSKYDD_ANDRAD_ANVANDNING
-            - ANMALAN_ATTEFALL
-            - ANMALAN_ELDSTAD
-            - REGISTRERING_AV_LIVSMEDEL
-            - ANMALAN_INSTALLATION_VARMEPUMP
-            - ANSOKAN_TILLSTAND_VARMEPUMP
-            - ANSOKAN_OM_TILLSTAND_ENSKILT_AVLOPP
-            - ANMALAN_INSTALLTION_ENSKILT_AVLOPP_UTAN_WC
-            - ANMALAN_ANDRING_AVLOPPSANLAGGNING
-            - ANMALAN_ANDRING_AVLOPPSANORDNING
-            - ANMALAN_HALSOSKYDDSVERKSAMHET
-            - PARKING_PERMIT
-            - PARKING_PERMIT_RENEWAL
-            - LOST_PARKING_PERMIT
-        description:
-          type: string
-          example: Some description of the case.
-        caseTitleAddition:
-          type: string
-          description: "Additions to the case title. Right now only applicable to\
-            \ cases of CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV."
-          example: "Eldstad/rökkanal, Skylt"
-        stakeholders:
-          type: array
-          items:
-            $ref: '#/components/schemas/StakeholderDTO'
-        attachments:
-          type: array
-          items:
-            $ref: '#/components/schemas/AttachmentDTO'
-        extraParameters:
-          type: object
-          additionalProperties:
-            type: string
-        facilities:
-          type: array
-          items:
-            $ref: '#/components/schemas/PlanningPermissionFacilityDTO'
-        diaryNumber:
-          type: string
-      description: ByggR-cases
-    PlanningPermissionFacilityDTO:
+      description: Coordinates model
+    FacilityDTO:
       required:
         - address
-        - facilityType
       type: object
       properties:
         facilityType:
           type: string
-          description: "Type of facility.<br><br>Compatible with CaseType=NYBYGGNAD_ANSOKAN_OM_BYGGLOV:<li>ONE_FAMILY_HOUSE(enbostadshus)</li><li>APARTMENT_BLOCK(flerbostadshus)</li><li>WEEKEND_COTTAGE(fritidshus)</li><li>OFFICE_BUILDING(kontorsbyggnad)</li><li>INDUSTRIAL_BUILDING(industribyggnad)</li><li>GARAGE(garage)</li><li>CARPORT(carport)</li><li>STOREHOUSE(fö\
-            rråd)</li><li>GREENHOUSE(växthus)</li><li>GUEST_HOUSE(gäststuga)</li><li>WAREHOUSE(lagerbyggnad)</li><li>WORKSHOP_BUILDING(Verkstadsbyggnad)</li><li>RESTAURANT(Restaurang)</li><li>SCHOOL(Skola)</li><li>PRESCHOOL(Fö\
-            rskola)</li><li>PARKING(Parkering, Cykelparkering)</li><li>DEPOT(Upplag)</li><li>MARINA(Små\
-            båtshamn)</li><li>WALL(Mur)</li><li>PALING(Plank)</li><li>RECYCLING_STATION(Å\
-            tervinningsstation)</li><li>OTHER(övrigt)</li><br><br>Compatible with\
-            \ CaseType=ANMALAN_ATTEFALL:<li>FURNISHING_OF_ADDITIONAL_DWELLING(inredning\
-            \ av ytterligare bostad)</li><li>ANCILLARY_BUILDING(komplementbyggnad)</li><li>ANCILLARY_HOUSING_BUILDING(komplementbostadsbyggnad)</li><li>DORMER(takkupa)</li><li>EXTENSION(tillbyggnad)</li><br><br>Compatible\
-            \ with CaseType=ENVIRONMENTAL:<li>FOOD(Livsmedelsanläggning)</li><li>HEAT_PUMP(Vä\
-            rmepumpsanläggning)</li>"
-          enum:
-            - ONE_FAMILY_HOUSE
-            - APARTMENT_BLOCK
-            - WEEKEND_COTTAGE
-            - OFFICE_BUILDING
-            - INDUSTRIAL_BUILDING
-            - GARAGE
-            - CARPORT
-            - STOREHOUSE
-            - GREENHOUSE
-            - GUEST_HOUSE
-            - WAREHOUSE
-            - WORKSHOP_BUILDING
-            - RESTAURANT
-            - SCHOOL
-            - PRESCHOOL
-            - BUSINESS_PREMISES
-            - TRANSFORMER_STATION
-            - COMPLEMENT_BUILDING
-            - DEPARTMENT_STORE
-            - BUILDING
-            - BRIDGE_PIER
-            - PARKING
-            - DEPOT
-            - MARINA
-            - WALL
-            - PALING
-            - RECYCLING_STATION
-            - OTHER
-            - FURNISHING_OF_ADDITIONAL_DWELLING
-            - ANCILLARY_BUILDING
-            - ANCILLARY_HOUSING_BUILDING
-            - DORMER
-            - EXTENSION
-            - FIREPLACE
-            - FIREPLACE_SMOKECHANNEL
-            - RECONSTRUCTION
-            - FACADE_CHANGE
-            - GLAZING_BALCONY
-            - USAGE_CHANGE
+          description: The type of facility
+          example: GARAGE
         description:
           type: string
+          description: Description of the facility
           example: En fritextbeskrivning av facility.
         address:
           $ref: '#/components/schemas/AddressDTO'
+        facilityCollectionName:
+          type: string
+          description: The name on the sign.
+          example: Sundsvalls testfabrik
+        mainFacility:
+          type: boolean
+          description: Is it a main facility?
+          example: true
         extraParameters:
           type: object
           additionalProperties:
             type: string
-        mainFacility:
-          type: boolean
+            description: Extra parameters for the facility
+          description: Extra parameters for the facility
+      description: Facility model
     StakeholderDTO:
       required:
-        - roles
         - type
       type: object
       properties:
         type:
           type: string
+          description: Stakeholder type
+          example: PERSON
           enum:
             - PERSON
             - ORGANIZATION
         roles:
           type: array
-          description: An stakeholder can have one or more roles.
+          description: >-
+            An stakeholder can have one or more roles. Please note that
+            INVOICE_RECIPENT is deprecated and should not be used. Use
+            INVOICE_RECIPIENT instead.
           items:
             type: string
-            description: <h3>General roles:</h3><li>APPLICANT(Sökande)</li><li>CONTACT_PERSON(Kontaktperson)</li><br><br><h3>ByggR-roles:</h3><li>CONTROL_OFFICIAL(Kontrollansvarig)</li><li>PROPERTY_OWNER(Fastighetsägare)</li><li>PAYMENT_PERSON(Betalningsansvarig)</li><br><br><h3>Ecos2-roles:</h3><li>INVOICE_RECIPENT(Fakturamottagare)</li><li>OPERATOR(Verksamhetsutövare)</li><li>INSTALLER(Installatör)</li>
-            enum:
-              - CONTROL_OFFICIAL
-              - PROPERTY_OWNER
-              - PAYMENT_PERSON
-              - INVOICE_RECIPENT
-              - OPERATOR
-              - INSTALLER
-              - APPLICANT
-              - CONTACT_PERSON
-              - ADMINISTRATOR
-              - FELLOW_APPLICANT
-              - DRIVER
-              - PASSENGER
-              - DOCTOR
+            description: >-
+              An stakeholder can have one or more roles. Please note that
+              INVOICE_RECIPENT is deprecated and should not be used. Use
+              INVOICE_RECIPIENT instead.
         phoneNumber:
           type: string
-          example: "060123456"
+          description: Stakeholder phone number
+          example: '060123456'
         emailAddress:
           type: string
+          description: Stakeholder emailaddress
           example: test.testorsson@sundsvall.se
         cellphoneNumber:
           type: string
-          example: "0701234567"
+          description: Stakeholder cellphone number
+          example: '0701234567'
         addresses:
           type: array
-          description: An stakeholder may have one or more addresses. For example
-            one POSTAL_ADDRESS and another INVOICE_ADDRESS.
+          description: >-
+            An stakeholder may have one or more addresses. For example one
+            POSTAL_ADDRESS and another INVOICE_ADDRESS.
           items:
             $ref: '#/components/schemas/AddressDTO'
         extraParameters:
           type: object
           additionalProperties:
             type: string
+            description: The stakeholder's billing address
+          description: The stakeholder's billing address
+      description: Stakeholder model
       discriminator:
         propertyName: type
-    EnvironmentalCaseDTO:
+    EcosCaseDTO:
       required:
         - attachments
         - caseType
@@ -934,84 +665,50 @@ components:
           example: caa230c6-abb4-4592-ad9a-34e263c2787b
         caseType:
           type: string
+          description: The case type
           example: NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-          enum:
-            - NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - TILLBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - ANDRING_ANSOKAN_OM_BYGGLOV
-            - STRANDSKYDD_NYBYGGNAD
-            - STRANDSKYDD_ANLAGGANDE
-            - STRANDSKYDD_ANORDNANDE
-            - STRANDSKYDD_ANDRAD_ANVANDNING
-            - ANMALAN_ATTEFALL
-            - ANMALAN_ELDSTAD
-            - REGISTRERING_AV_LIVSMEDEL
-            - ANMALAN_INSTALLATION_VARMEPUMP
-            - ANSOKAN_TILLSTAND_VARMEPUMP
-            - ANSOKAN_OM_TILLSTAND_ENSKILT_AVLOPP
-            - ANMALAN_INSTALLTION_ENSKILT_AVLOPP_UTAN_WC
-            - ANMALAN_ANDRING_AVLOPPSANLAGGNING
-            - ANMALAN_ANDRING_AVLOPPSANORDNING
-            - ANMALAN_HALSOSKYDDSVERKSAMHET
-            - PARKING_PERMIT
-            - PARKING_PERMIT_RENEWAL
-            - LOST_PARKING_PERMIT
         description:
           type: string
-          example: Some description of the case.
+          description: Some description of the case.
+          example: En fritextbeskrivning av case.
         caseTitleAddition:
           type: string
-          description: "Additions to the case title. Right now only applicable to\
-            \ cases of CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV."
-          example: "Eldstad/rökkanal, Skylt"
+          description: >-
+            Additions to the case title. Right now only applicable to cases of
+            CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV.
+          example: 'Eldstad/rökkanal, Skylt'
         stakeholders:
           type: array
+          description: The stakeholders in the case
           items:
             $ref: '#/components/schemas/StakeholderDTO'
         attachments:
           type: array
+          description: The attachments in the case
           items:
             $ref: '#/components/schemas/AttachmentDTO'
         extraParameters:
           type: object
           additionalProperties:
             type: string
-        facilities:
-          maxItems: 1
-          minItems: 1
-          type: array
-          items:
-            $ref: '#/components/schemas/EnvironmentalFacilityDTO'
+            description: Extra parameters for the case.
+          description: Extra parameters for the case.
         startDate:
           type: string
           description: Start date for the business.
           format: date
-          example: 2022-01-01
         endDate:
           type: string
           description: End date of the business if it is time-limited.
           format: date
-          example: 2022-06-01
-      description: Ecos2-cases
-    EnvironmentalFacilityDTO:
-      required:
-        - address
-        - facilityCollectionName
-      type: object
-      properties:
-        description:
-          type: string
-          example: En fritextbeskrivning av facility.
-        address:
-          $ref: '#/components/schemas/AddressDTO'
-        extraParameters:
-          type: object
-          additionalProperties:
-            type: string
-        facilityCollectionName:
-          type: string
-          description: The name on the sign.
-          example: Sundsvalls testfabrik
+        facilities:
+          maxItems: 1
+          minItems: 1
+          type: array
+          description: The facilities in the case
+          items:
+            $ref: '#/components/schemas/FacilityDTO'
+      description: Ecos2-case model class
     OtherCaseDTO:
       required:
         - attachments
@@ -1026,48 +723,40 @@ components:
           example: caa230c6-abb4-4592-ad9a-34e263c2787b
         caseType:
           type: string
+          description: The case type
           example: NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-          enum:
-            - NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - TILLBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - ANDRING_ANSOKAN_OM_BYGGLOV
-            - STRANDSKYDD_NYBYGGNAD
-            - STRANDSKYDD_ANLAGGANDE
-            - STRANDSKYDD_ANORDNANDE
-            - STRANDSKYDD_ANDRAD_ANVANDNING
-            - ANMALAN_ATTEFALL
-            - ANMALAN_ELDSTAD
-            - REGISTRERING_AV_LIVSMEDEL
-            - ANMALAN_INSTALLATION_VARMEPUMP
-            - ANSOKAN_TILLSTAND_VARMEPUMP
-            - ANSOKAN_OM_TILLSTAND_ENSKILT_AVLOPP
-            - ANMALAN_INSTALLTION_ENSKILT_AVLOPP_UTAN_WC
-            - ANMALAN_ANDRING_AVLOPPSANLAGGNING
-            - ANMALAN_ANDRING_AVLOPPSANORDNING
-            - ANMALAN_HALSOSKYDDSVERKSAMHET
-            - PARKING_PERMIT
-            - PARKING_PERMIT_RENEWAL
-            - LOST_PARKING_PERMIT
         description:
           type: string
-          example: Some description of the case.
+          description: Some description of the case.
+          example: En fritextbeskrivning av case.
         caseTitleAddition:
           type: string
-          description: "Additions to the case title. Right now only applicable to\
-            \ cases of CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV."
-          example: "Eldstad/rökkanal, Skylt"
+          description: >-
+            Additions to the case title. Right now only applicable to cases of
+            CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV.
+          example: 'Eldstad/rökkanal, Skylt'
         stakeholders:
           type: array
+          description: The stakeholders in the case
           items:
             $ref: '#/components/schemas/StakeholderDTO'
         attachments:
           type: array
+          description: The attachments in the case
           items:
             $ref: '#/components/schemas/AttachmentDTO'
         extraParameters:
           type: object
           additionalProperties:
             type: string
+            description: Extra parameters for the case.
+          description: Extra parameters for the case.
+        facilities:
+          type: array
+          description: The facilities in the case
+          items:
+            $ref: '#/components/schemas/FacilityDTO'
+      description: Other case model
     Problem:
       type: object
       properties:
@@ -1090,64 +779,55 @@ components:
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     CaseResourceResponseDTO:
       type: object
       properties:
         caseId:
           type: string
+          description: The case id
+          example: '1234'
+      description: Case resource response
     CaseStatusDTO:
       type: object
       properties:
         system:
           type: string
+          description: System type
+          example: BYGGR
           enum:
             - BYGGR
             - ECOS
             - CASE_DATA
         caseType:
           type: string
-          example: NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-          enum:
-            - NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - TILLBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - ANDRING_ANSOKAN_OM_BYGGLOV
-            - STRANDSKYDD_NYBYGGNAD
-            - STRANDSKYDD_ANLAGGANDE
-            - STRANDSKYDD_ANORDNANDE
-            - STRANDSKYDD_ANDRAD_ANVANDNING
-            - ANMALAN_ATTEFALL
-            - ANMALAN_ELDSTAD
-            - REGISTRERING_AV_LIVSMEDEL
-            - ANMALAN_INSTALLATION_VARMEPUMP
-            - ANSOKAN_TILLSTAND_VARMEPUMP
-            - ANSOKAN_OM_TILLSTAND_ENSKILT_AVLOPP
-            - ANMALAN_INSTALLTION_ENSKILT_AVLOPP_UTAN_WC
-            - ANMALAN_ANDRING_AVLOPPSANLAGGNING
-            - ANMALAN_ANDRING_AVLOPPSANORDNING
-            - ANMALAN_HALSOSKYDDSVERKSAMHET
-            - PARKING_PERMIT
-            - PARKING_PERMIT_RENEWAL
-            - LOST_PARKING_PERMIT
+          description: The case type
+          example: BYGGLOV
         externalCaseId:
           type: string
+          description: The external case id
           example: caa230c6-abb4-4592-ad9a-34e263c2787d
         caseId:
           type: string
+          description: The case id
           example: BYGG 2022-000100
         status:
           type: string
+          description: Case status
           example: Pågående
         serviceName:
           type: string
+          description: Service name
           example: Nybyggnad - Ansökan om bygglov
         timestamp:
           type: string
+          description: The timestamp
           format: date-time
+      description: Case status model
     CaseMapping:
       required:
         - caseType
@@ -1160,38 +840,16 @@ components:
           type: string
         system:
           type: string
+          description: System type
           enum:
             - BYGGR
             - ECOS
             - CASE_DATA
         caseType:
           type: string
-          example: NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-          enum:
-            - NYBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - TILLBYGGNAD_ANSOKAN_OM_BYGGLOV
-            - ANDRING_ANSOKAN_OM_BYGGLOV
-            - STRANDSKYDD_NYBYGGNAD
-            - STRANDSKYDD_ANLAGGANDE
-            - STRANDSKYDD_ANORDNANDE
-            - STRANDSKYDD_ANDRAD_ANVANDNING
-            - ANMALAN_ATTEFALL
-            - ANMALAN_ELDSTAD
-            - REGISTRERING_AV_LIVSMEDEL
-            - ANMALAN_INSTALLATION_VARMEPUMP
-            - ANSOKAN_TILLSTAND_VARMEPUMP
-            - ANSOKAN_OM_TILLSTAND_ENSKILT_AVLOPP
-            - ANMALAN_INSTALLTION_ENSKILT_AVLOPP_UTAN_WC
-            - ANMALAN_ANDRING_AVLOPPSANLAGGNING
-            - ANMALAN_ANDRING_AVLOPPSANORDNING
-            - ANMALAN_HALSOSKYDDSVERKSAMHET
-            - PARKING_PERMIT
-            - PARKING_PERMIT_RENEWAL
-            - LOST_PARKING_PERMIT
         serviceName:
           type: string
         timestamp:
           type: string
           format: date-time
           readOnly: true
-  securitySchemes: { }
