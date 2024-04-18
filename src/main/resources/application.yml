@@ -39,5 +39,5 @@ spring:
 logbook:
   body-filters:
     x-path:
-      - key: '//encodedData[string-length(text()) > 0]'
+      - key: '//EncodedData[string-length(text()) > 0]'
         value: '[base64]'
