@@ -8,6 +8,6 @@
       "Content-Type": "application/json"
     },
     "bodyFileName": "test3_found_in_casemanagement_but_no_match_in_casestatus_db_or_incident/responses/incident.json",
-    "status": 200
+    "status": 404
   }
 }
