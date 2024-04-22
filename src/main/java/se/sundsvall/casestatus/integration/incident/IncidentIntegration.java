@@ -25,7 +25,7 @@ public class IncidentIntegration {
         try {
             return Optional.of(client.getIncidentStatusForExternalCaseId(externalCaseId));
         } catch (Exception e) {
-            LOG.info("Unable to get incident status for external id {}", externalCaseId, e);
+            LOG.warn("Unable to get incident status for external id {}", externalCaseId, e);
 
             return Optional.empty();
         }

@@ -13,7 +13,8 @@ import generated.se.sundsvall.incident.IncidentOepResponse;
 @FeignClient(
         name = CLIENT_ID,
         url = "${integration.incident.base-url}",
-        configuration = IncidentConfiguration.class
+        configuration = IncidentConfiguration.class,
+        dismiss404 = true
 )
 public interface IncidentClient {
 
