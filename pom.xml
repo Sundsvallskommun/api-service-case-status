@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>se.sundsvall.dept44</groupId>
 		<artifactId>dept44-service-parent</artifactId>
-		<version>5.0.0</version>
+		<version>5.0.1</version>
 		<relativePath/>
 	</parent>
 	<groupId>se.sundsvall.casestatus</groupId>
@@ -15,9 +15,6 @@
 	<name>api-service-casestatus</name>
 	<properties>
 		<app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
-		<docker.image.name>ms-casestatus</docker.image.name>
-		<published.container.port.test>9075</published.container.port.test>
-		<published.container.port.production>9075</published.container.port.production>
 		<jsoup.version>1.17.2</jsoup.version>
 		<xsoup.version>0.3.7</xsoup.version>
 		<shedlock.version>5.13.0</shedlock.version>
