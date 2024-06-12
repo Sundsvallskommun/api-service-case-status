@@ -12,24 +12,24 @@ import javax.sql.DataSource;
 @Configuration
 class DbIntegrationConfiguration {
 
-    @Bean("integration.db.case-status.datasource-properties")
+    @Bean("integrationDbCaseStatusDatasourceProperties")
     @ConfigurationProperties(prefix = "integration.db.case-status")
     DataSourceProperties caseStatusDataSourceProperties() {
         return new DataSourceProperties();
     }
 
-    @Bean("integration.db.case-status.datasource")
+    @Bean("integrationDbCaseStatusDatasource")
     DataSource caseStatusDataSource(
-            @Qualifier("integration.db.case-status.datasource-properties") final DataSourceProperties properties) {
+      @Qualifier("integrationDbCaseStatusDatasourceProperties") final DataSourceProperties properties) {
         return properties
-                .initializeDataSourceBuilder()
-                .build();
+          .initializeDataSourceBuilder()
+          .build();
     }
 
-    @Bean("integration.db.case-status.jdbc-template")
+    @Bean("integrationDbCaseStatusJdbcTemplate")
     NamedParameterJdbcTemplate caseStatusJdbcTemplate(
-            @Qualifier("integration.db.case-status.datasource") final DataSource dataSource) {
+      @Qualifier("integrationDbCaseStatusDatasource") final DataSource dataSource) {
         return new NamedParameterJdbcTemplate(dataSource);
     }
-    
+
 }

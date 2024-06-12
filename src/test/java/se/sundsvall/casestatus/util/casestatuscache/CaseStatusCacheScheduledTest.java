@@ -54,13 +54,13 @@ class CaseStatusCacheScheduledTest {
 	private CaseStatusCacheWorker caseStatusCacheWorkerMock;
 
 	@Autowired
-	@Qualifier("integration.db.case-status.jdbc-template")
+	@Qualifier("integrationDbCaseStatusJdbcTemplate")
 	private NamedParameterJdbcTemplate jdbcTemplate;
 
 	private LocalDateTime mockCalledTime;
 
 	@Test
-	void verifyShedLock() throws InterruptedException {
+	void verifyShedLock() {
 
 		// Let mock hang
 		doAnswer(invocation -> {
