@@ -24,7 +24,7 @@ class CacheWriter {
 	private final NamedParameterJdbcTemplate jdbcTemplate;
 	private static final Logger LOG = LoggerFactory.getLogger(CacheWriter.class);
 
-	CacheWriter(@Qualifier("integration.db.case-status.jdbc-template") final NamedParameterJdbcTemplate jdbcTemplate) {
+	CacheWriter(@Qualifier("integrationDbCaseStatusJdbcTemplate") final NamedParameterJdbcTemplate jdbcTemplate) {
 		this.jdbcTemplate = jdbcTemplate;
 	}
 

@@ -17,15 +17,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 class DbIntegrationConfigurationTests {
 
     @Autowired
-    @Qualifier("integration.db.case-status.datasource-properties")
+    @Qualifier("integrationDbCaseStatusDatasourceProperties")
     private DataSourceProperties caseStatusDataSourceProperties;
 
     @Autowired
-    @Qualifier("integration.db.case-status.datasource")
+    @Qualifier("integrationDbCaseStatusDatasource")
     private DataSource caseStatusDataSource;
 
     @Autowired
-    @Qualifier("integration.db.case-status.jdbc-template")
+    @Qualifier("integrationDbCaseStatusJdbcTemplate")
     private NamedParameterJdbcTemplate caseStatusJdbcTemplate;
 
 

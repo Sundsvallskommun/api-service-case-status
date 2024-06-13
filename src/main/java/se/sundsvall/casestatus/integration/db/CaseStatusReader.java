@@ -16,7 +16,7 @@ class CaseStatusReader {
 
     private final NamedParameterJdbcTemplate jdbcTemplate;
 
-    CaseStatusReader(@Qualifier("integration.db.case-status.jdbc-template") final NamedParameterJdbcTemplate jdbcTemplate) {
+    CaseStatusReader(@Qualifier("integrationDbCaseStatusJdbcTemplate") final NamedParameterJdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 

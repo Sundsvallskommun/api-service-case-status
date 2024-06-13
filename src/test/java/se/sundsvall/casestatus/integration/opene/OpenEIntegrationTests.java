@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.junit.jupiter.api.Test;
@@ -30,7 +29,7 @@ class OpenEIntegrationTests {
 	private OpenEIntegration openEIntegration;
 
 	@Test
-    void getPdf_ok() throws IOException {
+    void getPdf_ok() {
         when(mockOpenEClient.getPDF(any(String.class))).thenReturn("someAnswer".getBytes(StandardCharsets.UTF_8));
 
         final var response = openEIntegration.getPdf("someExternalCaseId");
@@ -42,7 +41,7 @@ class OpenEIntegrationTests {
     }
 
 	@Test
-    void getPdf_error() throws IOException {
+    void getPdf_error() {
 
         when(mockOpenEClient.getPDF(any(String.class))).thenThrow(new NullPointerException());
 
@@ -55,7 +54,7 @@ class OpenEIntegrationTests {
     }
 
 	@Test
-    void getErrandIds_ok() throws IOException {
+    void getErrandIds_ok() {
         when(mockOpenEClient.getErrandIds(any(String.class))).thenReturn("someAnswer".getBytes());
         when(familyId.getValue()).thenReturn(123);
         final var response = openEIntegration.getErrandIds(familyId);
@@ -66,7 +65,7 @@ class OpenEIntegrationTests {
     }
 
 	@Test
-    void getErrandIds_error() throws IOException {
+    void getErrandIds_error() {
 
         when(mockOpenEClient.getErrandIds(any(String.class))).thenThrow(new NullPointerException());
 
@@ -79,7 +78,7 @@ class OpenEIntegrationTests {
     }
 
 	@Test
-    void getErrand_ok() throws IOException {
+    void getErrand_ok() {
         when(mockOpenEClient.getErrand(any(String.class))).thenReturn("someAnswer".getBytes());
         final var response = openEIntegration.getErrand("someFlowInstanceId");
 
@@ -89,7 +88,7 @@ class OpenEIntegrationTests {
     }
 
 	@Test
-    void getErrand_error() throws IOException {
+    void getErrand_error() {
 
         when(mockOpenEClient.getErrand(any(String.class))).thenThrow(new NullPointerException());
 
@@ -102,7 +101,7 @@ class OpenEIntegrationTests {
     }
 
 	@Test
-    void getErrandStatus_ok() throws IOException {
+    void getErrandStatus_ok() {
         when(mockOpenEClient.getErrandStatus(any(String.class))).thenReturn("someAnswer".getBytes());
 
         final var response = openEIntegration.getErrandStatus("someFlowInstanceId");
@@ -114,7 +113,7 @@ class OpenEIntegrationTests {
     }
 
 	@Test
-    void getErrandStatus_error() throws IOException {
+    void getErrandStatus_error() {
 
         when(mockOpenEClient.getErrandStatus(any(String.class))).thenThrow(new NullPointerException());
 
