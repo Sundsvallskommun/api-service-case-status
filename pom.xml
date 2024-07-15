@@ -15,7 +15,7 @@
 	<name>api-service-casestatus</name>
 	<properties>
 		<app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
-		<jsoup.version>1.17.2</jsoup.version>
+		<jsoup.version>1.18.1</jsoup.version>
 		<xsoup.version>0.3.7</xsoup.version>
 		<shedlock.version>5.13.0</shedlock.version>
 		<awaitility.version>4.2.1</awaitility.version>
