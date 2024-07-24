@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class CitizenIntegration {
 
-
-
 	private static final Logger LOG = LoggerFactory.getLogger(CitizenIntegration.class);
 
 	private final CitizenClient client;
