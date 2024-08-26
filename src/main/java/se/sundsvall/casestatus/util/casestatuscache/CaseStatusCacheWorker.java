@@ -12,7 +12,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
-import se.sundsvall.casestatus.integration.db.DbIntegration;
+import se.sundsvall.casestatus.integration.db.CompanyRepository;
+import se.sundsvall.casestatus.integration.db.PrivateRepository;
+import se.sundsvall.casestatus.integration.db.UnknownRepository;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
 import se.sundsvall.casestatus.util.Mapper;
 import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
@@ -32,15 +34,23 @@ public class CaseStatusCacheWorker {
 
 	private final CitizenIntegration citizenIntegration;
 
-	private final DbIntegration dbIntegration;
 
 	private final Mapper mapper;
 
-	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration, final DbIntegration dbIntegration, final Mapper mapper) {
+	private final UnknownRepository unknownRepository;
+
+	private final PrivateRepository privateRepository;
+
+	private final CompanyRepository companyRepository;
+
+	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration, final Mapper mapper, final UnknownRepository unknownRepository, final PrivateRepository privateRepository, final CompanyRepository companyRepository) {
 		this.openEIntegration = openEIntegration;
 		this.citizenIntegration = citizenIntegration;
-		this.dbIntegration = dbIntegration;
+
 		this.mapper = mapper;
+		this.unknownRepository = unknownRepository;
+		this.privateRepository = privateRepository;
+		this.companyRepository = companyRepository;
 	}
 
 	void cacheStatusesForFamilyID(final FamilyId familyID) {
@@ -57,7 +67,7 @@ public class CaseStatusCacheWorker {
 
 
 	void parseFlowInstance(final Element flowInstance, final FamilyId familyId) {
-		final var flowInstanceID = Xsoup.select(flowInstance, "flowInstanceID/text()").get();
+		final var flowInstanceID = Xsoup.select(flowInstance, "flowInstanceId/text()").get();
 		final var errandDocument = Jsoup.parse(new String(openEIntegration.getErrand(flowInstanceID), StandardCharsets.ISO_8859_1));
 		final var statusDocument = Jsoup.parse(new String(openEIntegration.getErrandStatus(flowInstanceID), StandardCharsets.ISO_8859_1));
 
@@ -70,7 +80,7 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get orgNumber, will cache errand with Id: {}, of family: {} as Organization", flowInstanceID, familyId);
-				dbIntegration.writeToCompanyTable(mapper.toCacheCompanyCaseStatus(statusDocument, errandDocument, privateOrOrganisation.getValue()));
+				companyRepository.save(mapper.toCacheCompanyCaseStatus(statusDocument, errandDocument, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
 			}
 			case PRIVATE -> {
 				final var personId = citizenIntegration.getPersonId(privateOrOrganisation.getValue());
@@ -79,11 +89,11 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get personId, will cache errand with Id: {}, of family: {} as Private", flowInstanceID, familyId);
-				dbIntegration.writeToPrivateTable(mapper.toCachePrivateCaseStatus(statusDocument, errandDocument, personId));
+				privateRepository.save(mapper.toCachePrivateCaseStatus(statusDocument, errandDocument, personId, familyId.getMunicipalityId()));
 			}
 			default -> {
 				LOG.debug("Unable to get personId or OrgNumber, will cache errand with Id: {}, of family: {} as Unknown", flowInstanceID, familyId);
-				dbIntegration.writeToUnknownTable(mapper.toCacheUnknowCaseStatus(statusDocument, errandDocument));
+				unknownRepository.save(mapper.toCacheUnknownCaseStatus(statusDocument, errandDocument, familyId.getMunicipalityId()));
 			}
 
 		}
@@ -98,7 +108,8 @@ public class CaseStatusCacheWorker {
 			case NYBYGGNADSKARTA ->
 				Xsoup.select(flowInstance.first(), "clientEstablishment/text()").get() != null ? new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/OrganizationNumber/text()").get())
 					: new ImmutablePair<>(PRIVATE, Xsoup.select(flowInstance.first(), "clientPrivate/SocialSecurityNumber/text()").get());
-			case ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR, TILLSTANDFORSALJNINGTOBAKSVAROR, ANMALANFORSELJNINGSERVERINGFOLKOL, FORSALJNINGECIGGARETTER ->
+			case ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR, TILLSTANDFORSALJNINGTOBAKSVAROR,
+			     ANMALANFORSELJNINGSERVERINGFOLKOL, FORSALJNINGECIGGARETTER ->
 				new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()")
 					.get() != null ? Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()").get()
 					: Xsoup.select(flowInstance.first(), "chooseCompany/organizationNumber/text()").get());
@@ -115,10 +126,6 @@ public class CaseStatusCacheWorker {
 			return new ImmutablePair<>(ORG, Xsoup.select(openEObj.first(), "applicant/applicantidentifier/text()").get());
 		}
 		return new ImmutablePair<>(ORG, "Saknas");
-	}
-
-	public int mergeCaseStatusCache() {
-		return dbIntegration.mergeCaseStatusCache();
 	}
 
 }
