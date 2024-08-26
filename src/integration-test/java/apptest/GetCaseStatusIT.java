@@ -7,20 +7,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 
-@Testcontainers
 @WireMockAppTestSuite(files = "classpath:/GetCaseStatusIT/", classes = Application.class)
 @Sql(scripts = {"/db/truncate.sql", "/db/casestatus.sql"})
 class GetCaseStatusIT extends AbstractAppTest {
 
-	private static final String PATH = "/1308f4ca-f7d6-4c88-9098-64be43b3a905/status";
-	private static final String FAULTY_PATH = "/100757/status";
-	private static final String EMPTY_PATH = "/110757/status";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String PATH = "/" + MUNICIPALITY_ID + "/1308f4ca-f7d6-4c88-9098-64be43b3a905/status";
+
+	private static final String FAULTY_PATH = "/" + MUNICIPALITY_ID + "/100757/status";
+
+	private static final String EMPTY_PATH = "/" + MUNICIPALITY_ID + "/110757/status";
 
 	@BeforeEach
 	void setUp() {

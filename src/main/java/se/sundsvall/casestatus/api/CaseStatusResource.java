@@ -8,23 +8,28 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
+import se.sundsvall.casestatus.api.domain.CasePdfResponse;
+import se.sundsvall.casestatus.api.domain.CaseStatusResponse;
+import se.sundsvall.casestatus.api.domain.OepStatusResponse;
+import se.sundsvall.casestatus.service.CaseStatusService;
+import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
+
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import se.sundsvall.casestatus.api.domain.CasePdfResponse;
-import se.sundsvall.casestatus.api.domain.CaseStatusResponse;
-import se.sundsvall.casestatus.api.domain.OepStatusResponse;
-import se.sundsvall.casestatus.service.CaseStatusService;
 
 @RestController
 @Validated
+@RequestMapping("/{municipalityId}")
 @Tag(name = "Status Resources")
 class CaseStatusResource {
 
@@ -52,8 +57,10 @@ class CaseStatusResource {
 		description = "Internal Server Error",
 		content = @Content(schema = @Schema(implementation = Problem.class)))
 	@GetMapping("/{externalCaseId}/oepstatus")
-	ResponseEntity<OepStatusResponse> getOepStatus(@PathVariable("externalCaseId") final String externalCaseId) {
-		final var response = service.getOepStatus(externalCaseId);
+	ResponseEntity<OepStatusResponse> getOepStatus(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@PathVariable("externalCaseId") final String externalCaseId) {
+		final var response = service.getOepStatus(externalCaseId, municipalityId);
 
 		return ok(response);
 	}
@@ -76,8 +83,10 @@ class CaseStatusResource {
 		description = "Internal Server Error",
 		content = @Content(schema = @Schema(implementation = Problem.class)))
 	@GetMapping("/{externalCaseId}/status")
-	ResponseEntity<CaseStatusResponse> getCaseStatus(@PathVariable("externalCaseId") final String externalCaseId) {
-		final var caseStatus = service.getCaseStatus(externalCaseId);
+	ResponseEntity<CaseStatusResponse> getCaseStatus(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@PathVariable("externalCaseId") final String externalCaseId) {
+		final var caseStatus = service.getCaseStatus(externalCaseId, municipalityId);
 
 		return ok(caseStatus);
 	}
@@ -100,8 +109,10 @@ class CaseStatusResource {
 		description = "Internal Server Error",
 		content = @Content(schema = @Schema(implementation = Problem.class)))
 	@GetMapping("/{externalCaseId}/pdf")
-	ResponseEntity<CasePdfResponse> getCasePdf(@PathVariable("externalCaseId") final String externalCaseId) {
-		final var response = service.getCasePdf(externalCaseId);
+	ResponseEntity<CasePdfResponse> getCasePdf(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@PathVariable("externalCaseId") final String externalCaseId) {
+		final var response = service.getCasePdf(externalCaseId, municipalityId);
 
 		return ok(response);
 	}
@@ -124,8 +135,10 @@ class CaseStatusResource {
 		description = "Internal Server Error",
 		content = @Content(schema = @Schema(implementation = Problem.class)))
 	@GetMapping("/{organizationNumber}/statuses")
-	ResponseEntity<List<CaseStatusResponse>> getOrganisationStatuses(@PathVariable("organizationNumber") final String organizationNumber) {
-		final var result = service.getCaseStatuses(organizationNumber);
+	ResponseEntity<List<CaseStatusResponse>> getOrganisationStatuses(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@PathVariable("organizationNumber") final String organizationNumber) {
+		final var result = service.getCaseStatuses(organizationNumber, municipalityId);
 
 		if (result.isEmpty()) {
 			throw Problem.valueOf(Status.NOT_FOUND);
@@ -133,4 +146,5 @@ class CaseStatusResource {
 
 		return ok(result);
 	}
+
 }

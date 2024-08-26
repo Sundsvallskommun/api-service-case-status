@@ -7,20 +7,22 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 
-@Testcontainers
 @WireMockAppTestSuite(files = "classpath:/GetOrganisationStatusesIT/", classes = Application.class)
 @Sql(scripts = {"/db/truncate.sql", "/db/casestatus.sql"})
 class GetOrganisationStatusesIT extends AbstractAppTest {
 
-	private static final String PATH = "/1234561235/statuses";
-	private static final String FAULTY_PATH = "/1234561233/statuses";
-	private static final String EMPTY_PATH = "/1234561232/statuses";
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String PATH = "/" + MUNICIPALITY_ID + "/1234561235/statuses";
+
+	private static final String FAULTY_PATH = "/" + MUNICIPALITY_ID + "/1234561233/statuses";
+
+	private static final String EMPTY_PATH = "/" + MUNICIPALITY_ID + "/1234561232/statuses";
 
 	@BeforeEach
 	void setUp() {
@@ -55,4 +57,5 @@ class GetOrganisationStatusesIT extends AbstractAppTest {
 			.withExpectedResponseStatus(HttpStatus.NOT_FOUND)
 			.sendRequestAndVerifyResponse();
 	}
+
 }

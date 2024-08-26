@@ -11,30 +11,31 @@ import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 
 @Component
 public class CaseManagementIntegration {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(CaseManagementIntegration.class);
-    
-    private final CaseManagementClient client;
-    
-    public CaseManagementIntegration(final CaseManagementClient client) {
-        this.client = client;
-    }
-    
-    public Optional<CaseStatusDTO> getCaseStatusForExternalId(final String externalCaseId) {
-        try {
-            return Optional.of(client.getCaseStatusForExternalCaseId(externalCaseId));
-        } catch (Exception e) {
-            LOG.info("Unable to get case status for external id {}", externalCaseId, e);
-            return Optional.empty();
-        }
-    }
-    
-    public List<CaseStatusDTO> getCaseStatusForOrganizationNumber(final String organizationNumber) {
-        try {
-            return client.getCaseStatusForOrganizationNumber(organizationNumber);
-        } catch (Exception e) {
-            LOG.info("Unable to get case status for organizationNumber{}", organizationNumber, e);
-            return List.of();
-        }
-    }
+
+	private static final Logger LOG = LoggerFactory.getLogger(CaseManagementIntegration.class);
+
+	private final CaseManagementClient client;
+
+	public CaseManagementIntegration(final CaseManagementClient client) {
+		this.client = client;
+	}
+
+	public Optional<CaseStatusDTO> getCaseStatusForExternalId(final String externalCaseId, final String municipalityId) {
+		try {
+			return Optional.of(client.getCaseStatusForExternalCaseId(externalCaseId));
+		} catch (final Exception e) {
+			LOG.info("Unable to get case status for external id {}", externalCaseId, e);
+			return Optional.empty();
+		}
+	}
+
+	public List<CaseStatusDTO> getCaseStatusForOrganizationNumber(final String organizationNumber, final String municipalityId) {
+		try {
+			return client.getCaseStatusForOrganizationNumber(organizationNumber);
+		} catch (final Exception e) {
+			LOG.info("Unable to get case status for organizationNumber{}", organizationNumber, e);
+			return List.of();
+		}
+	}
+
 }

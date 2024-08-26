@@ -6,111 +6,117 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
-import se.sundsvall.casestatus.integration.db.DbIntegration;
+import se.sundsvall.casestatus.integration.db.CompanyRepository;
+import se.sundsvall.casestatus.integration.db.PrivateRepository;
+import se.sundsvall.casestatus.integration.db.UnknownRepository;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
 import se.sundsvall.casestatus.util.Mapper;
 import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 
-@ExtendWith({ MockitoExtension.class, ResourceLoaderExtension.class })
+@ExtendWith({MockitoExtension.class, ResourceLoaderExtension.class})
 class CaseStatusCacheWorkerTest {
 
 	@Mock
-	private OpenEIntegration openEIntegration;
+	private OpenEIntegration openEIntegrationMock;
 
 	@Mock
-	private DbIntegration dbIntegration;
+	private CitizenIntegration citizenIntegrationMock;
 
 	@Mock
-	private CitizenIntegration citizenIntegration;
+	private UnknownRepository unknownRepositoryMock;
+
+	@Mock
+	private PrivateRepository privateRepositoryMock;
+
+	@Mock
+	private CompanyRepository companyRepositoryMock;
 
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private Mapper mapper;
 
+	@InjectMocks
 	private CaseStatusCacheWorker caseStatusCacheWorker;
 
-	@BeforeEach
-	void setUp() {
-		caseStatusCacheWorker = new CaseStatusCacheWorker(openEIntegration, citizenIntegration, dbIntegration, mapper);
-	}
 
 	@Test
-	void cacheStatusesForFamilyID_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR(@Load(value = "/xml/getErrandList_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") String getErrandIdsXML,
-		@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") String getErrandXML,
-		@Load(value = "/xml/getErrandStatus.xml") String getErrandStatusXML) {
+	void cacheStatusesForFamilyID_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR(@Load(value = "/xml/getErrandList_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandIdsXML,
+		@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML,
+		@Load(value = "/xml/getErrandStatus.xml") final String getErrandStatusXML) {
 
 		final FamilyId familyId = FamilyId.ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR;
 
-		when(openEIntegration.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
-		when(openEIntegration.getErrand(any())).thenReturn(getErrandXML.getBytes());
-		when(openEIntegration.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
+		when(openEIntegrationMock.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
+		when(openEIntegrationMock.getErrand(any())).thenReturn(getErrandXML.getBytes());
+		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
 
 		caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
 
-		verify(openEIntegration).getErrandIds(any());
-		verify(openEIntegration, times(2)).getErrand(any());
-		verify(openEIntegration, times(2)).getErrandStatus(any());
-		verify(dbIntegration, times(2)).writeToCompanyTable(any());
-		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any());
+		verify(openEIntegrationMock).getErrandIds(any());
+		verify(openEIntegrationMock, times(2)).getErrand(any());
+		verify(openEIntegrationMock, times(2)).getErrandStatus(any());
+		verify(companyRepositoryMock, times(2)).save(any());
+		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any(), any());
 	}
 
 	@Test
-	void cacheStatusesForFamilyID_NYBYGGNADSKARTA(@Load(value = "/xml/getErrandList_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") String getErrandIdsXML,
-		@Load(value = "/xml/getErrand_nybyggnad.xml") String getErrandXML,
-		@Load(value = "/xml/getErrandStatus.xml") String getErrandStatusXML) {
+	void cacheStatusesForFamilyID_NYBYGGNADSKARTA(@Load(value = "/xml/getErrandList_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandIdsXML,
+		@Load(value = "/xml/getErrand_nybyggnad.xml") final String getErrandXML,
+		@Load(value = "/xml/getErrandStatus.xml") final String getErrandStatusXML) {
 
 		final FamilyId familyId = FamilyId.NYBYGGNADSKARTA;
 
-		when(openEIntegration.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
-		when(openEIntegration.getErrand(any())).thenReturn(getErrandXML.getBytes());
-		when(openEIntegration.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
-		when(citizenIntegration.getPersonId(any())).thenReturn("somePersonId");
+		when(openEIntegrationMock.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
+		when(openEIntegrationMock.getErrand(any())).thenReturn(getErrandXML.getBytes());
+		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
+		when(citizenIntegrationMock.getPersonId(any())).thenReturn("somePersonId");
 
 		caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
 
-		verify(openEIntegration).getErrandIds(any());
-		verify(openEIntegration, times(2)).getErrand(any());
-		verify(openEIntegration, times(2)).getErrandStatus(any());
-		verify(dbIntegration, times(2)).writeToPrivateTable(any());
-		verify(mapper, times(2)).toCachePrivateCaseStatus(any(), any(), any());
+		verify(openEIntegrationMock).getErrandIds(any());
+		verify(openEIntegrationMock, times(2)).getErrand(any());
+		verify(openEIntegrationMock, times(2)).getErrandStatus(any());
+		verify(privateRepositoryMock, times(2)).save(any());
+		verify(mapper, times(2)).toCachePrivateCaseStatus(any(), any(), any(), any());
 	}
 
 	@Test
-	void cacheStatusesForFamilyID(@Load(value = "/xml/getErrandList_ROKKANALELDSTAD.xml") String getErrandIdsXML,
-		@Load(value = "/xml/getErrand_ROKKANALELDSTAD1.xml") String getErrandXML1,
-		@Load(value = "/xml/getErrand_ROKKANALELDSTAD2.xml") String getErrandXML2,
-		@Load(value = "/xml/getErrand_ROKKANALELDSTAD3.xml") String getErrandXML3,
-		@Load(value = "/xml/getErrand_ROKKANALELDSTAD4.xml") String getErrandXML4,
-		@Load(value = "/xml/getErrandStatus.xml") String getErrandStatusXML) {
+	void cacheStatusesForFamilyID(@Load(value = "/xml/getErrandList_ROKKANALELDSTAD.xml") final String getErrandIdsXML,
+		@Load(value = "/xml/getErrand_ROKKANALELDSTAD1.xml") final String getErrandXML1,
+		@Load(value = "/xml/getErrand_ROKKANALELDSTAD2.xml") final String getErrandXML2,
+		@Load(value = "/xml/getErrand_ROKKANALELDSTAD3.xml") final String getErrandXML3,
+		@Load(value = "/xml/getErrand_ROKKANALELDSTAD4.xml") final String getErrandXML4,
+		@Load(value = "/xml/getErrandStatus.xml") final String getErrandStatusXML) {
 
 		final FamilyId familyId = FamilyId.ROKKANALELDSTAD;
 
-		when(openEIntegration.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
-		when(openEIntegration.getErrand(any())).thenReturn(getErrandXML1.getBytes()).thenReturn(getErrandXML2.getBytes()).thenReturn(getErrandXML3.getBytes()).thenReturn(getErrandXML4.getBytes());
-		when(openEIntegration.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
-		when(citizenIntegration.getPersonId(any())).thenReturn("somePersonId");
+		when(openEIntegrationMock.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
+		when(openEIntegrationMock.getErrand(any())).thenReturn(getErrandXML1.getBytes()).thenReturn(getErrandXML2.getBytes()).thenReturn(getErrandXML3.getBytes()).thenReturn(getErrandXML4.getBytes());
+		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
+		when(citizenIntegrationMock.getPersonId(any())).thenReturn("somePersonId");
 
 		caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
 
-		verify(openEIntegration).getErrandIds(any());
-		verify(openEIntegration, times(4)).getErrand(any());
-		verify(openEIntegration, times(4)).getErrandStatus(any());
-		verify(dbIntegration, times(2)).writeToCompanyTable(any());
-		verify(dbIntegration).writeToPrivateTable(any());
-		verify(dbIntegration).writeToUnknownTable(any());
-		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any());
-		verify(mapper).toCachePrivateCaseStatus(any(), any(), any());
-		verify(mapper).toCacheUnknowCaseStatus(any(), any());
-		verifyNoMoreInteractions(openEIntegration);
+		verify(openEIntegrationMock).getErrandIds(any());
+		verify(openEIntegrationMock, times(4)).getErrand(any());
+		verify(openEIntegrationMock, times(4)).getErrandStatus(any());
+		verify(companyRepositoryMock, times(2)).save(any());
+		verify(privateRepositoryMock).save(any());
+		verify(unknownRepositoryMock).save(any());
+		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any(), any());
+		verify(mapper).toCachePrivateCaseStatus(any(), any(), any(), any());
+		verify(mapper).toCacheUnknownCaseStatus(any(), any(), any());
+		verifyNoMoreInteractions(openEIntegrationMock);
 		verifyNoMoreInteractions(mapper);
 	}
+
 }

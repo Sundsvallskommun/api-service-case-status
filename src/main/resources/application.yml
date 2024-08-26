@@ -13,9 +13,9 @@ integration:
     readTimeout: 30
 
 openapi:
-  name: api-case-status
-  title: CaseStatus
-  version: 2.0
+  name: ${spring.application.name}
+  title: ${spring.application.name}
+  version: '@project.version@'
 spring:
   application:
     name: api-case-status
