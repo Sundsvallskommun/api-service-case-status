@@ -40,14 +40,8 @@ public class CaseStatusCache {
 				caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
 			}
 		});
-
-		final var result = mergeCaseStatusCache();
-		LOG.info("CacheJob run completed, {} rows were affected", result);
 	}
 
-	private int mergeCaseStatusCache() {
-		return caseStatusCacheWorker.mergeCaseStatusCache();
-	}
 
 	public boolean isProduction() {
 		return isProd;

@@ -3,23 +3,11 @@ cache:
   scheduled:
     cron: "-"
     shedlock-lock-at-most-for: PT10M
-
 integration:
   case-management:
     base-url: http://case-management.url
   citizen:
     base-url: http://citizen.url
-  db:
-    case-status:
-      driver-class-name: org.h2.Driver
-      password: ''
-      url: jdbc:h2:mem:case-status
-      username: sa
-    case-status-cache:
-      driver-class-name: org.h2.Driver
-      password: ''
-      url: jdbc:h2:mem:case-status-cache
-      username: sa
   incident:
     base-url: http://incident.url
   open-e:
@@ -28,8 +16,28 @@ integration:
     username: someUsername
 
 spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mariadb:10.6.4:///
   flyway:
-    enabled: false
+    enabled: true
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          schema-generation:
+            script:
+              append: false
+      jakarta:
+        persistence:
+          schema-generation:
+            create-source: metadata
+            database:
+              action: update
+            scripts:
+              action: create
+              create-target: target/database/generated-schema.sql
   security:
     oauth2:
       client:

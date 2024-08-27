@@ -32,7 +32,7 @@ class CaseManagementIntegrationTests {
 
 		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(any(String.class))).thenReturn(caseStatus);
 
-		final var result = caseManagementIntegration.getCaseStatusForExternalId("someExternalCaseId");
+		final var result = caseManagementIntegration.getCaseStatusForExternalId("someExternalCaseId", "2281");
 
 		assertThat(result).isNotNull().isPresent();
 
@@ -45,7 +45,7 @@ class CaseManagementIntegrationTests {
 		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(any(String.class)))
 			.thenThrow(Problem.builder().build());
 
-		final var result = caseManagementIntegration.getCaseStatusForExternalId("someExternalCaseId");
+		final var result = caseManagementIntegration.getCaseStatusForExternalId("someExternalCaseId", "2281");
 
 		assertThat(result).isNotNull().isNotPresent();
 
@@ -58,7 +58,7 @@ class CaseManagementIntegrationTests {
 		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(any(String.class)))
 			.thenReturn(List.of(new CaseStatusDTO(), new CaseStatusDTO(), new CaseStatusDTO()));
 
-		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber("someOrganizationNumber");
+		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber("someOrganizationNumber", "2281");
 
 		assertThat(result).isNotNull().hasSize(3);
 
@@ -71,11 +71,12 @@ class CaseManagementIntegrationTests {
 		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(any(String.class)))
 			.thenThrow(Problem.builder().build());
 
-		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber("someOrganizationNumber");
+		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber("someOrganizationNumber", "2281");
 
 		assertThat(result).isNotNull().isEmpty();
 
 		verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(any(String.class));
 		verifyNoMoreInteractions(mockCaseManagementClient);
 	}
+
 }

@@ -14,20 +14,32 @@ integration:
     username: someUsername
   incident:
     base-url: http://localhost:${wiremock.server.port}/incident
-  db:
-    case-status:
-      driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-      password: ''
-      # Using 4 '/' is a workaround to this bug https://github.com/testcontainers/testcontainers-java/issues/4121
-      url: jdbc:tc:mariadb:10.6:////ms-casestatus
-      username: sa
 
 spring:
+  main:
+    banner-mode: 'off'
   flyway:
     enabled: true
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mariadb:10.6.4:///
   jpa:
-    hibernate:
-      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          schema-generation:
+            script:
+              append: false
+      jakarta:
+        persistence:
+          schema-generation:
+            create-source: metadata
+            database:
+              action: update
+            scripts:
+              action: create
+              create-target: target/database/generated-schema.sql
   security:
     oauth2:
       client:

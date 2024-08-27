@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -29,6 +30,10 @@ import se.sundsvall.casestatus.service.CaseStatusService;
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class CaseStatusResourceTests {
 
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String PATH = "/{municipalityId}/{externalCaseId}";
+
 	@MockBean
 	private CaseStatusService mockCaseStatusService;
 
@@ -40,13 +45,13 @@ class CaseStatusResourceTests {
 
 	@Test
 	void getOepStatus() {
-		when(mockCaseStatusService.getOepStatus(any(String.class))).thenReturn(OepStatusResponse.builder()
+		when(mockCaseStatusService.getOepStatus(any(String.class), any(String.class))).thenReturn(OepStatusResponse.builder()
 			.withKey("status")
 			.withValue("someValue")
 			.build());
 
 		webTestClient.get()
-			.uri("/{externalCaseId}/oepstatus", "someExternalCaseId")
+			.uri(PATH + "/oepstatus", MUNICIPALITY_ID, "someExternalCaseId")
 			.exchange()
 			.expectStatus()
 			.isOk()
@@ -56,7 +61,7 @@ class CaseStatusResourceTests {
 			.jsonPath("$.key").isEqualTo("status")
 			.jsonPath("$.value").isEqualTo("someValue");
 
-		verify(mockCaseStatusService).getOepStatus(caseStatusServiceArgumentCaptor.capture());
+		verify(mockCaseStatusService).getOepStatus(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");
@@ -64,7 +69,7 @@ class CaseStatusResourceTests {
 
 	@Test
 	void getCaseStatus() {
-		when(mockCaseStatusService.getCaseStatus(any(String.class))).thenReturn(CaseStatusResponse.builder()
+		when(mockCaseStatusService.getCaseStatus(any(String.class), any(String.class))).thenReturn(CaseStatusResponse.builder()
 			.withId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
@@ -75,7 +80,7 @@ class CaseStatusResourceTests {
 			.build());
 
 		webTestClient.get()
-			.uri("/{externalCaseId}/status", "someExternalCaseId")
+			.uri(PATH + "/status", MUNICIPALITY_ID, "someExternalCaseId")
 			.exchange()
 			.expectStatus()
 			.isOk()
@@ -89,7 +94,7 @@ class CaseStatusResourceTests {
 			.jsonPath("$.lastStatusChange").isEqualTo("someLastStatusChangeValue")
 			.jsonPath("$.openEErrand").isEqualTo(true);
 
-		verify(mockCaseStatusService).getCaseStatus(caseStatusServiceArgumentCaptor.capture());
+		verify(mockCaseStatusService).getCaseStatus(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");
@@ -97,13 +102,13 @@ class CaseStatusResourceTests {
 
 	@Test
 	void getCasePdf() {
-		when(mockCaseStatusService.getCasePdf(any(String.class))).thenReturn(CasePdfResponse.builder()
+		when(mockCaseStatusService.getCasePdf(any(String.class), any(String.class))).thenReturn(CasePdfResponse.builder()
 			.withExternalCaseId("someExternalCaseId")
 			.withBase64("someBase64String")
 			.build());
 
 		webTestClient.get()
-			.uri("/{externalCaseId}/pdf", "someExternalCaseId")
+			.uri(PATH + "/pdf", MUNICIPALITY_ID, "someExternalCaseId")
 			.exchange()
 			.expectStatus()
 			.isOk()
@@ -113,7 +118,7 @@ class CaseStatusResourceTests {
 			.jsonPath("$.externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$.base64").isEqualTo("someBase64String");
 
-		verify(mockCaseStatusService).getCasePdf(caseStatusServiceArgumentCaptor.capture());
+		verify(mockCaseStatusService).getCasePdf(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");
@@ -121,7 +126,7 @@ class CaseStatusResourceTests {
 
 	@Test
 	void getOrganisationStatuses() {
-		when(mockCaseStatusService.getCaseStatuses(any(String.class))).thenReturn(List.of(CaseStatusResponse.builder()
+		when(mockCaseStatusService.getCaseStatuses(any(String.class), any(String.class))).thenReturn(List.of(CaseStatusResponse.builder()
 			.withId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
@@ -132,7 +137,7 @@ class CaseStatusResourceTests {
 			.build()));
 
 		webTestClient.get()
-			.uri("/{organizationNumber}/statuses", "5591621234")
+			.uri(PATH + "/statuses", MUNICIPALITY_ID, "5591621234")
 			.exchange()
 			.expectStatus()
 			.isOk()
@@ -147,9 +152,10 @@ class CaseStatusResourceTests {
 			.jsonPath("$[0].lastStatusChange").isEqualTo("someLastStatusChangeValue")
 			.jsonPath("$[0].openEErrand").isEqualTo(true);
 
-		verify(mockCaseStatusService).getCaseStatuses(caseStatusServiceArgumentCaptor.capture());
+		verify(mockCaseStatusService).getCaseStatuses(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("5591621234");
 	}
+
 }
