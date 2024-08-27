@@ -56,3 +56,18 @@
         opene_id varchar(255),
         primary key (incident_id)
     ) engine=InnoDB;
+
+    create index idx_company_organisation_number 
+       on company (organisation_number);
+
+    create index idx_company_municipality_id 
+       on company (municipality_id);
+
+    create index idx_private_person_id 
+       on private (person_id);
+
+    create index idx_private_municipality_id 
+       on private (municipality_id);
+
+    create index idx_unknown_municipality_id 
+       on unknown (municipality_id);

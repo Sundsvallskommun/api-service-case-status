@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import lombok.AllArgsConstructor;
@@ -13,7 +14,10 @@ import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "company")
+@Table(name = "company", indexes = {
+	@Index(name = "idx_company_organisation_number", columnList = "organisation_number"),
+	@Index(name = "idx_company_municipality_id", columnList = "municipality_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
