@@ -17,7 +17,7 @@
 		<app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
 		<jsoup.version>1.18.1</jsoup.version>
 		<xsoup.version>0.3.7</xsoup.version>
-		<shedlock.version>5.15.1</shedlock.version>
+		<shedlock.version>5.16.0</shedlock.version>
 		<awaitility.version>4.2.2</awaitility.version>
 		<generated-sources-path>${project.build.directory}/generated-sources
 		</generated-sources-path>
