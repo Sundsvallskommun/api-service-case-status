@@ -156,7 +156,7 @@
 								<generatePom>false</generatePom>
 								<useBeanValidation>true</useBeanValidation>
 								<useSwaggerAnnotations>true</useSwaggerAnnotations>
-								<interfaceOnly>true</interfaceOnly>
+								<interfaceOnly>false</interfaceOnly>
 							</configOptions>
 						</configuration>
 					</execution>

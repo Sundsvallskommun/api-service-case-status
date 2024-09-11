@@ -22,7 +22,7 @@ public class CaseManagementIntegration {
 
 	public Optional<CaseStatusDTO> getCaseStatusForExternalId(final String externalCaseId, final String municipalityId) {
 		try {
-			return Optional.of(client.getCaseStatusForExternalCaseId(externalCaseId));
+			return Optional.of(client.getCaseStatusForExternalCaseId(municipalityId, externalCaseId));
 		} catch (final Exception e) {
 			LOG.info("Unable to get case status for external id {}", externalCaseId, e);
 			return Optional.empty();
@@ -31,7 +31,7 @@ public class CaseManagementIntegration {
 
 	public List<CaseStatusDTO> getCaseStatusForOrganizationNumber(final String organizationNumber, final String municipalityId) {
 		try {
-			return client.getCaseStatusForOrganizationNumber(organizationNumber);
+			return client.getCaseStatusForOrganizationNumber(municipalityId, organizationNumber);
 		} catch (final Exception e) {
 			LOG.info("Unable to get case status for organizationNumber{}", organizationNumber, e);
 			return List.of();

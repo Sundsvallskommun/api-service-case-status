@@ -13,15 +13,20 @@ import se.sundsvall.casestatus.integration.casemanagement.configuration.CaseMana
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 
 @FeignClient(
-    name = CLIENT_ID,
-    url = "${integration.case-management.base-url}",
-    configuration = CaseManagementConfiguration.class
+	name = CLIENT_ID,
+	url = "${integration.case-management.base-url}",
+	configuration = CaseManagementConfiguration.class
 )
 public interface CaseManagementClient {
-    
-    @GetMapping("/cases/{externalCaseId}/status")
-    CaseStatusDTO getCaseStatusForExternalCaseId(@PathVariable("externalCaseId") final String externalCaseId);
-    
-    @GetMapping("/organization/{organizationNumber}/cases/status")
-    List<CaseStatusDTO> getCaseStatusForOrganizationNumber(@PathVariable("organizationNumber") final String organizationNumber);
+
+	@GetMapping("/{municipalityId}/cases/{externalCaseId}/status")
+	CaseStatusDTO getCaseStatusForExternalCaseId(
+		@PathVariable("municipalityId") final String municipalityId,
+		@PathVariable("externalCaseId") final String externalCaseId);
+
+	@GetMapping("/{municipalityId}/organization/{organizationNumber}/cases/status")
+	List<CaseStatusDTO> getCaseStatusForOrganizationNumber(
+		@PathVariable("municipalityId") final String municipalityId,
+		@PathVariable("organizationNumber") final String organizationNumber);
+
 }

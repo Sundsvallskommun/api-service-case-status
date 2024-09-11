@@ -11,13 +11,16 @@ import se.sundsvall.casestatus.integration.incident.configuration.IncidentConfig
 import generated.se.sundsvall.incident.IncidentOepResponse;
 
 @FeignClient(
-        name = CLIENT_ID,
-        url = "${integration.incident.base-url}",
-        configuration = IncidentConfiguration.class,
-        dismiss404 = true
+	name = CLIENT_ID,
+	url = "${integration.incident.base-url}",
+	configuration = IncidentConfiguration.class,
+	dismiss404 = true
 )
 public interface IncidentClient {
 
-    @GetMapping("/incident/internal/oep/{externalCaseId}/status")
-    IncidentOepResponse getIncidentStatusForExternalCaseId(@PathVariable("externalCaseId") final String externalCaseId);
+	@GetMapping("/{municipalityId}/incident/internal/oep/{externalCaseId}/status")
+	IncidentOepResponse getIncidentStatusForExternalCaseId(
+		@PathVariable("municipalityId") final String municipalityId,
+		@PathVariable("externalCaseId") final String externalCaseId);
+
 }

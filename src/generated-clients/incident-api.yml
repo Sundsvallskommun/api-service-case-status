@@ -5,18 +5,25 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.0"
+  version: "3.0"
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:55942
     description: Generated server url
 paths:
-  /incident:
+  /{municipalityId}/incident:
     get:
       tags:
         - Incident resources
       summary: Get list of incidents
       operationId: fetchAllIncidents
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: pageNumber
           in: query
           required: false
@@ -30,70 +37,86 @@ paths:
             type: integer
             format: int32
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/IncidentResponse'
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/IncidentResponse'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IncidentResponse"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/IncidentResponse"
     post:
       tags:
         - Incident resources
       summary: Create a incident and send notification
       operationId: createIncident
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/IncidentSaveRequest'
+              $ref: "#/components/schemas/IncidentSaveRequest"
         required: true
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/IncidentSaveResponse'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/IncidentSaveResponse'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /category:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/IncidentSaveResponse"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/IncidentSaveResponse"
+  /{municipalityId}/category:
     get:
       tags:
         - Category resources
       summary: Fetch all categories
       operationId: getAllCategories
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       responses:
         "200":
           description: All categories returned
@@ -102,57 +125,72 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
+                  $ref: "#/components/schemas/Category"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Category'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                  $ref: "#/components/schemas/Category"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
     post:
       tags:
         - Category resources
       summary: Create category
       operationId: postCategory
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryPost'
+              $ref: "#/components/schemas/CategoryPost"
         required: true
       responses:
         "201":
           description: Category created
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /incident/status/{incidentId}:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/incident/status/{incidentId}:
     patch:
       tags:
         - Incident resources
       summary: Update the status for a specific incident
       operationId: patchStatus
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: incidentId
           in: path
           required: true
@@ -172,26 +210,33 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /incident/feedback/{incidentId}:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/incident/feedback/{incidentId}:
     patch:
       tags:
         - Incident resources
       summary: Set incident feedback
       operationId: patchFeedback
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: incidentId
           in: path
           required: true
@@ -210,26 +255,33 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /category/{id}:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/category/{id}:
     get:
       tags:
         - Category resources
       summary: Fetch category by ID
       operationId: getCategoryById
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: id
           in: path
           required: true
@@ -242,34 +294,41 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: "#/components/schemas/Category"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: "#/components/schemas/Category"
         "404":
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
     delete:
       tags:
         - Category resources
       summary: Delete a category by id
       operationId: deleteCategoryById
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: id
           in: path
           required: true
@@ -284,25 +343,32 @@ paths:
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
     patch:
       tags:
         - Category resources
       summary: Update a category
       operationId: patchCategory
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: id
           in: path
           required: true
@@ -313,7 +379,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategoryPatch'
+              $ref: "#/components/schemas/CategoryPatch"
         required: true
       responses:
         "200":
@@ -321,35 +387,42 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: "#/components/schemas/Category"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Category'
+                $ref: "#/components/schemas/Category"
         "404":
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /incident/{id}:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/incident/{id}:
     get:
       tags:
         - Incident resources
       summary: Get a incident by id
       operationId: fetchIncidentById
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: id
           in: path
           required: true
@@ -361,67 +434,42 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/IncidentResponse'
+                $ref: "#/components/schemas/IncidentResponse"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/IncidentResponse'
+                $ref: "#/components/schemas/IncidentResponse"
         "404":
           description: Not Found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /incident/statuses:
-    get:
-      tags:
-        - Incident resources
-      summary: Get a list of valid statuses
-      operationId: getValidIncidentStatuses
-      responses:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidStatusResponse'
-            application/problem+json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidStatusResponse'
-  /incident/internal/oep/{externalCaseId}/status:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/incident/internal/oep/{externalCaseId}/status:
     get:
       tags:
         - Incident resources
       summary: Get status for a OeP incident
       operationId: getStatusForOeP
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: externalCaseId
           in: path
           required: true
@@ -433,89 +481,145 @@ paths:
           content:
             '*/*':
               schema:
-                $ref: '#/components/schemas/IncidentOepResponse'
+                $ref: "#/components/schemas/IncidentOepResponse"
         "404":
           description: Not Found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /category/valid:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/incident/incident/statuses:
+    get:
+      tags:
+        - Incident resources
+      summary: Get a list of valid statuses
+      operationId: getValidIncidentStatuses
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+      responses:
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValidStatusResponse"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValidStatusResponse"
+  /{municipalityId}/category/valid:
     get:
       tags:
         - Category resources
       summary: Get a list of valid categories
       operationId: getValidCategories
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidCategoryResponse'
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ValidCategoryResponse'
-  /category/valid/oep:
+                  $ref: "#/components/schemas/ValidCategoryResponse"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValidCategoryResponse"
+  /{municipalityId}/category/valid/oep:
     get:
       tags:
         - Category resources
       summary: Get a list of valid categories in oep format
       operationId: getValidOepCategories
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       responses:
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
         "400":
           description: Bad Request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        "200":
-          description: Successful Operation
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
           content:
             application/problem+json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ValidOepCategoryResponse'
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ValidOepCategoryResponse'
+                  $ref: "#/components/schemas/ValidOepCategoryResponse"
+            application/problem+json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ValidOepCategoryResponse"
   /api-docs:
     get:
       tags:
@@ -607,7 +711,7 @@ components:
           type: array
           description: Attachments
           items:
-            $ref: '#/components/schemas/AttachmentRequest'
+            $ref: "#/components/schemas/AttachmentRequest"
     Problem:
       type: object
       properties:
@@ -622,10 +726,10 @@ components:
           additionalProperties:
             type: object
         status:
-          $ref: '#/components/schemas/StatusType'
-        detail:
-          type: string
+          $ref: "#/components/schemas/StatusType"
         title:
+          type: string
+        detail:
           type: string
     StatusType:
       type: object
@@ -780,12 +884,12 @@ components:
             - ARKIVERAD
             - ERROR
         category:
-          $ref: '#/components/schemas/Category'
+          $ref: "#/components/schemas/Category"
         attachments:
           type: array
           description: Attachments
           items:
-            $ref: '#/components/schemas/Attachment'
+            $ref: "#/components/schemas/Attachment"
         created:
           type: string
           description: When the incident were created
@@ -794,18 +898,6 @@ components:
           type: string
           description: When the incident were last updated
           format: date-time
-    ValidStatusResponse:
-      type: object
-      properties:
-        statusId:
-          type: integer
-          description: The ID of the status
-          format: int32
-          example: 5
-        status:
-          type: string
-          description: The status name
-          example: INSKICKAT
     IncidentOepResponse:
       type: object
       properties:
@@ -825,6 +917,18 @@ components:
           type: string
           description: Status text
           example: Klart
+    ValidStatusResponse:
+      type: object
+      properties:
+        statusId:
+          type: integer
+          description: The ID of the status
+          format: int32
+          example: 5
+        status:
+          type: string
+          description: The status name
+          example: INSKICKAT
     ValidCategoryResponse:
       type: object
       properties:
