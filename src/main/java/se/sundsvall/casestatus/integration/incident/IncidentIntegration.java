@@ -13,21 +13,22 @@ import generated.se.sundsvall.incident.IncidentOepResponse;
 public class IncidentIntegration {
 
 
-    private static final Logger LOG = LoggerFactory.getLogger(IncidentIntegration.class);
+	private static final Logger LOG = LoggerFactory.getLogger(IncidentIntegration.class);
 
-    private final IncidentClient client;
+	private final IncidentClient client;
 
-    public IncidentIntegration(final IncidentClient client) {
-        this.client = client;
-    }
+	public IncidentIntegration(final IncidentClient client) {
+		this.client = client;
+	}
 
-    public Optional<IncidentOepResponse> getIncidentStatus(final String externalCaseId) {
-        try {
-            return Optional.of(client.getIncidentStatusForExternalCaseId(externalCaseId));
-        } catch (Exception e) {
-            LOG.warn("Unable to get incident status for external id {}", externalCaseId, e);
+	public Optional<IncidentOepResponse> getIncidentStatus(final String externalCaseId, final String municipalityId) {
+		try {
+			return Optional.of(client.getIncidentStatusForExternalCaseId(municipalityId, externalCaseId));
+		} catch (final Exception e) {
+			LOG.warn("Unable to get incident status for external id {}", externalCaseId, e);
 
-            return Optional.empty();
-        }
-    }
+			return Optional.empty();
+		}
+	}
+
 }

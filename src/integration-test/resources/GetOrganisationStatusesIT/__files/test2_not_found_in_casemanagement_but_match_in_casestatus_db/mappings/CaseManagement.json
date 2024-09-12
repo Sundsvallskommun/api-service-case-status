@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "url": "/casemanagement/organization/1234561233/cases/status"
+    "url": "/casemanagement/2281/organization/1234561233/cases/status"
   },
   "response": {
     "headers": {

@@ -1,13 +1,14 @@
 openapi: 3.0.1
 info:
   title: ms-casemanagementservice
-  contact: {}
+  contact: { }
   license:
     name: MIT License
-    url: 'https://opensource.org/licenses/MIT'
-  version: '7.1'
+    url: https://opensource.org/licenses/MIT
+  version: "8.0"
 servers:
-  - url: /
+  - url: http://localhost:60820
+    description: Generated server url
 tags:
   - name: Status
     description: Status operations
@@ -18,20 +19,27 @@ tags:
   - name: Cases
     description: Cases operations
 paths:
-  '/cases/{externalCaseId}':
+  /{municipalityId}/cases/{externalCaseId}:
     put:
       tags:
         - Cases
-      description: Update a case. Only available for cases created in CaseData.
+      description: Update a case.
       operationId: putCase
       parameters:
-        - name: externalCaseId
+        - name: municipalityId
           in: path
+          description: Municipality id
           required: true
-          style: simple
-          explode: false
           schema:
             type: string
+          example: 2281
+        - name: externalCaseId
+          in: path
+          description: External case id
+          required: true
+          schema:
+            type: string
+          example: 1234
       requestBody:
         content:
           application/json:
@@ -64,45 +72,52 @@ paths:
                     extension: .pdf
                     file: dGVzdA==
               oneOf:
-                - $ref: '#/components/schemas/ByggRCaseDTO'
-                - $ref: '#/components/schemas/EcosCaseDTO'
-                - $ref: '#/components/schemas/OtherCaseDTO'
+                - $ref: "#/components/schemas/ByggRCaseDTO"
+                - $ref: "#/components/schemas/EcosCaseDTO"
+                - $ref: "#/components/schemas/OtherCaseDTO"
         required: true
       responses:
-        '204':
+        "204":
           description: No content
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
+        "404":
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server error
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '502':
+                $ref: "#/components/schemas/Problem"
+        "502":
           description: Bad Gateway
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /cases:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/cases:
     post:
       tags:
         - Cases
-      description: >-
-        Creates a case in ByggR or Ecos2 based on caseType. Also persists a
-        connection between externalCaseId and the created case.
+      description: Creates a case in ByggR or Ecos2 based on caseType. Also persists
+        a connection between externalCaseId and the created case.
       operationId: postCases
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
       requestBody:
         content:
           application/json:
@@ -135,256 +150,276 @@ paths:
                     extension: .pdf
                     file: dGVzdA==
               oneOf:
-                - $ref: '#/components/schemas/ByggRCaseDTO'
-                - $ref: '#/components/schemas/EcosCaseDTO'
-                - $ref: '#/components/schemas/OtherCaseDTO'
+                - $ref: "#/components/schemas/ByggRCaseDTO"
+                - $ref: "#/components/schemas/EcosCaseDTO"
+                - $ref: "#/components/schemas/OtherCaseDTO"
         required: true
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CaseResourceResponseDTO'
+                $ref: "#/components/schemas/CaseResourceResponseDTO"
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/CaseResourceResponseDTO'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
+                $ref: "#/components/schemas/CaseResourceResponseDTO"
+        "404":
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server error
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '502':
+                $ref: "#/components/schemas/Problem"
+        "502":
           description: Bad Gateway
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  '/cases/{externalCaseId}/attachments':
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/cases/{externalCaseId}/attachments:
     post:
       tags:
         - Attachments
-      description: Add attachments to existing case.
       operationId: postAttachmentsToCase
       parameters:
-        - name: externalCaseId
+        - name: municipalityId
           in: path
+          description: Municipality id
           required: true
-          style: simple
-          explode: false
           schema:
             type: string
+          example: 2281
+        - name: externalCaseId
+          in: path
+          description: External case id
+          required: true
+          schema:
+            type: string
+          example: 1234
       requestBody:
         content:
           application/json:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/AttachmentDTO'
+                $ref: "#/components/schemas/AttachmentDTO"
         required: true
       responses:
-        '204':
-          description: No content - Successful request.
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
+        "404":
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '501':
+                $ref: "#/components/schemas/Problem"
+        "204":
+          description: No content - Successful request.
+        "501":
           description: Not Implemented
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '502':
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
           description: Bad Gateway
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  '/organization/{organizationNumber}/cases/status':
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/organization/{organizationNumber}/cases/status:
     get:
       tags:
         - Status
-      description: >-
-        Returns the latest status for each of the cases where the specified
+      description: Returns the latest status for each of the cases where the specified
         organization has the role "applicant".
       operationId: getStatusByOrgNr
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: organizationNumber
           in: path
-          description: Organization number with 10 or 12 digits.
+          description: OrganizationNumber
           required: true
-          style: simple
-          explode: false
           schema:
-            pattern: '^((18|19|20|21)\d{6}|\d{6})-(\d{4})$'
+            pattern: "^((18|19|20|21)\\d{6}|\\d{6})-(\\d{4})$"
             type: string
             description: Organization number with 10 or 12 digits.
             example: 20220622-2396
-          example: 20220622-2396
       responses:
-        '200':
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad Gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
           description: OK - Successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CaseStatusDTO'
+                  $ref: "#/components/schemas/CaseStatusDTO"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CaseStatusDTO'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
+                  $ref: "#/components/schemas/CaseStatusDTO"
+        "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '502':
-          description: Bad Gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-  '/cases/{externalCaseId}/status':
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/cases/{externalCaseId}/status:
     get:
       tags:
         - Status
-      description: >-
-        Returns the latest status for the case in the underlying system
+      description: Returns the latest status for the case in the underlying system
         connected to the specified externalCaseId.
       operationId: getStatusByExternalCaseId
       parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
         - name: externalCaseId
           in: path
+          description: External case id
           required: true
-          style: simple
-          explode: false
           schema:
             type: string
       responses:
-        '200':
-          description: OK - Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CaseStatusDTO'
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/CaseStatusDTO'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
+        "404":
           description: Not found
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
-          description: Internal Server error
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-        '502':
+                $ref: "#/components/schemas/Problem"
+        "502":
           description: Bad Gateway
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
-  /cases/case-mappings:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: OK - Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CaseStatusDTO"
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/CaseStatusDTO"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/cases/case-mappings:
     get:
       tags:
         - CaseMappings
-      description: >-
-        Returns the connection between externalCaseId and the case in the
+      description: Returns the connection between externalCaseId and the case in the
         underlying system.
       operationId: getCaseMapping
       parameters:
-        - name: external-case-id
-          in: query
-          required: false
-          style: form
-          explode: true
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
           schema:
             type: string
+          example: 2281
+        - name: external-case-id
+          in: query
+          description: External case id
+          required: false
+          schema:
+            type: string
+          example: 2281
       responses:
-        '200':
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
           description: OK - Successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CaseMapping'
+                  $ref: "#/components/schemas/CaseMapping"
             application/problem+json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CaseMapping'
-        '400':
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '404':
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: '#/components/schemas/Problem'
-        '500':
+                  $ref: "#/components/schemas/CaseMapping"
+        "500":
           description: Internal Server error
           content:
             application/problem+json:
               schema:
-                $ref: '#/components/schemas/Problem'
+                $ref: "#/components/schemas/Problem"
   /api-docs:
     get:
       tags:
@@ -392,12 +427,15 @@ paths:
       summary: OpenAPI
       operationId: getApiDocs
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/yaml:
               schema:
                 type: string
+      x-auth-type: None
+      x-throttling-tier: Unlimited
+      x-wso2-mutual-ssl: Optional
 components:
   schemas:
     AddressDTO:
@@ -408,9 +446,8 @@ components:
       properties:
         addressCategories:
           type: array
-          description: >-
-            An address can have one or more address categories. For example, it
-            can be the same address that is to be used for mail and invoices.
+          description: "An address can have one or more address categories. For example,\
+            \ it can be the same address that is to be used for mail and invoices."
           items:
             type: string
             description: Address category
@@ -423,7 +460,7 @@ components:
           example: Testargatan
         houseNumber:
           type: string
-          example: '18'
+          example: "18"
         postalCode:
           type: string
           example: 123 45
@@ -442,18 +479,18 @@ components:
           example: Test Testorsson
         propertyDesignation:
           type: string
-          example: 'SUNDSVALL BALDER 7:2'
+          example: SUNDSVALL BALDER 7:2
         appartmentNumber:
           type: string
           example: LGH 1001
         location:
-          $ref: '#/components/schemas/CoordinatesDTO'
+          $ref: "#/components/schemas/CoordinatesDTO"
         isZoningPlanArea:
           type: boolean
-          description: Is the addres in zoning plan area?
+          description: Is the address in zoning plan area?
         invoiceMarking:
           type: string
-          description: 'Only in combination with addressCategory: INVOICE_ADDRESS'
+          description: "Only in combination with addressCategory: INVOICE_ADDRESS"
         extraParameters:
           type: object
           additionalProperties:
@@ -487,13 +524,13 @@ components:
           example: .pdf
         mimeType:
           type: string
-          description: the mime type of the attahcment
+          description: the mime type of the attachment
           example: application/pdf
         file:
           type: string
           description: Base64-encoded file (plain text)
           format: byte
-          example: VmpKMFYyRXhXWGxXYmxKV1lUQndVbFpyVWtKUFVUMDk=
+          example: ZEdWemRBPT0=
         extraParameters:
           type: object
           additionalProperties:
@@ -524,10 +561,9 @@ components:
           example: En fritextbeskrivning av case.
         caseTitleAddition:
           type: string
-          description: >-
-            Additions to the case title. Right now only applicable to cases of
-            CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV.
-          example: 'Eldstad/rökkanal, Skylt'
+          description: "Additions to the case title. Right now only applicable to\
+            \ cases of CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV."
+          example: "Eldstad/rökkanal, Skylt"
         stakeholders:
           type: array
           description: The stakeholders in the case
@@ -537,7 +573,7 @@ components:
           type: array
           description: The attachments in the case
           items:
-            $ref: '#/components/schemas/AttachmentDTO'
+            $ref: "#/components/schemas/AttachmentDTO"
         extraParameters:
           type: object
           additionalProperties:
@@ -552,7 +588,7 @@ components:
           type: array
           description: The facilities in the case
           items:
-            $ref: '#/components/schemas/FacilityDTO'
+            $ref: "#/components/schemas/FacilityDTO"
       description: ByggR-cases
     CoordinatesDTO:
       type: object
@@ -582,7 +618,7 @@ components:
           description: Description of the facility
           example: En fritextbeskrivning av facility.
         address:
-          $ref: '#/components/schemas/AddressDTO'
+          $ref: "#/components/schemas/AddressDTO"
         facilityCollectionName:
           type: string
           description: The name on the sign.
@@ -598,6 +634,58 @@ components:
             description: Extra parameters for the facility
           description: Extra parameters for the facility
       description: Facility model
+    OrganizationDTO:
+      required:
+        - organizationName
+        - organizationNumber
+        - type
+      type: object
+      description: Organization model
+      allOf:
+        - $ref: "#/components/schemas/StakeholderDTO"
+        - type: object
+          properties:
+            organizationName:
+              type: string
+              description: Organization name
+              example: Sundsvalls testfabrik
+            organizationNumber:
+              type: string
+              description: Organization number with 10 or 12 digits.
+              example: 20220622-2396
+            authorizedSignatory:
+              type: string
+              description: The authorized signatory
+              example: Test Testorsson
+    PersonDTO:
+      required:
+        - firstName
+        - lastName
+        - personId
+        - type
+      type: object
+      description: Person model
+      allOf:
+        - $ref: "#/components/schemas/StakeholderDTO"
+        - type: object
+          properties:
+            firstName:
+              type: string
+              description: The person's first name
+              example: Test
+            lastName:
+              type: string
+              description: The person's last name
+              example: Testorsson
+            personId:
+              type: string
+              description: The person's id
+              example: 3ed5bc30-6308-4fd5-a5a7-78d7f96f4438
+            personalNumber:
+              type: string
+              description: The person's personal number
+              readOnly: true
+              example: 20000101-1234
     StakeholderDTO:
       required:
         - type
@@ -612,20 +700,18 @@ components:
             - ORGANIZATION
         roles:
           type: array
-          description: >-
-            An stakeholder can have one or more roles. Please note that
-            INVOICE_RECIPENT is deprecated and should not be used. Use
-            INVOICE_RECIPIENT instead.
+          description: An stakeholder can have one or more roles. Please note that
+            INVOICE_RECIPENT is deprecated and should not be used. Use INVOICE_RECIPIENT
+            instead.
           items:
             type: string
-            description: >-
-              An stakeholder can have one or more roles. Please note that
-              INVOICE_RECIPENT is deprecated and should not be used. Use
-              INVOICE_RECIPIENT instead.
+            description: An stakeholder can have one or more roles. Please note that
+              INVOICE_RECIPENT is deprecated and should not be used. Use INVOICE_RECIPIENT
+              instead.
         phoneNumber:
           type: string
           description: Stakeholder phone number
-          example: '060123456'
+          example: "060123456"
         emailAddress:
           type: string
           description: Stakeholder emailaddress
@@ -633,14 +719,13 @@ components:
         cellphoneNumber:
           type: string
           description: Stakeholder cellphone number
-          example: '0701234567'
+          example: "0701234567"
         addresses:
           type: array
-          description: >-
-            An stakeholder may have one or more addresses. For example one
-            POSTAL_ADDRESS and another INVOICE_ADDRESS.
+          description: An stakeholder may have one or more addresses. For example
+            one POSTAL_ADDRESS and another INVOICE_ADDRESS.
           items:
-            $ref: '#/components/schemas/AddressDTO'
+            $ref: "#/components/schemas/AddressDTO"
         extraParameters:
           type: object
           additionalProperties:
@@ -673,10 +758,9 @@ components:
           example: En fritextbeskrivning av case.
         caseTitleAddition:
           type: string
-          description: >-
-            Additions to the case title. Right now only applicable to cases of
-            CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV.
-          example: 'Eldstad/rökkanal, Skylt'
+          description: "Additions to the case title. Right now only applicable to\
+            \ cases of CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV."
+          example: "Eldstad/rökkanal, Skylt"
         stakeholders:
           type: array
           description: The stakeholders in the case
@@ -686,7 +770,7 @@ components:
           type: array
           description: The attachments in the case
           items:
-            $ref: '#/components/schemas/AttachmentDTO'
+            $ref: "#/components/schemas/AttachmentDTO"
         extraParameters:
           type: object
           additionalProperties:
@@ -697,17 +781,19 @@ components:
           type: string
           description: Start date for the business.
           format: date
+          example: 2022-01-01
         endDate:
           type: string
           description: End date of the business if it is time-limited.
           format: date
+          example: 2022-06-01
         facilities:
           maxItems: 1
           minItems: 1
           type: array
           description: The facilities in the case
           items:
-            $ref: '#/components/schemas/FacilityDTO'
+            $ref: "#/components/schemas/FacilityDTO"
       description: Ecos2-case model class
     OtherCaseDTO:
       required:
@@ -731,10 +817,9 @@ components:
           example: En fritextbeskrivning av case.
         caseTitleAddition:
           type: string
-          description: >-
-            Additions to the case title. Right now only applicable to cases of
-            CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV.
-          example: 'Eldstad/rökkanal, Skylt'
+          description: "Additions to the case title. Right now only applicable to\
+            \ cases of CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV."
+          example: "Eldstad/rökkanal, Skylt"
         stakeholders:
           type: array
           description: The stakeholders in the case
@@ -744,7 +829,7 @@ components:
           type: array
           description: The attachments in the case
           items:
-            $ref: '#/components/schemas/AttachmentDTO'
+            $ref: "#/components/schemas/AttachmentDTO"
         extraParameters:
           type: object
           additionalProperties:
@@ -755,7 +840,7 @@ components:
           type: array
           description: The facilities in the case
           items:
-            $ref: '#/components/schemas/FacilityDTO'
+            $ref: "#/components/schemas/FacilityDTO"
       description: Other case model
     Problem:
       type: object
@@ -771,7 +856,7 @@ components:
           additionalProperties:
             type: object
         status:
-          $ref: '#/components/schemas/StatusType'
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
@@ -790,7 +875,7 @@ components:
         caseId:
           type: string
           description: The case id
-          example: '1234'
+          example: "1234"
       description: Case resource response
     CaseStatusDTO:
       type: object
@@ -838,6 +923,8 @@ components:
           type: string
         caseId:
           type: string
+        municipalityId:
+          type: string
         system:
           type: string
           description: System type
@@ -853,3 +940,4 @@ components:
           type: string
           format: date-time
           readOnly: true
+  securitySchemes: { }

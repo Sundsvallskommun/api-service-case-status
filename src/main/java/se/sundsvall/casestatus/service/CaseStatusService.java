@@ -65,7 +65,7 @@ public class CaseStatusService {
 		final var status = caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
 			.flatMap(caseStatus -> caseManagementOpeneViewRepository.findByCaseManagementId(caseStatus.getStatus())
 				.map(CaseManagementOpeneView::getOpenEId))
-			.orElseGet(() -> incidentIntegration.getIncidentStatus(externalCaseId)
+			.orElseGet(() -> incidentIntegration.getIncidentStatus(externalCaseId, municipalityId)
 				.flatMap(incidentStatus -> incidentOpeneViewRepository.findByIncidentId(incidentStatus.getStatusId())
 					.map(IncidentOpeneView::getOpenEId))
 				.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND)));

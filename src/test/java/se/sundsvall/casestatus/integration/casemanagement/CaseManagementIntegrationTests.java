@@ -20,6 +20,12 @@ import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 @ExtendWith(MockitoExtension.class)
 class CaseManagementIntegrationTests {
 
+	private static final String MUNICIPALITY_ID = "2281";
+
+	private static final String ORGANIZATION_NUMBER = "someOrganizationNumber";
+
+	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
+
 	@Mock
 	private CaseManagementClient mockCaseManagementClient;
 
@@ -28,54 +34,54 @@ class CaseManagementIntegrationTests {
 
 	@Test
 	void getCaseStatusForExternalCaseId_ok() {
-		final var caseStatus = new CaseStatusDTO().externalCaseId("someExternalCaseId");
+		final var caseStatus = new CaseStatusDTO().externalCaseId(EXTERNAL_CASE_ID);
 
-		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(any(String.class))).thenReturn(caseStatus);
+		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID)).thenReturn(caseStatus);
 
-		final var result = caseManagementIntegration.getCaseStatusForExternalId("someExternalCaseId", "2281");
+		final var result = caseManagementIntegration.getCaseStatusForExternalId(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().isPresent();
 
-		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(any(String.class));
+		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID);
 		verifyNoMoreInteractions(mockCaseManagementClient);
 	}
 
 	@Test
 	void getCaseStatusForExternalCaseId_error() {
-		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(any(String.class)))
+		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID))
 			.thenThrow(Problem.builder().build());
 
-		final var result = caseManagementIntegration.getCaseStatusForExternalId("someExternalCaseId", "2281");
+		final var result = caseManagementIntegration.getCaseStatusForExternalId(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().isNotPresent();
 
-		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(any(String.class));
+		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID);
 		verifyNoMoreInteractions(mockCaseManagementClient);
 	}
 
 	@Test
 	void getCaseStatusForOrganizationNumber_ok() {
-		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(any(String.class)))
+		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(MUNICIPALITY_ID, ORGANIZATION_NUMBER))
 			.thenReturn(List.of(new CaseStatusDTO(), new CaseStatusDTO(), new CaseStatusDTO()));
 
-		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber("someOrganizationNumber", "2281");
+		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber(ORGANIZATION_NUMBER, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(3);
 
-		verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(any(String.class));
+		verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(any(String.class), any(String.class));
 		verifyNoMoreInteractions(mockCaseManagementClient);
 	}
 
 	@Test
 	void getCaseStatusForOrganizationNumber_error() {
-		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(any(String.class)))
+		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(MUNICIPALITY_ID, ORGANIZATION_NUMBER))
 			.thenThrow(Problem.builder().build());
 
-		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber("someOrganizationNumber", "2281");
+		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber(ORGANIZATION_NUMBER, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().isEmpty();
 
-		verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(any(String.class));
+		verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(MUNICIPALITY_ID, ORGANIZATION_NUMBER);
 		verifyNoMoreInteractions(mockCaseManagementClient);
 	}
 

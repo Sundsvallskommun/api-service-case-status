@@ -37,6 +37,10 @@ import generated.se.sundsvall.incident.IncidentOepResponse;
 @ExtendWith(MockitoExtension.class)
 class CaseStatusServiceTests {
 
+	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
+
+	private static final String MUNICIPALITY_ID = "2281";
+
 	@Mock
 	private CaseManagementIntegration mockCaseManagementIntegration;
 
@@ -74,7 +78,7 @@ class CaseStatusServiceTests {
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId("someStatus"))
 			.thenReturn(Optional.ofNullable(CaseManagementOpeneView.builder().withCaseManagementId("status").withOpenEId("someStatus").build()));
 
-		final var status = caseStatusService.getOepStatus("someExternalCaseId", "2281");
+		final var status = caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		assertThat(status).isNotNull().satisfies(oepStatus -> {
 			assertThat(oepStatus.getKey()).isEqualTo("status");
@@ -94,14 +98,14 @@ class CaseStatusServiceTests {
 		when(mockCaseManagementIntegration.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.empty());
 
-		when(mockIncidentIntegration.getIncidentStatus(any(String.class)))
+		when(mockIncidentIntegration.getIncidentStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
 			.thenReturn(Optional.of(new IncidentOepResponse().statusId(678)));
 
 		when(incidentOpeneViewRepositoryMock.findByIncidentId(678))
 			.thenReturn(Optional.of(IncidentOpeneView.builder().withIncidentId(678).withOpenEId("someStatus").build()));
 
 		// Act
-		final var status = caseStatusService.getOepStatus("someExternalCaseId", "2281");
+		final var status = caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		// Assert
 		assertThat(status).isNotNull().satisfies(oepStatus -> {
@@ -110,7 +114,7 @@ class CaseStatusServiceTests {
 		});
 
 		verify(mockCaseManagementIntegration).getCaseStatusForExternalId(any(String.class), any(String.class));
-		verify(mockIncidentIntegration).getIncidentStatus(any(String.class));
+		verify(mockIncidentIntegration).getIncidentStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 		verify(incidentOpeneViewRepositoryMock).findByIncidentId(any(Integer.class));
 		verifyNoMoreInteractions(mockCaseManagementIntegration, incidentOpeneViewRepositoryMock, mockIncidentIntegration);
 	}
@@ -119,7 +123,7 @@ class CaseStatusServiceTests {
 	void getCaseStatus_caseStatusFoundInCaseManagement() {
 		final var caseStatus = new CaseStatusDTO()
 			.caseId("someCaseId")
-			.externalCaseId("someExternalCaseId")
+			.externalCaseId(EXTERNAL_CASE_ID)
 			.caseType("PARKING_PERMIT")
 			.timestamp(LocalDateTime.now())
 			.status("someStatus");
@@ -133,11 +137,11 @@ class CaseStatusServiceTests {
 		when(caseTypeRepositoryMock.findByEnumValueAndMunicipalityId(any(String.class), any(String.class))).thenReturn(Optional.of(
 			CaseTypeEntity.builder().withEnumValue("PARKING_PERMIT").withDescription("someText").build()));
 
-		final var result = caseStatusService.getCaseStatus("someExternalCaseId", "2281");
+		final var result = caseStatusService.getCaseStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getId()).isEqualTo("someCaseId");
-		assertThat(result.getExternalCaseId()).isEqualTo("someExternalCaseId");
+		assertThat(result.getExternalCaseId()).isEqualTo(EXTERNAL_CASE_ID);
 		assertThat(result.getCaseType()).isEqualTo("someText");
 		assertThat(result.getLastStatusChange()).isEqualTo(CaseStatusService.DATE_TIME_FORMATTER.format(caseStatus.getTimestamp()));
 		assertThat(result.getFirstSubmitted()).isEqualTo(CaseStatusService.MISSING);
@@ -163,7 +167,7 @@ class CaseStatusServiceTests {
 			.thenReturn(Optional.empty());
 		when(companyRepositoryMock.findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class))).thenReturn(Optional.ofNullable(companyEntity));
 
-		final var result = caseStatusService.getCaseStatus("someExternalCaseId", "2281");
+		final var result = caseStatusService.getCaseStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull();
 		assertThat(result.getId()).isEqualTo("someFlowInstanceId");
@@ -182,7 +186,7 @@ class CaseStatusServiceTests {
 	void getCasePdf() {
 		when(mockOpenEIntegration.getPdf(any(String.class))).thenReturn(Optional.of("someBase64String"));
 
-		final var result = caseStatusService.getCasePdf("someExternalCaseID", "2281");
+		final var result = caseStatusService.getCasePdf("someExternalCaseID", MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull();
 
@@ -206,7 +210,7 @@ class CaseStatusServiceTests {
 		when(companyRepositoryMock.findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class)))
 			.thenReturn(List.of(CompanyEntity.builder().build()));
 
-		final var result = caseStatusService.getCaseStatuses("someOrganizationId", "2281");
+		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(3);
 
