@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import se.sundsvall.dept44.requestid.RequestId;
 
 @Configuration
 @EnableScheduling
@@ -33,13 +34,18 @@ public class CaseStatusCache {
 	@SchedulerLock(name = "cache_job", lockAtMostFor = "${cache.scheduled.shedlock-lock-at-most-for}")
 	@Scheduled(cron = "${cache.scheduled.cron}")
 	public void scheduledCacheJob() {
-		LOG.info("CacheJob run started");
+		try {
+			RequestId.init();
+			LOG.info("CacheJob run started");
 
-		Arrays.stream(FamilyId.values()).forEach(familyId -> {
-			if (familyId.getValue() != 0) {
-				caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
-			}
-		});
+			Arrays.stream(FamilyId.values()).forEach(familyId -> {
+				if (familyId.getValue() != 0) {
+					caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
+				}
+			});
+		} finally {
+			RequestId.reset();
+		}
 	}
 
 
