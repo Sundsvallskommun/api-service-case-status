@@ -13,7 +13,6 @@ import se.sundsvall.casestatus.Application;
 @ActiveProfiles("junit")
 class CitizenPropertiesTest {
 
-
 	@Autowired
 	private CitizenProperties properties;
 

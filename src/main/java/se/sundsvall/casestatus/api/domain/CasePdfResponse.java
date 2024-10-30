@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CasePdfResponse {
 
-    private String externalCaseId;
-    private String base64;
+	private String externalCaseId;
+	private String base64;
 }
-

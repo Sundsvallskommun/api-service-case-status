@@ -48,7 +48,6 @@ public class CaseStatusService {
 
 	private final CaseTypeRepository caseTypeRepository;
 
-
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final IncidentIntegration incidentIntegration, final OpenEIntegration openEIntegration,
 		final CompanyRepository companyRepository, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository, final IncidentOpeneViewRepository incidentOpeneViewRepository, final CaseTypeRepository caseTypeRepository) {
@@ -108,7 +107,6 @@ public class CaseStatusService {
 	CaseStatusResponse mapToCaseStatusResponse(final CaseStatusDTO caseStatus, final String municipalityId) {
 		final var status = caseManagementOpeneViewRepository.findByCaseManagementId(caseStatus.getStatus())
 			.map(CaseManagementOpeneView::getOpenEId);
-
 
 		final var timestamp = Optional.ofNullable(caseStatus.getTimestamp())
 			.map(DATE_TIME_FORMATTER::format)

@@ -1,7 +1,7 @@
 {
-  "type": "string",
-  "status": 404,
-  "title": "string",
-  "detail": "string",
-  "instance": "string"
+	"instance": "string",
+	"detail": "string",
+	"type": "string",
+	"title": "string",
+	"status": 404
 }

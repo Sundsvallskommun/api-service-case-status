@@ -19,31 +19,28 @@ import static org.mockito.Mockito.verify;
 @ExtendWith(MockitoExtension.class)
 class CaseStatusCacheTest {
 
-    @Mock
-    private CaseStatusCacheWorker caseStatusCacheWorker;
+	@Mock
+	private CaseStatusCacheWorker caseStatusCacheWorker;
 
-    @InjectMocks
-    private CaseStatusCache caseStatusCache;
+	@InjectMocks
+	private CaseStatusCache caseStatusCache;
 
+	@Test
+	void isProduction_test() {
+		ReflectionTestUtils.setField(caseStatusCache, "isProd", true);
+		var result = caseStatusCache.isProduction();
+		assertThat(result).isTrue();
+	}
 
-    @Test
-    void isProduction_test() {
-        ReflectionTestUtils.setField(caseStatusCache, "isProd", true);
-        var result = caseStatusCache.isProduction();
-        assertThat(result).isTrue();
-    }
+	@Test
+	void scheduledJob() {
+		ReflectionTestUtils.setField(caseStatusCache, "isProd", false);
+		try (MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
+			utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
+			caseStatusCache.scheduledCacheJob();
+			verify(caseStatusCacheWorker, times(12)).cacheStatusesForFamilyID(any(FamilyId.class));
+		}
 
-    @Test
-    void scheduledJob() {
-        ReflectionTestUtils.setField(caseStatusCache, "isProd", false);
-        try (MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
-            utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
-            caseStatusCache.scheduledCacheJob();
-            verify(caseStatusCacheWorker, times(12)).cacheStatusesForFamilyID(any(FamilyId.class));
-        }
-
-
-    }
-
+	}
 
 }

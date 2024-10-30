@@ -1,13 +1,11 @@
 {
-  "request": {
-    "method": "GET",
-    "url": "/casemanagement/2281/organization/1234561233/cases/status"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "bodyFileName": "test2_not_found_in_casemanagement_but_match_in_casestatus_db/responses/CaseManagement.json",
-    "status": 200
-  }
+	"request": {
+		"method": "GET",
+		"url": "/casemanagement/2281/organization/1234561233/cases/status"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"bodyFileName": "test2_not_found_in_casemanagement_but_match_in_casestatus_db/responses/CaseManagement.json",
+		"status": 200
+	}
 }

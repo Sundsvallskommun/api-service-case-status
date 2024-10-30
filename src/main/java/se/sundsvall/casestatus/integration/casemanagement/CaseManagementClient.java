@@ -15,8 +15,7 @@ import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 @FeignClient(
 	name = CLIENT_ID,
 	url = "${integration.case-management.base-url}",
-	configuration = CaseManagementConfiguration.class
-)
+	configuration = CaseManagementConfiguration.class)
 public interface CaseManagementClient {
 
 	@GetMapping("/{municipalityId}/cases/{externalCaseId}/status")

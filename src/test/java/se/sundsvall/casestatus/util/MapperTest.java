@@ -10,7 +10,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 
-@ExtendWith({ResourceLoaderExtension.class})
+@ExtendWith({
+	ResourceLoaderExtension.class
+})
 class MapperTest {
 
 	private Mapper mapper;

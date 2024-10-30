@@ -1,6 +1,5 @@
 package se.sundsvall.casestatus.integration.db.model.views;
 
-
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -15,7 +14,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Entity
 @Table(name = "vStatusIncidentOpenE")
@@ -36,8 +34,10 @@ public class IncidentOpeneView {
 
 	@Override
 	public boolean equals(final Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		final IncidentOpeneView that = (IncidentOpeneView) o;
 		return incidentId == that.incidentId && Objects.equals(openEId, that.openEId);
 	}
@@ -49,7 +49,7 @@ public class IncidentOpeneView {
 
 	@Override
 	public String
-	toString() {
+		toString() {
 		return "IncidentOpeneView{" +
 			"incidentId=" + incidentId +
 			", openEId='" + openEId + '\'' +

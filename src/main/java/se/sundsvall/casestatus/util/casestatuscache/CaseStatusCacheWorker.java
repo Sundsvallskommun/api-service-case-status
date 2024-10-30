@@ -34,7 +34,6 @@ public class CaseStatusCacheWorker {
 
 	private final CitizenIntegration citizenIntegration;
 
-
 	private final Mapper mapper;
 
 	private final UnknownRepository unknownRepository;
@@ -43,7 +42,8 @@ public class CaseStatusCacheWorker {
 
 	private final CompanyRepository companyRepository;
 
-	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration, final Mapper mapper, final UnknownRepository unknownRepository, final PrivateRepository privateRepository, final CompanyRepository companyRepository) {
+	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration, final Mapper mapper, final UnknownRepository unknownRepository, final PrivateRepository privateRepository,
+		final CompanyRepository companyRepository) {
 		this.openEIntegration = openEIntegration;
 		this.citizenIntegration = citizenIntegration;
 
@@ -64,7 +64,6 @@ public class CaseStatusCacheWorker {
 			flowInstances.forEach(flowInstance -> parseFlowInstance(flowInstance, familyID));
 		}
 	}
-
 
 	void parseFlowInstance(final Element flowInstance, final FamilyId familyId) {
 		final var flowInstanceID = Xsoup.select(flowInstance, "flowInstanceId/text()").get();
@@ -99,20 +98,17 @@ public class CaseStatusCacheWorker {
 		}
 	}
 
-
 	private Pair<String, String> parseOrganizationNumberOrPersonId(final Elements flowInstance, final FamilyId familyID) {
 		if (familyID.isApplicant() && !flowInstance.select("type").isEmpty()) {
 			return parseApplicantInfo(flowInstance);
 		}
 		return switch (familyID) {
-			case NYBYGGNADSKARTA ->
-				Xsoup.select(flowInstance.first(), "clientEstablishment/text()").get() != null ? new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/OrganizationNumber/text()").get())
-					: new ImmutablePair<>(PRIVATE, Xsoup.select(flowInstance.first(), "clientPrivate/SocialSecurityNumber/text()").get());
+			case NYBYGGNADSKARTA -> Xsoup.select(flowInstance.first(), "clientEstablishment/text()").get() != null ? new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/OrganizationNumber/text()").get())
+				: new ImmutablePair<>(PRIVATE, Xsoup.select(flowInstance.first(), "clientPrivate/SocialSecurityNumber/text()").get());
 			case ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR, TILLSTANDFORSALJNINGTOBAKSVAROR,
-			     ANMALANFORSELJNINGSERVERINGFOLKOL, FORSALJNINGECIGGARETTER ->
-				new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()")
+				ANMALANFORSELJNINGSERVERINGFOLKOL, FORSALJNINGECIGGARETTER -> new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()")
 					.get() != null ? Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()").get()
-					: Xsoup.select(flowInstance.first(), "chooseCompany/organizationNumber/text()").get());
+						: Xsoup.select(flowInstance.first(), "chooseCompany/organizationNumber/text()").get());
 			default -> new ImmutablePair<>("", "");
 		};
 	}

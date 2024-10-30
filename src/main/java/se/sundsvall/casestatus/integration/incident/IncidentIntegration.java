@@ -8,10 +8,8 @@ import org.springframework.stereotype.Component;
 
 import generated.se.sundsvall.incident.IncidentOepResponse;
 
-
 @Component
 public class IncidentIntegration {
-
 
 	private static final Logger LOG = LoggerFactory.getLogger(IncidentIntegration.class);
 

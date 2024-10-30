@@ -1,6 +1,5 @@
 package se.sundsvall.casestatus.util.casestatuscache.domain;
 
-
 import java.util.EnumSet;
 
 import se.sundsvall.casestatus.util.ContextUtil;
@@ -25,8 +24,7 @@ public enum FamilyId {
 	ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR(381, 225, "2281");
 
 	private static final EnumSet<FamilyId> APPLICANT = EnumSet.of(
-		ROKKANALELDSTAD, FORHANDSBESKED, STRANDSKYDDSDISPENS, BYGGLOVPLANKSPALJE, BYGGLOVTILLBYGGNAD
-	);
+		ROKKANALELDSTAD, FORHANDSBESKED, STRANDSKYDDSDISPENS, BYGGLOVPLANKSPALJE, BYGGLOVTILLBYGGNAD);
 
 	private final int testValue;
 

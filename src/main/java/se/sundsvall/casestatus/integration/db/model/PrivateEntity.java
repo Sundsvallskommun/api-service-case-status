@@ -1,6 +1,5 @@
 package se.sundsvall.casestatus.integration.db.model;
 
-
 import java.util.Objects;
 
 import jakarta.persistence.Column;
@@ -31,9 +30,12 @@ public class PrivateEntity extends BaseEntity {
 
 	@Override
 	public boolean equals(final Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
-		if (!super.equals(o)) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
 		final PrivateEntity that = (PrivateEntity) o;
 		return Objects.equals(personId, that.personId);
 	}

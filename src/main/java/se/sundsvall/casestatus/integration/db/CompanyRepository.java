@@ -13,5 +13,4 @@ public interface CompanyRepository extends JpaRepository<CompanyEntity, String> 
 
 	List<CompanyEntity> findByOrganisationNumberAndMunicipalityId(String organisationNumber, String municipalityId);
 
-
 }

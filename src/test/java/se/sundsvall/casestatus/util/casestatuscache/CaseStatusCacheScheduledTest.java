@@ -66,9 +66,8 @@ class CaseStatusCacheScheduledTest {
 		// Verify lock
 		await()
 			.atMost(5, TimeUnit.SECONDS)
-			.untilAsserted(() ->
-				assertThat(getLockedAt("cache_job"))
-					.isCloseTo(LocalDateTime.now(Clock.systemUTC()), within(10, ChronoUnit.SECONDS)));
+			.untilAsserted(() -> assertThat(getLockedAt("cache_job"))
+				.isCloseTo(LocalDateTime.now(Clock.systemUTC()), within(10, ChronoUnit.SECONDS)));
 
 		// Only one call should be made as long as scheduledCacheJob() is locked and mock is waiting
 		// for first call to finish

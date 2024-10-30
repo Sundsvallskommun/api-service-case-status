@@ -29,99 +29,99 @@ class OpenEIntegrationTests {
 	private OpenEIntegration openEIntegration;
 
 	@Test
-    void getPdf_ok() {
-        when(mockOpenEClient.getPDF(any(String.class))).thenReturn("someAnswer".getBytes(StandardCharsets.UTF_8));
+	void getPdf_ok() {
+		when(mockOpenEClient.getPDF(any(String.class))).thenReturn("someAnswer".getBytes(StandardCharsets.UTF_8));
 
-        final var response = openEIntegration.getPdf("someExternalCaseId");
+		final var response = openEIntegration.getPdf("someExternalCaseId");
 
-        assertThat(response).isPresent();
+		assertThat(response).isPresent();
 
-        verify(mockOpenEClient).getPDF(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
-
-	@Test
-    void getPdf_error() {
-
-        when(mockOpenEClient.getPDF(any(String.class))).thenThrow(new NullPointerException());
-
-        final var response = openEIntegration.getPdf("someExternalCaseId");
-
-        assertThat(response).isEmpty();
-
-        verify(mockOpenEClient).getPDF(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
+		verify(mockOpenEClient).getPDF(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
 
 	@Test
-    void getErrandIds_ok() {
-        when(mockOpenEClient.getErrandIds(any(String.class))).thenReturn("someAnswer".getBytes());
-        when(familyId.getValue()).thenReturn(123);
-        final var response = openEIntegration.getErrandIds(familyId);
+	void getPdf_error() {
 
-        assertThat(response).isNotNull();
-        verify(mockOpenEClient).getErrandIds(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
+		when(mockOpenEClient.getPDF(any(String.class))).thenThrow(new NullPointerException());
 
-	@Test
-    void getErrandIds_error() {
+		final var response = openEIntegration.getPdf("someExternalCaseId");
 
-        when(mockOpenEClient.getErrandIds(any(String.class))).thenThrow(new NullPointerException());
+		assertThat(response).isEmpty();
 
-        final var response = openEIntegration.getErrandIds(familyId);
-
-        assertThat(response).isEmpty();
-
-        verify(mockOpenEClient).getErrandIds(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
+		verify(mockOpenEClient).getPDF(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
 
 	@Test
-    void getErrand_ok() {
-        when(mockOpenEClient.getErrand(any(String.class))).thenReturn("someAnswer".getBytes());
-        final var response = openEIntegration.getErrand("someFlowInstanceId");
+	void getErrandIds_ok() {
+		when(mockOpenEClient.getErrandIds(any(String.class))).thenReturn("someAnswer".getBytes());
+		when(familyId.getValue()).thenReturn(123);
+		final var response = openEIntegration.getErrandIds(familyId);
 
-        assertThat(response).isNotNull();
-        verify(mockOpenEClient).getErrand(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
-
-	@Test
-    void getErrand_error() {
-
-        when(mockOpenEClient.getErrand(any(String.class))).thenThrow(new NullPointerException());
-
-        final var response = openEIntegration.getErrand("someFlowInstanceId");
-
-        assertThat(response).isEmpty();
-
-        verify(mockOpenEClient).getErrand(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
+		assertThat(response).isNotNull();
+		verify(mockOpenEClient).getErrandIds(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
 
 	@Test
-    void getErrandStatus_ok() {
-        when(mockOpenEClient.getErrandStatus(any(String.class))).thenReturn("someAnswer".getBytes());
+	void getErrandIds_error() {
 
-        final var response = openEIntegration.getErrandStatus("someFlowInstanceId");
+		when(mockOpenEClient.getErrandIds(any(String.class))).thenThrow(new NullPointerException());
 
-        assertThat(response).isNotNull();
+		final var response = openEIntegration.getErrandIds(familyId);
 
-        verify(mockOpenEClient).getErrandStatus(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
+		assertThat(response).isEmpty();
+
+		verify(mockOpenEClient).getErrandIds(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
 
 	@Test
-    void getErrandStatus_error() {
+	void getErrand_ok() {
+		when(mockOpenEClient.getErrand(any(String.class))).thenReturn("someAnswer".getBytes());
+		final var response = openEIntegration.getErrand("someFlowInstanceId");
 
-        when(mockOpenEClient.getErrandStatus(any(String.class))).thenThrow(new NullPointerException());
+		assertThat(response).isNotNull();
+		verify(mockOpenEClient).getErrand(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
 
-        final var response = openEIntegration.getErrandStatus("someFlowInstanceId");
+	@Test
+	void getErrand_error() {
 
-        assertThat(response).isEmpty();
+		when(mockOpenEClient.getErrand(any(String.class))).thenThrow(new NullPointerException());
 
-        verify(mockOpenEClient).getErrandStatus(any(String.class));
-        verifyNoMoreInteractions(mockOpenEClient);
-    }
+		final var response = openEIntegration.getErrand("someFlowInstanceId");
+
+		assertThat(response).isEmpty();
+
+		verify(mockOpenEClient).getErrand(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
+
+	@Test
+	void getErrandStatus_ok() {
+		when(mockOpenEClient.getErrandStatus(any(String.class))).thenReturn("someAnswer".getBytes());
+
+		final var response = openEIntegration.getErrandStatus("someFlowInstanceId");
+
+		assertThat(response).isNotNull();
+
+		verify(mockOpenEClient).getErrandStatus(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
+
+	@Test
+	void getErrandStatus_error() {
+
+		when(mockOpenEClient.getErrandStatus(any(String.class))).thenThrow(new NullPointerException());
+
+		final var response = openEIntegration.getErrandStatus("someFlowInstanceId");
+
+		assertThat(response).isEmpty();
+
+		verify(mockOpenEClient).getErrandStatus(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
 }
