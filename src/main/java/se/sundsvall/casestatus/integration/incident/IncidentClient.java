@@ -14,8 +14,7 @@ import generated.se.sundsvall.incident.IncidentOepResponse;
 	name = CLIENT_ID,
 	url = "${integration.incident.base-url}",
 	configuration = IncidentConfiguration.class,
-	dismiss404 = true
-)
+	dismiss404 = true)
 public interface IncidentClient {
 
 	@GetMapping("/{municipalityId}/incident/internal/oep/{externalCaseId}/status")

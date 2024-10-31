@@ -12,7 +12,7 @@ import se.sundsvall.casestatus.Application;
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("junit")
 class IncidentPropertiesTest {
-	
+
 	@Autowired
 	private IncidentProperties properties;
 

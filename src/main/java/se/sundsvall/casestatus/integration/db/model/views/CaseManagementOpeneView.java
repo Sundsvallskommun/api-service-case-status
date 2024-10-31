@@ -15,7 +15,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Entity
 @Table(name = "vStatusCaseManagementOpenE")
 @Getter
@@ -35,8 +34,10 @@ public class CaseManagementOpeneView {
 
 	@Override
 	public boolean equals(final Object o) {
-		if (this == o) return true;
-		if (o == null || getClass() != o.getClass()) return false;
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
 		final CaseManagementOpeneView that = (CaseManagementOpeneView) o;
 		return Objects.equals(caseManagementId, that.caseManagementId) && Objects.equals(openEId, that.openEId);
 	}

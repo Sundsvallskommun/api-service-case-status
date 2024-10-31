@@ -1,13 +1,11 @@
 {
-  "request": {
-    "method": "GET",
-    "urlPattern": "/opene/api/instanceapi/getinstance/fel/pdf.*"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "bodyFileName": "test2_not_found_pdf_in_opene/responses/pdf.html",
-    "status": 404
-  }
+	"request": {
+		"method": "GET",
+		"urlPattern": "/opene/api/instanceapi/getinstance/fel/pdf.*"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"bodyFileName": "test2_not_found_pdf_in_opene/responses/pdf.html",
+		"status": 404
+	}
 }

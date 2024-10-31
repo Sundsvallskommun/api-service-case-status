@@ -1,13 +1,11 @@
 {
-  "request": {
-    "method": "GET",
-    "url": "/casemanagement/2281/cases/1308f4ca-f7d6-4c88-9098-64be43b3a905/status"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "bodyFileName": "test4_not_found_in_casemanagement/responses/casemanagement.json",
-    "status": 404
-  }
+	"request": {
+		"method": "GET",
+		"url": "/casemanagement/2281/cases/1308f4ca-f7d6-4c88-9098-64be43b3a905/status"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"bodyFileName": "test4_not_found_in_casemanagement/responses/casemanagement.json",
+		"status": 404
+	}
 }

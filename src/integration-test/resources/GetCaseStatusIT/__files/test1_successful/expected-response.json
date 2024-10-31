@@ -1,10 +1,9 @@
 {
-  "id": "string",
-  "externalCaseId": "string",
-  "caseType": "Nybyggnad - test",
-  "status": "Ärendet arkiveras",
-  "firstSubmitted": "Saknas",
-  "lastStatusChange": "2022-08-10 12:25",
-  "openEErrand": false
+	"externalCaseId": "string",
+	"lastStatusChange": "2022-08-10 12:25",
+	"openEErrand": false,
+	"id": "string",
+	"firstSubmitted": "Saknas",
+	"caseType": "Nybyggnad - test",
+	"status": "Ärendet arkiveras"
 }
-

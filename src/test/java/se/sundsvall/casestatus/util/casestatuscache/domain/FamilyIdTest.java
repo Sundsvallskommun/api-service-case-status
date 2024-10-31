@@ -13,25 +13,23 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-
 @ExtendWith(MockitoExtension.class)
 class FamilyIdTest {
 
-    private final FamilyId familyId = FamilyId.ROKKANALELDSTAD;
+	private final FamilyId familyId = FamilyId.ROKKANALELDSTAD;
 
-    @Mock
-    private
-    CaseStatusCache caseStatusCache;
+	@Mock
+	private CaseStatusCache caseStatusCache;
 
-    @Test
-    void getValue_Test() {
-        try (MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
-            utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
-            when(caseStatusCache.isProduction()).thenReturn(true).thenReturn(false);
-            int resultTrue = familyId.getValue();
-            assertThat(resultTrue).isEqualTo(437);
-            int resultFalse = familyId.getValue();
-            assertThat(resultFalse).isEqualTo(382);
-        }
-    }
+	@Test
+	void getValue_Test() {
+		try (MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
+			utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
+			when(caseStatusCache.isProduction()).thenReturn(true).thenReturn(false);
+			int resultTrue = familyId.getValue();
+			assertThat(resultTrue).isEqualTo(437);
+			int resultFalse = familyId.getValue();
+			assertThat(resultFalse).isEqualTo(382);
+		}
+	}
 }

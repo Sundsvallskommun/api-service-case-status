@@ -11,7 +11,6 @@ import static org.hamcrest.Matchers.allOf;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Test;
 
-
 class CompanyEntityTest {
 
 	@Test

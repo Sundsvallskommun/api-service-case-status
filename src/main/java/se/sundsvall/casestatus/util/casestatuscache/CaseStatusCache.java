@@ -48,7 +48,6 @@ public class CaseStatusCache {
 		}
 	}
 
-
 	public boolean isProduction() {
 		return isProd;
 	}

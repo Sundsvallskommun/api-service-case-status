@@ -131,8 +131,7 @@ class CaseStatusServiceTests {
 		when(mockCaseManagementIntegration.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.of(caseStatus));
 
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(any(String.class))).thenReturn(Optional.of
-			(CaseManagementOpeneView.builder().withCaseManagementId("someStatus").withOpenEId("someStatus").build()));
+		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(any(String.class))).thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("someStatus").withOpenEId("someStatus").build()));
 
 		when(caseTypeRepositoryMock.findByEnumValueAndMunicipalityId(any(String.class), any(String.class))).thenReturn(Optional.of(
 			CaseTypeEntity.builder().withEnumValue("PARKING_PERMIT").withDescription("someText").build()));

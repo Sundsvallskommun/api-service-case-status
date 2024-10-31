@@ -23,7 +23,9 @@ import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 
-@ExtendWith({MockitoExtension.class, ResourceLoaderExtension.class})
+@ExtendWith({
+	MockitoExtension.class, ResourceLoaderExtension.class
+})
 class CaseStatusCacheWorkerTest {
 
 	@Mock
@@ -46,7 +48,6 @@ class CaseStatusCacheWorkerTest {
 
 	@InjectMocks
 	private CaseStatusCacheWorker caseStatusCacheWorker;
-
 
 	@Test
 	void cacheStatusesForFamilyID_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR(@Load(value = "/xml/getErrandList_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandIdsXML,

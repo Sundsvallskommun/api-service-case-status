@@ -1,8 +1,8 @@
 {
-  "system": "BYGGR",
-  "caseType": "NYBYGGNAD_ANSOKAN_OM_BYGGLOV",
-  "externalCaseId": "string",
-  "caseId": "string",
-  "status": "Avslutat",
-  "timestamp": "2022-08-10T12:25:48.098Z"
+	"system": "BYGGR",
+	"externalCaseId": "string",
+	"caseId": "string",
+	"caseType": "NYBYGGNAD_ANSOKAN_OM_BYGGLOV",
+	"status": "Avslutat",
+	"timestamp": "2022-08-10T12:25:48.098Z"
 }

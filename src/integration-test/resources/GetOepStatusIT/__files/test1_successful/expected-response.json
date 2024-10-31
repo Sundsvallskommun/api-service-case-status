@@ -1,1 +1,4 @@
-{"key":"status","value":"Ärendet arkiveras"}
+{
+	"value": "Ärendet arkiveras",
+	"key": "status"
+}

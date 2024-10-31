@@ -22,5 +22,4 @@ class CaseManagementPropertiesTest {
 		assertThat(properties.readTimeout()).isEqualTo(30);
 	}
 
-
 }

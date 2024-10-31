@@ -1,1 +1,4 @@
-{"key":"status","value":"Inskickat"}
+{
+	"value": "Inskickat",
+	"key": "status"
+}

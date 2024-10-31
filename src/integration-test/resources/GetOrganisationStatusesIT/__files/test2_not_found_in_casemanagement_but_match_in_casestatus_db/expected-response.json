@@ -1,10 +1,8 @@
-[
-  {
-    "caseType": "Beställa nybyggnadskarta",
-    "firstSubmitted": "2022-02-09 09:51",
-    "id": "89767",
-    "lastStatusChange": "2022-02-09 09:51",
-    "openEErrand": true,
-    "status": "Inskickat"
-  }
-]
+[{
+	"lastStatusChange": "2022-02-09 09:51",
+	"openEErrand": true,
+	"id": "89767",
+	"firstSubmitted": "2022-02-09 09:51",
+	"caseType": "Beställa nybyggnadskarta",
+	"status": "Inskickat"
+}]

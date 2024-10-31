@@ -1,13 +1,11 @@
 {
-  "request": {
-    "method": "GET",
-    "url": "/casemanagement/2281/organization/1234561235/cases/status"
-  },
-  "response": {
-    "headers": {
-      "Content-Type": "application/json"
-    },
-    "bodyFileName": "test1_successful/responses/CaseManagement.json",
-    "status": 200
-  }
+	"request": {
+		"method": "GET",
+		"url": "/casemanagement/2281/organization/1234561235/cases/status"
+	},
+	"response": {
+		"headers": {"Content-Type": "application/json"},
+		"bodyFileName": "test1_successful/responses/CaseManagement.json",
+		"status": 200
+	}
 }

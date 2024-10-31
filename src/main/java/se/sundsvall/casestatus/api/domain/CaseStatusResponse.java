@@ -12,11 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CaseStatusResponse {
 
-    private String id;
-    private String externalCaseId;
-    private String caseType;
-    private String status;
-    private String firstSubmitted;
-    private String lastStatusChange;
-    private boolean isOpenEErrand;
+	private String id;
+	private String externalCaseId;
+	private String caseType;
+	private String status;
+	private String firstSubmitted;
+	private String lastStatusChange;
+	private boolean isOpenEErrand;
 }
