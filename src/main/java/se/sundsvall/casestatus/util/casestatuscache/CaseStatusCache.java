@@ -1,22 +1,15 @@
 package se.sundsvall.casestatus.util.casestatuscache;
 
 import java.util.Arrays;
-
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
-
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import se.sundsvall.dept44.requestid.RequestId;
 
-@Configuration
-@EnableScheduling
 @Component
 public class CaseStatusCache {
 
@@ -31,8 +24,8 @@ public class CaseStatusCache {
 		this.caseStatusCacheWorker = caseStatusCacheWorker;
 	}
 
-	@SchedulerLock(name = "cache_job", lockAtMostFor = "${cache.scheduled.shedlock-lock-at-most-for}")
 	@Scheduled(cron = "${cache.scheduled.cron}")
+	@SchedulerLock(name = "cache_job", lockAtMostFor = "${cache.scheduled.shedlock-lock-at-most-for}")
 	public void scheduledCacheJob() {
 		try {
 			RequestId.init();

@@ -12,11 +12,9 @@
 	<version>3.0</version>
 	<name>api-service-casestatus</name>
 	<properties>
-		<app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
 		<jsoup.version>1.18.1</jsoup.version>
 		<xsoup.version>0.3.7</xsoup.version>
 		<shedlock.version>6.0.1</shedlock.version>
-		<awaitility.version>4.2.2</awaitility.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
 	</properties>
@@ -87,7 +85,6 @@
 		<dependency>
 			<groupId>org.awaitility</groupId>
 			<artifactId>awaitility</artifactId>
-			<version>${awaitility.version}</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
