@@ -1,7 +1,6 @@
 package se.sundsvall.casestatus.util.casestatuscache;
 
 import java.nio.charset.StandardCharsets;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.Jsoup;
@@ -10,7 +9,6 @@ import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
 import se.sundsvall.casestatus.integration.db.CompanyRepository;
 import se.sundsvall.casestatus.integration.db.PrivateRepository;
@@ -18,7 +16,6 @@ import se.sundsvall.casestatus.integration.db.UnknownRepository;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
 import se.sundsvall.casestatus.util.Mapper;
 import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
-
 import us.codecraft.xsoup.Xsoup;
 
 @Component

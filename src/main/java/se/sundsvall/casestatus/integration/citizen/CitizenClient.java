@@ -6,7 +6,6 @@ import static se.sundsvall.casestatus.integration.citizen.configuration.CitizenC
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
 import se.sundsvall.casestatus.integration.citizen.configuration.CitizenConfiguration;
 
 @FeignClient(

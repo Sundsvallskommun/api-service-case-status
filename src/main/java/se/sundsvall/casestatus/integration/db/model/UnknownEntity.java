@@ -3,7 +3,6 @@ package se.sundsvall.casestatus.integration.db.model;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;

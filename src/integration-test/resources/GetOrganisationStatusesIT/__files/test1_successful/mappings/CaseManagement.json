@@ -4,7 +4,9 @@
 		"url": "/casemanagement/2281/organization/1234561235/cases/status"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json"},
+		"headers": {
+			"Content-Type": "application/json"
+		},
 		"bodyFileName": "test1_successful/responses/CaseManagement.json",
 		"status": 200
 	}

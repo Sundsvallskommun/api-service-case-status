@@ -2,11 +2,9 @@ package se.sundsvall.casestatus.integration.opene;
 
 import java.util.Base64;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
 
 @Component

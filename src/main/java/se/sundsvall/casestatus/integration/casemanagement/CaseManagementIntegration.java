@@ -1,13 +1,11 @@
 package se.sundsvall.casestatus.integration.casemanagement;
 
+import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.util.List;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-
-import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 
 @Component
 public class CaseManagementIntegration {
