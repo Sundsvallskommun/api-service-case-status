@@ -7,16 +7,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import generated.se.sundsvall.casemanagement.CaseStatusDTO;
+import generated.se.sundsvall.incident.IncidentOepResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
@@ -30,9 +30,6 @@ import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneVie
 import se.sundsvall.casestatus.integration.db.model.views.IncidentOpeneView;
 import se.sundsvall.casestatus.integration.incident.IncidentIntegration;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
-
-import generated.se.sundsvall.casemanagement.CaseStatusDTO;
-import generated.se.sundsvall.incident.IncidentOepResponse;
 
 @ExtendWith(MockitoExtension.class)
 class CaseStatusServiceTests {

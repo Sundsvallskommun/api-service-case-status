@@ -2,14 +2,11 @@ package se.sundsvall.casestatus.util;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-
 import org.jsoup.nodes.Document;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.casestatus.integration.db.model.CompanyEntity;
 import se.sundsvall.casestatus.integration.db.model.PrivateEntity;
 import se.sundsvall.casestatus.integration.db.model.UnknownEntity;
-
 import us.codecraft.xsoup.Xsoup;
 
 @Component
