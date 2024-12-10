@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import feign.soap.SOAPErrorDecoder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -14,10 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.cloud.openfeign.FeignBuilderCustomizer;
-
 import se.sundsvall.dept44.configuration.feign.FeignMultiCustomizer;
-
-import feign.soap.SOAPErrorDecoder;
 
 @ExtendWith(MockitoExtension.class)
 class OpenEConfigurationTest {

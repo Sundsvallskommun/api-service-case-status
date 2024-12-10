@@ -1,11 +1,9 @@
 package se.sundsvall.casestatus.util.casestatuscache.domain;
 
 import java.util.EnumSet;
-
+import lombok.Getter;
 import se.sundsvall.casestatus.util.ContextUtil;
 import se.sundsvall.casestatus.util.casestatuscache.CaseStatusCache;
-
-import lombok.Getter;
 
 public enum FamilyId {
 	ATTEFALLSATGARD(384, 427, "2281"),

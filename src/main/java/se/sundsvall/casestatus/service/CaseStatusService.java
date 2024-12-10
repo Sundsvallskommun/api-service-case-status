@@ -2,14 +2,13 @@ package se.sundsvall.casestatus.service;
 
 import static java.util.stream.Collectors.toList;
 
+import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
-
 import se.sundsvall.casestatus.api.domain.CasePdfResponse;
 import se.sundsvall.casestatus.api.domain.CaseStatusResponse;
 import se.sundsvall.casestatus.api.domain.OepStatusResponse;
@@ -24,8 +23,6 @@ import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneVie
 import se.sundsvall.casestatus.integration.db.model.views.IncidentOpeneView;
 import se.sundsvall.casestatus.integration.incident.IncidentIntegration;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
-
-import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 
 @Service
 public class CaseStatusService {

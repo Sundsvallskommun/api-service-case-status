@@ -4,7 +4,9 @@
 		"url": "/incident/2281/incident/internal/oep/1308f4ca-f7d6-4c88-9098-64be43b3a905/status"
 	},
 	"response": {
-		"headers": {"Content-Type": "application/json"},
+		"headers": {
+			"Content-Type": "application/json"
+		},
 		"bodyFileName": "test4_not_found_in_casemanagement/responses/incident.json",
 		"status": 404
 	}

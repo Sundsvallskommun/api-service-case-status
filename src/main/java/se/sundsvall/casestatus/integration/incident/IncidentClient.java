@@ -2,13 +2,11 @@ package se.sundsvall.casestatus.integration.incident;
 
 import static se.sundsvall.casestatus.integration.incident.configuration.IncidentConfiguration.CLIENT_ID;
 
+import generated.se.sundsvall.incident.IncidentOepResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-
 import se.sundsvall.casestatus.integration.incident.configuration.IncidentConfiguration;
-
-import generated.se.sundsvall.incident.IncidentOepResponse;
 
 @FeignClient(
 	name = CLIENT_ID,
