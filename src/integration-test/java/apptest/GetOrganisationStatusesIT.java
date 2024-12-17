@@ -7,13 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
-
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 
 @WireMockAppTestSuite(files = "classpath:/GetOrganisationStatusesIT/", classes = Application.class)
-@Sql(scripts = {"/db/truncate.sql", "/db/casestatus.sql"})
+@Sql(scripts = { "/db/truncate.sql", "/db/casestatus.sql" })
 class GetOrganisationStatusesIT extends AbstractAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
@@ -54,7 +53,8 @@ class GetOrganisationStatusesIT extends AbstractAppTest {
 		setupCall()
 			.withServicePath(EMPTY_PATH)
 			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.NOT_FOUND)
+			.withExpectedResponseStatus(HttpStatus.OK)
+			.withExpectedResponse("expected-response.json")
 			.sendRequestAndVerifyResponse();
 	}
 

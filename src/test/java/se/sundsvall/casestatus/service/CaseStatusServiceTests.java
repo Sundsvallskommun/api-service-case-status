@@ -182,7 +182,7 @@ class CaseStatusServiceTests {
 	void getCasePdf() {
 		when(mockOpenEIntegration.getPdf(any(String.class))).thenReturn(Optional.of("someBase64String"));
 
-		final var result = caseStatusService.getCasePdf("someExternalCaseID", MUNICIPALITY_ID);
+		final var result = caseStatusService.getCasePdf("someExternalCaseID");
 
 		assertThat(result).isNotNull();
 

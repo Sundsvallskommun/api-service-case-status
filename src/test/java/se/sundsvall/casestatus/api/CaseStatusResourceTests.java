@@ -19,9 +19,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.casestatus.Application;
-import se.sundsvall.casestatus.api.domain.CasePdfResponse;
-import se.sundsvall.casestatus.api.domain.CaseStatusResponse;
-import se.sundsvall.casestatus.api.domain.OepStatusResponse;
+import se.sundsvall.casestatus.api.model.CasePdfResponse;
+import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.service.CaseStatusService;
 
 @ActiveProfiles("junit")
@@ -100,7 +100,7 @@ class CaseStatusResourceTests {
 
 	@Test
 	void getCasePdf() {
-		when(mockCaseStatusService.getCasePdf(any(String.class), any(String.class))).thenReturn(CasePdfResponse.builder()
+		when(mockCaseStatusService.getCasePdf(any(String.class))).thenReturn(CasePdfResponse.builder()
 			.withExternalCaseId("someExternalCaseId")
 			.withBase64("someBase64String")
 			.build());
@@ -116,7 +116,7 @@ class CaseStatusResourceTests {
 			.jsonPath("$.externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$.base64").isEqualTo("someBase64String");
 
-		verify(mockCaseStatusService).getCasePdf(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
+		verify(mockCaseStatusService).getCasePdf(caseStatusServiceArgumentCaptor.capture());
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");

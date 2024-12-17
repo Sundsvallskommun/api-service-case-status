@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.api.domain;
+package se.sundsvall.casestatus.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,7 +8,7 @@ class CasePdfResponseTests {
 
 	@Test
 	void builderAndGettersWorkAsExpected() {
-		var response = CasePdfResponse.builder()
+		final var response = CasePdfResponse.builder()
 			.withExternalCaseId("someExternalCaseId")
 			.withBase64("someBase64String")
 			.build();

@@ -9,9 +9,9 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
-import se.sundsvall.casestatus.api.domain.CasePdfResponse;
-import se.sundsvall.casestatus.api.domain.CaseStatusResponse;
-import se.sundsvall.casestatus.api.domain.OepStatusResponse;
+import se.sundsvall.casestatus.api.model.CasePdfResponse;
+import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
@@ -80,7 +80,7 @@ public class CaseStatusService {
 				.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND)));
 	}
 
-	public CasePdfResponse getCasePdf(final String externalCaseId, final String municipalityId) {
+	public CasePdfResponse getCasePdf(final String externalCaseId) {
 		return openEIntegration.getPdf(externalCaseId)
 			.map(pdf -> CasePdfResponse.builder()
 				.withExternalCaseId(externalCaseId)
