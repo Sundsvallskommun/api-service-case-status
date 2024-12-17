@@ -13,7 +13,8 @@ import se.sundsvall.casestatus.integration.casemanagement.configuration.CaseMana
 @FeignClient(
 	name = CLIENT_ID,
 	url = "${integration.case-management.base-url}",
-	configuration = CaseManagementConfiguration.class)
+	configuration = CaseManagementConfiguration.class,
+	dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)
 public interface CaseManagementClient {
 
