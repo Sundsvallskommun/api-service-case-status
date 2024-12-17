@@ -14,6 +14,8 @@ integration:
     base-url: http://opene.url
     password: somePassword
     username: someUsername
+  party:
+    base-url: http://party.url
 
 spring:
   datasource:
@@ -48,6 +50,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           incident:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          party:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
         registration:
           citizen:
             client-id: the-client-id
@@ -56,5 +60,8 @@ spring:
             client-id: the-client-id
             client-secret: the-client-secret
           incident:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          party:
             client-id: the-client-id
             client-secret: the-client-secret

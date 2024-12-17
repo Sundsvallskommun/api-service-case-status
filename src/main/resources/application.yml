@@ -11,6 +11,9 @@ integration:
   incident:
     connectTimeout: 5
     readTimeout: 30
+  party:
+    connectTimeout: 5
+    readTimeout: 30
 
 openapi:
   name: ${spring.application.name}
@@ -36,6 +39,9 @@ spring:
           incident:
             authorization-grant-type: client_credentials
             provider: incident
+          party:
+            authorization-grant-type: client_credentials
+            provider: party
 logbook:
   body-filters:
     x-path:
