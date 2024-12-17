@@ -51,12 +51,6 @@
         primary key (case_management_id)
     ) engine=InnoDB;
 
-    create table v_status_incident_opene (
-        incident_id integer not null,
-        opene_id varchar(255),
-        primary key (incident_id)
-    ) engine=InnoDB;
-
     create index idx_company_organisation_number 
        on company (organisation_number);
 

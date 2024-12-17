@@ -1,4 +1,5 @@
 {
-	"value": "Inskickat",
-	"key": "status"
+	"title": "Not Found",
+	"status": 404,
+	"detail": "Could not find matching open-E status for status INVALID"
 }
