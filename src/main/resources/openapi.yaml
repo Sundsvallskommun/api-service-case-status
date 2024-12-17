@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "3.0"
 servers:
-  - url: http://localhost:52857
+  - url: http://localhost:49731
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/statuses:
@@ -30,32 +30,28 @@ paths:
           schema:
             type: string
       responses:
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful Operation
           content:
-            '*/*':
+            application/json:
               schema:
                 type: array
                 items:
                   $ref: "#/components/schemas/CaseStatusResponse"
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
         "500":
-          description: Internal Server Error
+          description: Internal Server error
           content:
-            '*/*':
+            application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
   /{municipalityId}/{externalCaseId}/status:
     get:
       tags:
@@ -76,30 +72,32 @@ paths:
           schema:
             type: string
       responses:
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful Operation
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/CaseStatusResponse"
-        "400":
-          description: Bad Request
+        "404":
+          description: Not Found
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/Problem"
         "500":
-          description: Internal Server Error
+          description: Internal Server error
           content:
-            '*/*':
+            application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
   /{municipalityId}/{externalCaseId}/pdf:
     get:
       tags:
@@ -120,35 +118,37 @@ paths:
           schema:
             type: string
       responses:
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful Operation
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/CasePdfResponse"
-        "400":
-          description: Bad Request
+        "404":
+          description: Not Found
           content:
-            '*/*':
+            application/json:
               schema:
                 $ref: "#/components/schemas/Problem"
         "500":
-          description: Internal Server Error
+          description: Internal Server error
           content:
-            '*/*':
+            application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
   /{municipalityId}/{externalCaseId}/oepstatus:
     get:
       tags:
         - Status Resources
-      summary: Get OEP status
+      summary: Get status in openE Platform format
       operationId: getOepStatus
       parameters:
         - name: municipalityId
@@ -164,30 +164,76 @@ paths:
           schema:
             type: string
       responses:
-        "404":
-          description: Not Found
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/OepStatusResponse"
-        "400":
-          description: Bad Request
+        "404":
+          description: Not Found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
         "500":
-          description: Internal Server Error
+          description: Internal Server error
           content:
-            '*/*':
+            application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+  /{municipalityId}/party/{partyId}/statuses:
+    get:
+      tags:
+        - Status Resources
+      summary: Get all statuses connected to a partyId
+      operationId: getPartyStatuses
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: partyId
+          in: path
+          description: PartyId to find cases for
+          required: true
+          schema:
+            type: string
+          example: 123e4567-e89b-12d3-a456-426614174000
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseStatusResponse"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
   /api-docs:
     get:
       tags:
@@ -228,40 +274,230 @@ components:
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
+    ConstraintViolationProblem:
+      type: object
+      properties:
+        cause:
+          $ref: "#/components/schemas/ThrowableProblem"
+        stackTrace:
+          type: array
+          items:
+            type: object
+            properties:
+              classLoaderName:
+                type: string
+              moduleName:
+                type: string
+              moduleVersion:
+                type: string
+              methodName:
+                type: string
+              fileName:
+                type: string
+              lineNumber:
+                type: integer
+                format: int32
+              className:
+                type: string
+              nativeMethod:
+                type: boolean
+        type:
+          type: string
+          format: uri
+        status:
+          $ref: "#/components/schemas/StatusType"
+        violations:
+          type: array
+          items:
+            $ref: "#/components/schemas/Violation"
+        title:
+          type: string
+        message:
+          type: string
+        instance:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        detail:
+          type: string
+        suppressed:
+          type: array
+          items:
+            type: object
+            properties:
+              stackTrace:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    classLoaderName:
+                      type: string
+                    moduleName:
+                      type: string
+                    moduleVersion:
+                      type: string
+                    methodName:
+                      type: string
+                    fileName:
+                      type: string
+                    lineNumber:
+                      type: integer
+                      format: int32
+                    className:
+                      type: string
+                    nativeMethod:
+                      type: boolean
+              message:
+                type: string
+              localizedMessage:
+                type: string
+        localizedMessage:
+          type: string
+    ThrowableProblem:
+      type: object
+      properties:
+        cause:
+          $ref: "#/components/schemas/ThrowableProblem"
+        stackTrace:
+          type: array
+          items:
+            type: object
+            properties:
+              classLoaderName:
+                type: string
+              moduleName:
+                type: string
+              moduleVersion:
+                type: string
+              methodName:
+                type: string
+              fileName:
+                type: string
+              lineNumber:
+                type: integer
+                format: int32
+              className:
+                type: string
+              nativeMethod:
+                type: boolean
+        message:
+          type: string
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        parameters:
+          type: object
+          additionalProperties:
+            type: object
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
+        suppressed:
+          type: array
+          items:
+            type: object
+            properties:
+              stackTrace:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    classLoaderName:
+                      type: string
+                    moduleName:
+                      type: string
+                    moduleVersion:
+                      type: string
+                    methodName:
+                      type: string
+                    fileName:
+                      type: string
+                    lineNumber:
+                      type: integer
+                      format: int32
+                    className:
+                      type: string
+                    nativeMethod:
+                      type: boolean
+              message:
+                type: string
+              localizedMessage:
+                type: string
+        localizedMessage:
+          type: string
+    Violation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
           type: string
     CaseStatusResponse:
       type: object
       properties:
         id:
           type: string
+          description: Case id
+          example: "1234567890"
         externalCaseId:
           type: string
+          description: External case id
+          example: "1234567890"
         caseType:
           type: string
+          description: Case type
+          example: Building permit
         status:
           type: string
+          description: Status
+          example: In progress
         firstSubmitted:
           type: string
+          description: First submitted
+          example: 2021-01-01
         lastStatusChange:
           type: string
+          description: Last status change
+          example: 2021-01-01
         openEErrand:
           type: boolean
+      description: Case status response
     CasePdfResponse:
       type: object
       properties:
         externalCaseId:
           type: string
+          description: External case id
+          example: "1234567890"
         base64:
           type: string
+          description: Base64 encoded PDF
+          example: JVBERi0x
+      description: Case status response
     OepStatusResponse:
       type: object
       properties:
         key:
           type: string
+          description: Key
+          example: status
         value:
           type: string
+          description: Value
+          example: In progress
+      description: Case status response
   securitySchemes: { }

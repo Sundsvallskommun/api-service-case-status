@@ -1,7 +1,6 @@
 package se.sundsvall.casestatus.api;
 
-import static org.springframework.http.HttpStatus.NOT_FOUND;
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.casestatus.Application;
+import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.service.CaseStatusService;
 
 @ActiveProfiles("junit")
@@ -25,16 +25,16 @@ class CaseStatusResourceFailureTests {
 
 	@Test
 	void getOrganisationStatusesWithInvalidOrganizationNumber() {
-		webTestClient.get()
+		final var response = webTestClient.get()
 			.uri("/{municipalityId}/{organizationNumber}/statuses", "2281", "invalid-org-no")
 			.exchange()
 			.expectStatus()
-			.isNotFound()
-			.expectHeader()
-			.contentType(APPLICATION_PROBLEM_JSON_VALUE)
-			.expectBody()
-			.jsonPath("$.title").isEqualTo("Not Found")
-			.jsonPath("$.status").isEqualTo(NOT_FOUND.value());
+			.isOk()
+			.expectBodyList(CaseStatusResponse.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(response).isEmpty();
 	}
 
 }

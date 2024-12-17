@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.api.domain;
+package se.sundsvall.casestatus.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,7 +8,7 @@ class OepStatusResponseTests {
 
 	@Test
 	void builderAndGettersWorkAsExpected() {
-		var response = OepStatusResponse.builder()
+		final var response = OepStatusResponse.builder()
 			.withKey("someKey")
 			.withValue("someValue")
 			.build();

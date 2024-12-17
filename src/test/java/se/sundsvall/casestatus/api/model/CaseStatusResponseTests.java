@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.api.domain;
+package se.sundsvall.casestatus.api.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -8,7 +8,7 @@ class CaseStatusResponseTests {
 
 	@Test
 	void builderAndGettersWorkAsExpected() {
-		var response = CaseStatusResponse.builder()
+		final var response = CaseStatusResponse.builder()
 			.withId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
