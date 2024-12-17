@@ -2,12 +2,14 @@ package se.sundsvall.casestatus.integration.opene;
 
 import static se.sundsvall.casestatus.integration.opene.configuration.OpenEConfiguration.CLIENT_ID;
 
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import se.sundsvall.casestatus.integration.opene.configuration.OpenEConfiguration;
 
 @FeignClient(name = CLIENT_ID, url = "${integration.open-e.base-url}", configuration = OpenEConfiguration.class)
+@CircuitBreaker(name = CLIENT_ID)
 public interface OpenEClient {
 
 	String TEXT_XML_CHARSET_ISO_8859_1 = "text/xml; charset=ISO-8859-1";
