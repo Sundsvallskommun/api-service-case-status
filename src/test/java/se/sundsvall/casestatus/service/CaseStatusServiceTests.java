@@ -5,12 +5,17 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.casestatus.service.CaseStatusService.DATE_TIME_FORMATTER;
+import static se.sundsvall.casestatus.service.CaseStatusService.MISSING;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
+import generated.se.sundsvall.party.PartyType;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,8 +31,10 @@ import se.sundsvall.casestatus.integration.db.PrivateRepository;
 import se.sundsvall.casestatus.integration.db.UnknownRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.CompanyEntity;
+import se.sundsvall.casestatus.integration.db.model.PrivateEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
+import se.sundsvall.casestatus.integration.party.PartyIntegration;
 
 @ExtendWith(MockitoExtension.class)
 class CaseStatusServiceTests {
@@ -35,28 +42,22 @@ class CaseStatusServiceTests {
 	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
 
 	private static final String MUNICIPALITY_ID = "2281";
-
+	@Mock
+	PartyIntegration partyIntegration;
 	@Mock
 	private CaseManagementIntegration mockCaseManagementIntegration;
-
 	@Mock
 	private OpenEIntegration mockOpenEIntegration;
-
 	@Mock
 	private CompanyRepository companyRepositoryMock;
-
 	@Mock
 	private PrivateRepository privateRepositoryMock;
-
 	@Mock
 	private UnknownRepository unknownRepositoryMock;
-
 	@Mock
 	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
-
 	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
-
 	@InjectMocks
 	private CaseStatusService caseStatusService;
 
@@ -119,8 +120,8 @@ class CaseStatusServiceTests {
 		assertThat(result.getId()).isEqualTo("someCaseId");
 		assertThat(result.getExternalCaseId()).isEqualTo(EXTERNAL_CASE_ID);
 		assertThat(result.getCaseType()).isEqualTo("someText");
-		assertThat(result.getLastStatusChange()).isEqualTo(CaseStatusService.DATE_TIME_FORMATTER.format(caseStatus.getTimestamp()));
-		assertThat(result.getFirstSubmitted()).isEqualTo(CaseStatusService.MISSING);
+		assertThat(result.getLastStatusChange()).isEqualTo(DATE_TIME_FORMATTER.format(caseStatus.getTimestamp()));
+		assertThat(result.getFirstSubmitted()).isEqualTo(MISSING);
 		assertThat(result.isOpenEErrand()).isFalse();
 
 		verify(mockCaseManagementIntegration).getCaseStatusForExternalId(any(String.class), any(String.class));
@@ -194,6 +195,36 @@ class CaseStatusServiceTests {
 		verify(companyRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
 		verify(caseManagementOpeneViewRepositoryMock, times(2)).findByCaseManagementId(any(String.class));
 		verifyNoMoreInteractions(mockCaseManagementIntegration, companyRepositoryMock, caseManagementOpeneViewRepositoryMock);
+	}
+
+	@Test
+	void getCaseStatusesForParty() {
+
+		// Arrange
+		final var partyId = "somePartyId";
+		final var legalId = "someLegalId";
+
+		when(partyIntegration.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.PRIVATE, legalId));
+
+		when(mockCaseManagementIntegration.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID))
+			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"),
+				new CaseStatusDTO().status("someOtherStatus")));
+
+		when(privateRepositoryMock.findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID))
+			.thenReturn(List.of(PrivateEntity.builder().build()));
+
+		// Act
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
+
+		// Assert
+		assertThat(result).isNotNull().hasSize(3);
+
+		verify(partyIntegration).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
+		verify(mockCaseManagementIntegration).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
+		verify(privateRepositoryMock).findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID);
+		verifyNoMoreInteractions(partyIntegration, mockCaseManagementIntegration, privateRepositoryMock);
+		verifyNoInteractions(companyRepositoryMock);
+
 	}
 
 }

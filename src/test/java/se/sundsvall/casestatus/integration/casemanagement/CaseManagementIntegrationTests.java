@@ -83,4 +83,31 @@ class CaseManagementIntegrationTests {
 		verifyNoMoreInteractions(mockCaseManagementClient);
 	}
 
+	@Test
+	void getCaseStatusForPartyId_ok() {
+		when(mockCaseManagementClient.getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER))
+			.thenReturn(List.of(new CaseStatusDTO(), new CaseStatusDTO(), new CaseStatusDTO()));
+
+		final var result = caseManagementIntegration.getCaseStatusForPartyId(ORGANIZATION_NUMBER, MUNICIPALITY_ID);
+
+		assertThat(result).isNotNull().hasSize(3);
+
+		verify(mockCaseManagementClient).getCaseStatusForPartyId(any(String.class), any(String.class));
+		verifyNoMoreInteractions(mockCaseManagementClient);
+
+	}
+
+	@Test
+	void getCaseStatusForPartyId_error() {
+		when(mockCaseManagementClient.getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER))
+			.thenThrow(Problem.builder().build());
+
+		final var result = caseManagementIntegration.getCaseStatusForPartyId(ORGANIZATION_NUMBER, MUNICIPALITY_ID);
+
+		assertThat(result).isNotNull().isEmpty();
+
+		verify(mockCaseManagementClient).getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
 }

@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -154,6 +155,43 @@ class CaseStatusResourceTests {
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("5591621234");
+	}
+
+	@Test
+	void getPartyStatuses() {
+
+		final var caseStatusResponse = CaseStatusResponse.builder()
+			.withId("someId")
+			.withExternalCaseId("someExternalCaseId")
+			.withStatus("someStatus")
+			.withCaseType("someCaseType")
+			.withFirstSubmitted("someFirstSubmittedValue")
+			.withLastStatusChange("someLastStatusChangeValue")
+			.withIsOpenEErrand(true)
+			.build();
+
+		when(mockCaseStatusService.getCaseStatusesForParty(any(String.class), any(String.class))).thenReturn(List.of(caseStatusResponse));
+
+		final var partyId = UUID.randomUUID().toString();
+
+		final var result = webTestClient.get()
+			.uri("{municipalityId}/party/{partyId}/statuses", MUNICIPALITY_ID, partyId)
+			.exchange()
+			.expectStatus()
+			.isOk()
+			.expectHeader()
+			.contentType(APPLICATION_JSON)
+			.expectBodyList(CaseStatusResponse.class)
+			.returnResult()
+			.getResponseBody();
+
+		assertThat(result).isNotNull().hasSize(1);
+		assertThat(result.getFirst()).isEqualTo(caseStatusResponse);
+
+		verify(mockCaseStatusService).getCaseStatusesForParty(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
+		verifyNoMoreInteractions(mockCaseStatusService);
+
+		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo(partyId);
 	}
 
 }
