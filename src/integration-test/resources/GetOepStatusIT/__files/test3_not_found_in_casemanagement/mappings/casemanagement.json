@@ -7,7 +7,7 @@
 		"headers": {
 			"Content-Type": "application/json"
 		},
-		"bodyFileName": "test4_not_found_in_casemanagement/responses/casemanagement.json",
+		"bodyFileName": "test3_not_found_in_casemanagement/responses/casemanagement.json",
 		"status": 404
 	}
 }

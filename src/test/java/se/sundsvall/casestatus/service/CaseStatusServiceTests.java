@@ -1,6 +1,7 @@
 package se.sundsvall.casestatus.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -8,7 +9,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
-import generated.se.sundsvall.incident.IncidentOepResponse;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -17,18 +17,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.CompanyRepository;
-import se.sundsvall.casestatus.integration.db.IncidentOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.PrivateRepository;
 import se.sundsvall.casestatus.integration.db.UnknownRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.CompanyEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
-import se.sundsvall.casestatus.integration.db.model.views.IncidentOpeneView;
-import se.sundsvall.casestatus.integration.incident.IncidentIntegration;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,9 +38,6 @@ class CaseStatusServiceTests {
 
 	@Mock
 	private CaseManagementIntegration mockCaseManagementIntegration;
-
-	@Mock
-	private IncidentIntegration mockIncidentIntegration;
 
 	@Mock
 	private OpenEIntegration mockOpenEIntegration;
@@ -58,9 +53,6 @@ class CaseStatusServiceTests {
 
 	@Mock
 	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
-
-	@Mock
-	private IncidentOpeneViewRepository incidentOpeneViewRepositoryMock;
 
 	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
@@ -95,25 +87,13 @@ class CaseStatusServiceTests {
 		when(mockCaseManagementIntegration.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.empty());
 
-		when(mockIncidentIntegration.getIncidentStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
-			.thenReturn(Optional.of(new IncidentOepResponse().statusId(678)));
-
-		when(incidentOpeneViewRepositoryMock.findByIncidentId(678))
-			.thenReturn(Optional.of(IncidentOpeneView.builder().withIncidentId(678).withOpenEId("someStatus").build()));
-
-		// Act
-		final var status = caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
-
-		// Assert
-		assertThat(status).isNotNull().satisfies(oepStatus -> {
-			assertThat(oepStatus.getKey()).isEqualTo("status");
-			assertThat(oepStatus.getValue()).isEqualTo("someStatus");
-		});
+		// Act & Assert
+		assertThatThrownBy(() -> caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Not Found: Case with id someExternalCaseId not found");
 
 		verify(mockCaseManagementIntegration).getCaseStatusForExternalId(any(String.class), any(String.class));
-		verify(mockIncidentIntegration).getIncidentStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
-		verify(incidentOpeneViewRepositoryMock).findByIncidentId(any(Integer.class));
-		verifyNoMoreInteractions(mockCaseManagementIntegration, incidentOpeneViewRepositoryMock, mockIncidentIntegration);
+		verifyNoMoreInteractions(mockCaseManagementIntegration);
 	}
 
 	@Test

@@ -7,13 +7,12 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
-
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 
 @WireMockAppTestSuite(files = "classpath:/GetOepStatusIT/", classes = Application.class)
-@Sql(scripts = {"/db/truncate.sql", "/db/casestatus.sql"})
+@Sql(scripts = { "/db/truncate.sql", "/db/casestatus.sql" })
 class GetOepStatusIT extends AbstractAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
@@ -40,23 +39,13 @@ class GetOepStatusIT extends AbstractAppTest {
 		setupCall()
 			.withServicePath(PATH)
 			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
-			.withExpectedResponse("expected-response.json")
-			.sendRequestAndVerifyResponse();
-	}
-
-	@Test
-	void test3_found_in_casemanagement_but_no_match_in_casestatus_db_or_incident() {
-		setupCall()
-			.withServicePath(PATH)
-			.withHttpMethod(HttpMethod.GET)
 			.withExpectedResponseStatus(HttpStatus.NOT_FOUND)
 			.withExpectedResponse("expected-response.json")
 			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
-	void test4_not_found_in_casemanagement() {
+	void test3_not_found_in_casemanagement() {
 		setupCall()
 			.withServicePath(PATH)
 			.withHttpMethod(HttpMethod.GET)

@@ -8,9 +8,6 @@ integration:
   open-e:
     connectTimeout: 5
     readTimeout: 30
-  incident:
-    connectTimeout: 5
-    readTimeout: 30
   party:
     connectTimeout: 5
     readTimeout: 30
@@ -36,12 +33,17 @@ spring:
           case-management:
             authorization-grant-type: client_credentials
             provider: case-management
-          incident:
-            authorization-grant-type: client_credentials
-            provider: incident
           party:
             authorization-grant-type: client_credentials
             provider: party
+#----------------------------------------
+# Circuit breakers
+#----------------------------------------
+resilience4j:
+  circuitbreaker:
+    instances:
+      case-management:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
 logbook:
   body-filters:
     x-path:

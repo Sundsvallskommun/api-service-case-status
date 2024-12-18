@@ -16,24 +16,18 @@ import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegrat
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.CompanyRepository;
-import se.sundsvall.casestatus.integration.db.IncidentOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.CompanyEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
-import se.sundsvall.casestatus.integration.db.model.views.IncidentOpeneView;
-import se.sundsvall.casestatus.integration.incident.IncidentIntegration;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
 
 @Service
 public class CaseStatusService {
 
 	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
 	static final String MISSING = "Saknas";
-
+	private static final String CASE_NOT_FOUND = "Case with id %s not found";
 	private final CaseManagementIntegration caseManagementIntegration;
-
-	private final IncidentIntegration incidentIntegration;
 
 	private final OpenEIntegration openEIntegration;
 
@@ -41,34 +35,29 @@ public class CaseStatusService {
 
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 
-	private final IncidentOpeneViewRepository incidentOpeneViewRepository;
-
 	private final CaseTypeRepository caseTypeRepository;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
-		final IncidentIntegration incidentIntegration, final OpenEIntegration openEIntegration,
-		final CompanyRepository companyRepository, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository, final IncidentOpeneViewRepository incidentOpeneViewRepository, final CaseTypeRepository caseTypeRepository) {
+		final OpenEIntegration openEIntegration,
+		final CompanyRepository companyRepository, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository, final CaseTypeRepository caseTypeRepository) {
 		this.caseManagementIntegration = caseManagementIntegration;
-		this.incidentIntegration = incidentIntegration;
 		this.openEIntegration = openEIntegration;
 		this.companyRepository = companyRepository;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
-		this.incidentOpeneViewRepository = incidentOpeneViewRepository;
 		this.caseTypeRepository = caseTypeRepository;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
-		final var status = caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
-			.flatMap(caseStatus -> caseManagementOpeneViewRepository.findByCaseManagementId(caseStatus.getStatus())
-				.map(CaseManagementOpeneView::getOpenEId))
-			.orElseGet(() -> incidentIntegration.getIncidentStatus(externalCaseId, municipalityId)
-				.flatMap(incidentStatus -> incidentOpeneViewRepository.findByIncidentId(incidentStatus.getStatusId())
-					.map(IncidentOpeneView::getOpenEId))
-				.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND)));
+		final var caseStatus = caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
+			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
+
+		final var openEId = caseManagementOpeneViewRepository.findByCaseManagementId(caseStatus.getStatus())
+			.map(CaseManagementOpeneView::getOpenEId)
+			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, "Could not find matching open-E status for status %s".formatted(caseStatus.getStatus())));
 
 		return OepStatusResponse.builder()
 			.withKey("status")
-			.withValue(status)
+			.withValue(openEId)
 			.build();
 	}
 
@@ -77,7 +66,7 @@ public class CaseStatusService {
 			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
 			.orElseGet(() -> companyRepository.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
 				.map(this::mapToCaseStatusResponse)
-				.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND)));
+				.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId))));
 	}
 
 	public CasePdfResponse getCasePdf(final String externalCaseId) {
@@ -86,7 +75,7 @@ public class CaseStatusService {
 				.withExternalCaseId(externalCaseId)
 				.withBase64(pdf)
 				.build())
-			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND));
+			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 	}
 
 	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {

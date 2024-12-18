@@ -1,4 +1,5 @@
 {
 	"title": "Not Found",
-	"status": 404
+	"status": 404,
+	"detail": "Case with id fel not found"
 }
