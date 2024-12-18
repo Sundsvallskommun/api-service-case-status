@@ -40,15 +40,15 @@ public class CaseStatusCacheWorker {
 		this.caseRepository = caseRepository;
 	}
 
-	public void cacheStatusesForFamilyID(final FamilyId familyID) {
+	public void cacheStatusesForFamilyId(final FamilyId familyId) {
 
-		LOG.debug("Running for family: {}", familyID);
-		final var response = new String(openEIntegration.getErrandIds(familyID), StandardCharsets.ISO_8859_1);
+		LOG.debug("Running for familyId: {}", familyId);
+		final var response = new String(openEIntegration.getErrandIds(familyId), StandardCharsets.ISO_8859_1);
 
 		final var flowInstances = Xsoup.select(Jsoup.parse(response), "//FlowInstances/flowinstance").getElements();
 
 		if (!flowInstances.isEmpty()) {
-			flowInstances.forEach(flowInstance -> parseFlowInstance(flowInstance, familyID));
+			flowInstances.forEach(flowInstance -> parseFlowInstance(flowInstance, familyId));
 		}
 	}
 

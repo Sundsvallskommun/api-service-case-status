@@ -50,7 +50,7 @@ class CaseStatusCacheWorkerTest {
 		when(openEIntegrationMock.getErrand(any())).thenReturn(getErrandXML.getBytes());
 		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
 
-		caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
+		caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
 
 		verify(openEIntegrationMock).getErrandIds(any());
 		verify(openEIntegrationMock, times(2)).getErrand(any());
@@ -71,7 +71,7 @@ class CaseStatusCacheWorkerTest {
 		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
 		when(citizenIntegrationMock.getPersonId(any())).thenReturn("somePersonId");
 
-		caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
+		caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
 
 		verify(openEIntegrationMock).getErrandIds(any());
 		verify(openEIntegrationMock, times(2)).getErrand(any());
@@ -95,7 +95,7 @@ class CaseStatusCacheWorkerTest {
 		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
 		when(citizenIntegrationMock.getPersonId(any())).thenReturn("somePersonId");
 
-		caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
+		caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
 
 		verify(openEIntegrationMock).getErrandIds(any());
 		verify(openEIntegrationMock, times(4)).getErrand(any());

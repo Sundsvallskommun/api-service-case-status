@@ -33,7 +33,7 @@ public class CaseStatusCache {
 
 			Arrays.stream(FamilyId.values()).forEach(familyId -> {
 				if (familyId.getValue() != 0) {
-					caseStatusCacheWorker.cacheStatusesForFamilyID(familyId);
+					caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
 				}
 			});
 		} finally {

@@ -55,7 +55,7 @@ class CaseStatusCacheScheduledTest {
 				.forever()
 				.until(() -> false);
 			return null;
-		}).when(caseStatusCacheWorkerMock).cacheStatusesForFamilyID(any(FamilyId.class));
+		}).when(caseStatusCacheWorkerMock).cacheStatusesForFamilyId(any(FamilyId.class));
 
 		// Make sure scheduling occurs multiple times
 		await().until(() -> mockCalledTime != null && LocalDateTime.now().isAfter(mockCalledTime.plusSeconds(2)));
@@ -68,7 +68,7 @@ class CaseStatusCacheScheduledTest {
 
 		// Only one call should be made as long as scheduledCacheJob() is locked and mock is waiting
 		// for first call to finish
-		verify(caseStatusCacheWorkerMock, times(1)).cacheStatusesForFamilyID(any());
+		verify(caseStatusCacheWorkerMock, times(1)).cacheStatusesForFamilyId(any());
 
 	}
 
