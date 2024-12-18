@@ -101,7 +101,7 @@ class CaseStatusResource {
 	ResponseEntity<List<CaseStatusResponse>> getPartyStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable("partyId") @ValidUuid final String partyId) {
-		return ok(service.getCaseStatuses(partyId, municipalityId));
+		return ok(service.getCaseStatusesForParty(partyId, municipalityId));
 	}
 
 }

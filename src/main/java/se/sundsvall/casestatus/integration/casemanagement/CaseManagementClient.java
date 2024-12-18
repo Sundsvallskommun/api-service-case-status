@@ -27,4 +27,8 @@ public interface CaseManagementClient {
 		@PathVariable("municipalityId") final String municipalityId,
 		@PathVariable("organizationNumber") final String organizationNumber);
 
+	@GetMapping("/{municipalityId}/{partyId}/statuses")
+	List<CaseStatusDTO> getCaseStatusForPartyId(
+		@PathVariable("municipalityId") String municipalityId,
+		@PathVariable("partyId") String partyId);
 }

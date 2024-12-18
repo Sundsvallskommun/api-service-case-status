@@ -36,4 +36,12 @@ public class CaseManagementIntegration {
 		}
 	}
 
+	public List<CaseStatusDTO> getCaseStatusForPartyId(final String partyId, final String municipalityId) {
+		try {
+			return client.getCaseStatusForPartyId(municipalityId, partyId);
+		} catch (final Exception e) {
+			LOG.info("Unable to get case status for partyId{}", partyId, e);
+			return List.of();
+		}
+	}
 }

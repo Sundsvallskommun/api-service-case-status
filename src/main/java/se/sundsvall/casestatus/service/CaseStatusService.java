@@ -1,6 +1,11 @@
 package se.sundsvall.casestatus.service;
 
+import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
+import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.stream.Collectors.toList;
+import static se.sundsvall.casestatus.service.Mapper.toCasePdfResponse;
+import static se.sundsvall.casestatus.service.Mapper.toCaseStatusResponse;
+import static se.sundsvall.casestatus.service.Mapper.toOepStatusResponse;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.time.format.DateTimeFormatter;
@@ -16,10 +21,11 @@ import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegrat
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.CompanyRepository;
+import se.sundsvall.casestatus.integration.db.PrivateRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
-import se.sundsvall.casestatus.integration.db.model.CompanyEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
+import se.sundsvall.casestatus.integration.party.PartyIntegration;
 
 @Service
 public class CaseStatusService {
@@ -33,18 +39,24 @@ public class CaseStatusService {
 
 	private final CompanyRepository companyRepository;
 
+	private final PrivateRepository privateRepository;
+
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 
 	private final CaseTypeRepository caseTypeRepository;
 
+	private final PartyIntegration partyIntegration;
+
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final OpenEIntegration openEIntegration,
-		final CompanyRepository companyRepository, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository, final CaseTypeRepository caseTypeRepository) {
+		final CompanyRepository companyRepository, final PrivateRepository privateRepository, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository, final CaseTypeRepository caseTypeRepository, final PartyIntegration partyIntegration) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.openEIntegration = openEIntegration;
 		this.companyRepository = companyRepository;
+		this.privateRepository = privateRepository;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
 		this.caseTypeRepository = caseTypeRepository;
+		this.partyIntegration = partyIntegration;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
@@ -55,38 +67,63 @@ public class CaseStatusService {
 			.map(CaseManagementOpeneView::getOpenEId)
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, "Could not find matching open-E status for status %s".formatted(caseStatus.getStatus())));
 
-		return OepStatusResponse.builder()
-			.withKey("status")
-			.withValue(openEId)
-			.build();
+		return toOepStatusResponse(openEId);
 	}
 
 	public CaseStatusResponse getCaseStatus(final String externalCaseId, final String municipalityId) {
-		return caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
+
+		return caseManagementIntegration
+			.getCaseStatusForExternalId(externalCaseId, municipalityId)
 			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
-			.orElseGet(() -> companyRepository.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
-				.map(this::mapToCaseStatusResponse)
-				.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId))));
+			.or(() -> companyRepository
+				.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
+				.map(Mapper::mapToCaseStatusResponse))
+			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 	}
 
 	public CasePdfResponse getCasePdf(final String externalCaseId) {
 		return openEIntegration.getPdf(externalCaseId)
-			.map(pdf -> CasePdfResponse.builder()
-				.withExternalCaseId(externalCaseId)
-				.withBase64(pdf)
-				.build())
+			.map(pdf -> toCasePdfResponse(externalCaseId, pdf))
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 	}
 
 	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {
+
 		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
 			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
 			.collect(toList());
 
 		final var cachedStatuses = companyRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
-			.map(this::mapToCaseStatusResponse)
+			.map(Mapper::mapToCaseStatusResponse)
 			.toList();
+
 		result.addAll(cachedStatuses);
+		return result;
+	}
+
+	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId) {
+
+		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
+
+		final var result = caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
+			.collect(toList());
+
+		if (partyResult.containsKey(PRIVATE)) {
+
+			final var cachedStatuses = privateRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
+				.map(Mapper::mapToCaseStatusResponse)
+				.toList();
+			result.addAll(cachedStatuses);
+
+		} else if (partyResult.containsKey(ENTERPRISE)) {
+
+			final var cachedStatuses = companyRepository.findByOrganisationNumberAndMunicipalityId(partyResult.get(ENTERPRISE), municipalityId).stream()
+				.map(Mapper::mapToCaseStatusResponse)
+				.toList();
+			result.addAll(cachedStatuses);
+		}
+
 		return result;
 	}
 
@@ -100,26 +137,7 @@ public class CaseStatusService {
 
 		final var serviceName = Optional.ofNullable(caseStatus.getServiceName()).orElse(getCaseType(caseStatus, municipalityId));
 
-		return CaseStatusResponse.builder()
-			.withId(caseStatus.getCaseId())
-			.withExternalCaseId(caseStatus.getExternalCaseId())
-			.withCaseType(serviceName)
-			.withStatus(status.orElse(caseStatus.getStatus()))
-			.withLastStatusChange(timestamp)
-			.withFirstSubmitted(MISSING)
-			.withIsOpenEErrand(false)
-			.build();
-	}
-
-	CaseStatusResponse mapToCaseStatusResponse(final CompanyEntity cachedCaseStatus) {
-		return CaseStatusResponse.builder()
-			.withId(cachedCaseStatus.getFlowInstanceId())
-			.withCaseType(cachedCaseStatus.getErrandType())
-			.withStatus(cachedCaseStatus.getStatus())
-			.withFirstSubmitted(cachedCaseStatus.getFirstSubmitted())
-			.withLastStatusChange(cachedCaseStatus.getLastStatusChange())
-			.withIsOpenEErrand(true)
-			.build();
+		return toCaseStatusResponse(caseStatus, serviceName, status, timestamp);
 	}
 
 	private String getCaseType(final CaseStatusDTO caseStatus, final String municipalityId) {
