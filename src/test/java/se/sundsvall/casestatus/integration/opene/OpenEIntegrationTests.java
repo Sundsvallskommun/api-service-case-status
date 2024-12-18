@@ -12,17 +12,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 
 @ExtendWith(MockitoExtension.class)
 class OpenEIntegrationTests {
 
 	@Mock
-	private OpenEClient mockOpenEClient;
-
-	@Mock
 	private final FamilyId familyId = FamilyId.ROKKANALELDSTAD;
-
+	@Mock
+	private OpenEClient mockOpenEClient;
 	@InjectMocks
 	private OpenEIntegration openEIntegration;
 

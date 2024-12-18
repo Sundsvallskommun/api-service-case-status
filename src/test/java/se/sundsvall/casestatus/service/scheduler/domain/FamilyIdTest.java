@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util.casestatuscache.domain;
+package se.sundsvall.casestatus.service.scheduler.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,8 +10,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.casestatus.util.ContextUtil;
-import se.sundsvall.casestatus.util.casestatuscache.CaseStatusCache;
+import se.sundsvall.casestatus.service.scheduler.CaseStatusCache;
+import se.sundsvall.casestatus.service.scheduler.ContextUtil;
 
 @ExtendWith(MockitoExtension.class)
 class FamilyIdTest {
@@ -23,12 +23,12 @@ class FamilyIdTest {
 
 	@Test
 	void getValue_Test() {
-		try (MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
+		try (final MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
 			utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
 			when(caseStatusCache.isProduction()).thenReturn(true).thenReturn(false);
-			int resultTrue = familyId.getValue();
+			final int resultTrue = familyId.getValue();
 			assertThat(resultTrue).isEqualTo(437);
-			int resultFalse = familyId.getValue();
+			final int resultFalse = familyId.getValue();
 			assertThat(resultFalse).isEqualTo(382);
 		}
 	}

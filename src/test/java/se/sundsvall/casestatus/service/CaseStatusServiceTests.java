@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.casestatus.service.CaseStatusService.DATE_TIME_FORMATTER;
@@ -25,13 +24,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
+import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
-import se.sundsvall.casestatus.integration.db.CompanyRepository;
-import se.sundsvall.casestatus.integration.db.PrivateRepository;
-import se.sundsvall.casestatus.integration.db.UnknownRepository;
+import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
-import se.sundsvall.casestatus.integration.db.model.CompanyEntity;
-import se.sundsvall.casestatus.integration.db.model.PrivateEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
@@ -40,8 +36,8 @@ import se.sundsvall.casestatus.integration.party.PartyIntegration;
 class CaseStatusServiceTests {
 
 	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
-
 	private static final String MUNICIPALITY_ID = "2281";
+
 	@Mock
 	private PartyIntegration partyIntegrationMock;
 	@Mock
@@ -49,11 +45,7 @@ class CaseStatusServiceTests {
 	@Mock
 	private OpenEIntegration openEIntegrationMock;
 	@Mock
-	private CompanyRepository companyRepositoryMock;
-	@Mock
-	private PrivateRepository privateRepositoryMock;
-	@Mock
-	private UnknownRepository unknownRepositoryMock;
+	private CaseRepository caseRepositoryMock;
 	@Mock
 	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
 	@Mock
@@ -66,7 +58,7 @@ class CaseStatusServiceTests {
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.of(new CaseStatusDTO().status("someStatus")));
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId("someStatus"))
-			.thenReturn(Optional.ofNullable(CaseManagementOpeneView.builder().withCaseManagementId("status").withOpenEId("someStatus").build()));
+			.thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("status").withOpenEId("someStatus").build()));
 
 		final var status = caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
@@ -83,12 +75,9 @@ class CaseStatusServiceTests {
 
 	@Test
 	void getOepStatusCaseStatusNotFoundInCaseManagement() {
-
-		// Arrange
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.empty());
 
-		// Act & Assert
 		assertThatThrownBy(() -> caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
 			.isInstanceOf(Problem.class)
 			.hasMessage("Not Found: Case with id someExternalCaseId not found");
@@ -109,10 +98,11 @@ class CaseStatusServiceTests {
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.of(caseStatus));
 
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(any(String.class))).thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("someStatus").withOpenEId("someStatus").build()));
+		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(any(String.class)))
+			.thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("someStatus").withOpenEId("someStatus").build()));
 
-		when(caseTypeRepositoryMock.findByEnumValueAndMunicipalityId(any(String.class), any(String.class))).thenReturn(Optional.of(
-			CaseTypeEntity.builder().withEnumValue("PARKING_PERMIT").withDescription("someText").build()));
+		when(caseTypeRepositoryMock.findByEnumValueAndMunicipalityId(any(String.class), any(String.class)))
+			.thenReturn(Optional.of(CaseTypeEntity.builder().withEnumValue("PARKING_PERMIT").withDescription("someText").build()));
 
 		final var result = caseStatusService.getCaseStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
@@ -132,7 +122,7 @@ class CaseStatusServiceTests {
 
 	@Test
 	void getCaseStatusCaseStatusNotFoundInCaseManagement() {
-		final var companyEntity = CompanyEntity.builder()
+		final var companyEntity = CaseEntity.builder()
 			.withFlowInstanceId("someFlowInstanceId")
 			.withErrandType("someErrandType")
 			.withStatus("someStatus")
@@ -142,7 +132,8 @@ class CaseStatusServiceTests {
 
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.empty());
-		when(companyRepositoryMock.findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class))).thenReturn(Optional.ofNullable(companyEntity));
+		when(caseRepositoryMock.findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class)))
+			.thenReturn(Optional.ofNullable(companyEntity));
 
 		final var result = caseStatusService.getCaseStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
@@ -155,8 +146,8 @@ class CaseStatusServiceTests {
 		assertThat(result.isOpenEErrand()).isTrue();
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
-		verify(companyRepositoryMock).findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class));
-		verifyNoMoreInteractions(caseManagementIntegrationMock, companyRepositoryMock);
+		verify(caseRepositoryMock).findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class));
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock);
 	}
 
 	@Test
@@ -173,28 +164,24 @@ class CaseStatusServiceTests {
 
 	@Test
 	void getCaseStatuses() {
-
 		when(caseManagementIntegrationMock.getCaseStatusForOrganizationNumber(any(String.class), any(String.class)))
-			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"),
-				new CaseStatusDTO().status("someOtherStatus")));
+			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"), new CaseStatusDTO().status("someOtherStatus")));
 
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(any(String.class)))
-			.thenReturn(Optional.of(
-				CaseManagementOpeneView.builder().withCaseManagementId("someStatus").withOpenEId("someResolvedStatus").build()))
-			.thenReturn(Optional.of(
-				CaseManagementOpeneView.builder().withCaseManagementId("someOtherStatus").withOpenEId("someOtherResolvedStatus").build()));
+			.thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("someStatus").withOpenEId("someResolvedStatus").build()))
+			.thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("someOtherStatus").withOpenEId("someOtherResolvedStatus").build()));
 
-		when(companyRepositoryMock.findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class)))
-			.thenReturn(List.of(CompanyEntity.builder().build()));
+		when(caseRepositoryMock.findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class)))
+			.thenReturn(List.of(CaseEntity.builder().build()));
 
 		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(3);
 
 		verify(caseManagementIntegrationMock).getCaseStatusForOrganizationNumber(any(String.class), any(String.class));
-		verify(companyRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
+		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
 		verify(caseManagementOpeneViewRepositoryMock, times(2)).findByCaseManagementId(any(String.class));
-		verifyNoMoreInteractions(caseManagementIntegrationMock, companyRepositoryMock, caseManagementOpeneViewRepositoryMock);
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementOpeneViewRepositoryMock);
 	}
 
 	@Test
@@ -217,7 +204,7 @@ class CaseStatusServiceTests {
 	void getCaseStatusCompanyRepositoryNotFound() {
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.empty());
-		when(companyRepositoryMock.findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class)))
+		when(caseRepositoryMock.findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class)))
 			.thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> caseStatusService.getCaseStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
@@ -225,8 +212,8 @@ class CaseStatusServiceTests {
 			.hasMessage("Not Found: Case with id someExternalCaseId not found");
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
-		verify(companyRepositoryMock).findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class));
-		verifyNoMoreInteractions(caseManagementIntegrationMock, companyRepositoryMock);
+		verify(caseRepositoryMock).findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class));
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock);
 	}
 
 	@Test
@@ -235,7 +222,7 @@ class CaseStatusServiceTests {
 			.thenReturn(List.of(new CaseStatusDTO().status("someStatus")));
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(any(String.class)))
 			.thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("someStatus").withOpenEId("someResolvedStatus").build()));
-		when(companyRepositoryMock.findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class)))
+		when(caseRepositoryMock.findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class)))
 			.thenReturn(List.of());
 
 		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
@@ -243,39 +230,32 @@ class CaseStatusServiceTests {
 		assertThat(result).isNotNull().hasSize(1);
 
 		verify(caseManagementIntegrationMock).getCaseStatusForOrganizationNumber(any(String.class), any(String.class));
-		verify(companyRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
+		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
 		verify(caseManagementOpeneViewRepositoryMock).findByCaseManagementId(any(String.class));
-		verifyNoMoreInteractions(caseManagementIntegrationMock, companyRepositoryMock, caseManagementOpeneViewRepositoryMock);
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementOpeneViewRepositoryMock);
 	}
 
 	@Test
 	void getCaseStatusesForPartyPrivate() {
-
-		// Arrange
 		final var partyId = "somePartyId";
 		final var legalId = "someLegalId";
 
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.PRIVATE, legalId));
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID))
-			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"),
-				new CaseStatusDTO().status("someOtherStatus")));
+			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"), new CaseStatusDTO().status("someOtherStatus")));
 
-		when(privateRepositoryMock.findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID))
-			.thenReturn(List.of(PrivateEntity.builder().build()));
+		when(caseRepositoryMock.findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID))
+			.thenReturn(List.of(CaseEntity.builder().build()));
 
-		// Act
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
 
-		// Assert
 		assertThat(result).isNotNull().hasSize(3);
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
-		verify(privateRepositoryMock).findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, privateRepositoryMock);
-		verifyNoInteractions(companyRepositoryMock);
-
+		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID);
+		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock);
 	}
 
 	@Test
@@ -292,9 +272,8 @@ class CaseStatusServiceTests {
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
-		verify(companyRepositoryMock).findByOrganisationNumberAndMunicipalityId("someLegalId", MUNICIPALITY_ID);
+		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId("someLegalId", MUNICIPALITY_ID);
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock);
-		verifyNoInteractions(privateRepositoryMock);
 	}
 
 	@Test
@@ -312,7 +291,5 @@ class CaseStatusServiceTests {
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock);
-		verifyNoInteractions(companyRepositoryMock, privateRepositoryMock);
 	}
-
 }

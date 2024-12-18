@@ -19,9 +19,8 @@ import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
+import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
-import se.sundsvall.casestatus.integration.db.CompanyRepository;
-import se.sundsvall.casestatus.integration.db.PrivateRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
@@ -34,26 +33,21 @@ public class CaseStatusService {
 	static final String MISSING = "Saknas";
 	private static final String CASE_NOT_FOUND = "Case with id %s not found";
 	private final CaseManagementIntegration caseManagementIntegration;
-
 	private final OpenEIntegration openEIntegration;
-
-	private final CompanyRepository companyRepository;
-
-	private final PrivateRepository privateRepository;
-
+	private final CaseRepository caseRepository;
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
-
 	private final CaseTypeRepository caseTypeRepository;
-
 	private final PartyIntegration partyIntegration;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final OpenEIntegration openEIntegration,
-		final CompanyRepository companyRepository, final PrivateRepository privateRepository, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository, final CaseTypeRepository caseTypeRepository, final PartyIntegration partyIntegration) {
+		final CaseRepository caseRepository,
+		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
+		final CaseTypeRepository caseTypeRepository,
+		final PartyIntegration partyIntegration) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.openEIntegration = openEIntegration;
-		this.companyRepository = companyRepository;
-		this.privateRepository = privateRepository;
+		this.caseRepository = caseRepository;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
 		this.caseTypeRepository = caseTypeRepository;
 		this.partyIntegration = partyIntegration;
@@ -71,11 +65,10 @@ public class CaseStatusService {
 	}
 
 	public CaseStatusResponse getCaseStatus(final String externalCaseId, final String municipalityId) {
-
 		return caseManagementIntegration
 			.getCaseStatusForExternalId(externalCaseId, municipalityId)
 			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
-			.or(() -> companyRepository
+			.or(() -> caseRepository
 				.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
 				.map(Mapper::mapToCaseStatusResponse))
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
@@ -88,12 +81,11 @@ public class CaseStatusService {
 	}
 
 	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {
-
 		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
 			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
 			.collect(toList());
 
-		final var cachedStatuses = companyRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
+		final var cachedStatuses = caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
 			.map(Mapper::mapToCaseStatusResponse)
 			.toList();
 
@@ -102,7 +94,6 @@ public class CaseStatusService {
 	}
 
 	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId) {
-
 		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
 		final var result = caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
@@ -110,15 +101,12 @@ public class CaseStatusService {
 			.collect(toList());
 
 		if (partyResult.containsKey(PRIVATE)) {
-
-			final var cachedStatuses = privateRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
+			final var cachedStatuses = caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
 				.map(Mapper::mapToCaseStatusResponse)
 				.toList();
 			result.addAll(cachedStatuses);
-
 		} else if (partyResult.containsKey(ENTERPRISE)) {
-
-			final var cachedStatuses = companyRepository.findByOrganisationNumberAndMunicipalityId(partyResult.get(ENTERPRISE), municipalityId).stream()
+			final var cachedStatuses = caseRepository.findByOrganisationNumberAndMunicipalityId(partyResult.get(ENTERPRISE), municipalityId).stream()
 				.map(Mapper::mapToCaseStatusResponse)
 				.toList();
 			result.addAll(cachedStatuses);
@@ -129,7 +117,8 @@ public class CaseStatusService {
 
 	CaseStatusResponse mapToCaseStatusResponse(final CaseStatusDTO caseStatus, final String municipalityId) {
 		final var status = caseManagementOpeneViewRepository.findByCaseManagementId(caseStatus.getStatus())
-			.map(CaseManagementOpeneView::getOpenEId);
+			.map(CaseManagementOpeneView::getOpenEId)
+			.orElse(caseStatus.getStatus());
 
 		final var timestamp = Optional.ofNullable(caseStatus.getTimestamp())
 			.map(DATE_TIME_FORMATTER::format)
@@ -146,5 +135,4 @@ public class CaseStatusService {
 				.map(CaseTypeEntity::getDescription))
 			.orElse(MISSING);
 	}
-
 }

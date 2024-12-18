@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util.casestatuscache;
+package se.sundsvall.casestatus.service.scheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 
 @SpringBootTest(properties = {
 	"cache.scheduled.cron=* * * * * *", // Setup to execute every second
@@ -55,7 +55,7 @@ class CaseStatusCacheScheduledTest {
 				.forever()
 				.until(() -> false);
 			return null;
-		}).when(caseStatusCacheWorkerMock).cacheStatusesForFamilyID(any(FamilyId.class));
+		}).when(caseStatusCacheWorkerMock).cacheStatusesForFamilyId(any(FamilyId.class));
 
 		// Make sure scheduling occurs multiple times
 		await().until(() -> mockCalledTime != null && LocalDateTime.now().isAfter(mockCalledTime.plusSeconds(2)));
@@ -68,7 +68,7 @@ class CaseStatusCacheScheduledTest {
 
 		// Only one call should be made as long as scheduledCacheJob() is locked and mock is waiting
 		// for first call to finish
-		verify(caseStatusCacheWorkerMock, times(1)).cacheStatusesForFamilyID(any());
+		verify(caseStatusCacheWorkerMock, times(1)).cacheStatusesForFamilyId(any());
 
 	}
 
