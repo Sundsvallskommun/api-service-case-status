@@ -72,17 +72,13 @@ public class CaseStatusService {
 
 	public CaseStatusResponse getCaseStatus(final String externalCaseId, final String municipalityId) {
 
-		var caseStatusResponse = caseManagementIntegration
+		return caseManagementIntegration
 			.getCaseStatusForExternalId(externalCaseId, municipalityId)
-			.map(dto -> mapToCaseStatusResponse(dto, municipalityId));
-
-		if (caseStatusResponse.isEmpty()) {
-			caseStatusResponse = companyRepository
+			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
+			.or(() -> companyRepository
 				.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
-				.map(Mapper::mapToCaseStatusResponse);
-		}
-
-		return caseStatusResponse.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
+				.map(Mapper::mapToCaseStatusResponse))
+			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 	}
 
 	public CasePdfResponse getCasePdf(final String externalCaseId) {
