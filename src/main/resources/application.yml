@@ -8,7 +8,7 @@ integration:
   open-e:
     connectTimeout: 5
     readTimeout: 30
-  incident:
+  party:
     connectTimeout: 5
     readTimeout: 30
 
@@ -33,9 +33,9 @@ spring:
           case-management:
             authorization-grant-type: client_credentials
             provider: case-management
-          incident:
+          party:
             authorization-grant-type: client_credentials
-            provider: incident
+            provider: party
 #----------------------------------------
 # Circuit breakers
 #----------------------------------------

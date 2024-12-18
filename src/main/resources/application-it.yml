@@ -12,7 +12,7 @@ integration:
     base-url: http://localhost:${wiremock.server.port:}/opene
     password: somePassword
     username: someUsername
-  incident:
+  party:
     base-url: http://localhost:${wiremock.server.port}/incident
 
 spring:
@@ -48,7 +48,7 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/token
           case-management:
             token-uri: http://localhost:${wiremock.server.port:}/token
-          incident:
+          party:
             token-uri: http://localhost:${wiremock.server.port:}/token
         registration:
           citizen:
@@ -57,6 +57,6 @@ spring:
           case-management:
             client-id: the-client-id
             client-secret: the-client-secret
-          incident:
+          party:
             client-id: the-client-id
             client-secret: the-client-secret
