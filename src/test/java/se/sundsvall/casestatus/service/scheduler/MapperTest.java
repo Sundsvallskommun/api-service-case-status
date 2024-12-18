@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util;
+package se.sundsvall.casestatus.service.scheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,7 +33,7 @@ class MapperTest {
 
 		assertThat(result)
 			.isNotNull()
-			.hasNoNullFieldsOrPropertiesExcept("sysStartTime", "sysEndtime");
+			.hasNoNullFieldsOrPropertiesExcept("personId", "sysStartTime", "sysEndtime");
 		assertThat(result.getStatus()).isEqualTo("Inskickat");
 		assertThat(result.getFirstSubmitted()).isEqualTo("2022-01-20 11:29");
 		assertThat(result.getFlowInstanceId()).isEqualTo("2101");
@@ -56,7 +56,7 @@ class MapperTest {
 
 		assertThat(result)
 			.isNotNull()
-			.hasNoNullFieldsOrPropertiesExcept("sysStartTime", "sysEndtime");
+			.hasNoNullFieldsOrPropertiesExcept("organisationNumber", "sysStartTime", "sysEndtime");
 		assertThat(result.getStatus()).isEqualTo("Inskickat");
 		assertThat(result.getFirstSubmitted()).isEqualTo("2022-01-20 11:29");
 		assertThat(result.getFlowInstanceId()).isEqualTo("2101");
@@ -78,7 +78,7 @@ class MapperTest {
 
 		assertThat(result)
 			.isNotNull()
-			.hasNoNullFieldsOrPropertiesExcept("sysStartTime", "sysEndtime");
+			.hasNoNullFieldsOrPropertiesExcept("sysStartTime", "sysEndtime", "organisationNumber", "personId");
 		assertThat(result.getStatus()).isEqualTo("Inskickat");
 		assertThat(result.getFirstSubmitted()).isEqualTo("2022-01-20 11:29");
 		assertThat(result.getFlowInstanceId()).isEqualTo("2101");

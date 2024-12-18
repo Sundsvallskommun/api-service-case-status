@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util;
+package se.sundsvall.casestatus.service.scheduler;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;
@@ -14,12 +14,12 @@ public class ContextUtil implements ApplicationContextAware {
 		return context.getBean(beanClass);
 	}
 
+	private static synchronized void setContext(final ApplicationContext context) {
+		ContextUtil.context = context;
+	}
+
 	@Override
 	public void setApplicationContext(final @NotNull ApplicationContext context) {
 		setContext(context);
-	}
-
-	private static synchronized void setContext(ApplicationContext context) {
-		ContextUtil.context = context;
 	}
 }

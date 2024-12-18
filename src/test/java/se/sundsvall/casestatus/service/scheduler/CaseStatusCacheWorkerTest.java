@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util.casestatuscache;
+package se.sundsvall.casestatus.service.scheduler;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -13,12 +13,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
-import se.sundsvall.casestatus.integration.db.CompanyRepository;
-import se.sundsvall.casestatus.integration.db.PrivateRepository;
-import se.sundsvall.casestatus.integration.db.UnknownRepository;
+import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
-import se.sundsvall.casestatus.util.Mapper;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 
@@ -34,13 +31,7 @@ class CaseStatusCacheWorkerTest {
 	private CitizenIntegration citizenIntegrationMock;
 
 	@Mock
-	private UnknownRepository unknownRepositoryMock;
-
-	@Mock
-	private PrivateRepository privateRepositoryMock;
-
-	@Mock
-	private CompanyRepository companyRepositoryMock;
+	private CaseRepository caseRepositoryMock;
 
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private Mapper mapper;
@@ -64,7 +55,7 @@ class CaseStatusCacheWorkerTest {
 		verify(openEIntegrationMock).getErrandIds(any());
 		verify(openEIntegrationMock, times(2)).getErrand(any());
 		verify(openEIntegrationMock, times(2)).getErrandStatus(any());
-		verify(companyRepositoryMock, times(2)).save(any());
+		verify(caseRepositoryMock, times(2)).save(any());
 		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any(), any());
 	}
 
@@ -85,7 +76,7 @@ class CaseStatusCacheWorkerTest {
 		verify(openEIntegrationMock).getErrandIds(any());
 		verify(openEIntegrationMock, times(2)).getErrand(any());
 		verify(openEIntegrationMock, times(2)).getErrandStatus(any());
-		verify(privateRepositoryMock, times(2)).save(any());
+		verify(caseRepositoryMock, times(2)).save(any());
 		verify(mapper, times(2)).toCachePrivateCaseStatus(any(), any(), any(), any());
 	}
 
@@ -109,9 +100,7 @@ class CaseStatusCacheWorkerTest {
 		verify(openEIntegrationMock).getErrandIds(any());
 		verify(openEIntegrationMock, times(4)).getErrand(any());
 		verify(openEIntegrationMock, times(4)).getErrandStatus(any());
-		verify(companyRepositoryMock, times(2)).save(any());
-		verify(privateRepositoryMock).save(any());
-		verify(unknownRepositoryMock).save(any());
+		verify(caseRepositoryMock, times(4)).save(any());
 		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any(), any());
 		verify(mapper).toCachePrivateCaseStatus(any(), any(), any(), any());
 		verify(mapper).toCacheUnknownCaseStatus(any(), any(), any());

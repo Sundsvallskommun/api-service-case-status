@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util.casestatuscache;
+package se.sundsvall.casestatus.service.scheduler;
 
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -10,12 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
-import se.sundsvall.casestatus.integration.db.CompanyRepository;
-import se.sundsvall.casestatus.integration.db.PrivateRepository;
-import se.sundsvall.casestatus.integration.db.UnknownRepository;
+import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
-import se.sundsvall.casestatus.util.Mapper;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 import us.codecraft.xsoup.Xsoup;
 
 @Component
@@ -33,24 +30,17 @@ public class CaseStatusCacheWorker {
 
 	private final Mapper mapper;
 
-	private final UnknownRepository unknownRepository;
+	private final CaseRepository caseRepository;
 
-	private final PrivateRepository privateRepository;
-
-	private final CompanyRepository companyRepository;
-
-	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration, final Mapper mapper, final UnknownRepository unknownRepository, final PrivateRepository privateRepository,
-		final CompanyRepository companyRepository) {
+	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration, final Mapper mapper,
+		final CaseRepository caseRepository) {
 		this.openEIntegration = openEIntegration;
 		this.citizenIntegration = citizenIntegration;
-
 		this.mapper = mapper;
-		this.unknownRepository = unknownRepository;
-		this.privateRepository = privateRepository;
-		this.companyRepository = companyRepository;
+		this.caseRepository = caseRepository;
 	}
 
-	void cacheStatusesForFamilyID(final FamilyId familyID) {
+	public void cacheStatusesForFamilyID(final FamilyId familyID) {
 
 		LOG.debug("Running for family: {}", familyID);
 		final var response = new String(openEIntegration.getErrandIds(familyID), StandardCharsets.ISO_8859_1);
@@ -76,7 +66,7 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get orgNumber, will cache errand with Id: {}, of family: {} as Organization", flowInstanceID, familyId);
-				companyRepository.save(mapper.toCacheCompanyCaseStatus(statusDocument, errandDocument, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
+				caseRepository.save(mapper.toCacheCompanyCaseStatus(statusDocument, errandDocument, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
 			}
 			case PRIVATE -> {
 				final var personId = citizenIntegration.getPersonId(privateOrOrganisation.getValue());
@@ -85,11 +75,11 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get personId, will cache errand with Id: {}, of family: {} as Private", flowInstanceID, familyId);
-				privateRepository.save(mapper.toCachePrivateCaseStatus(statusDocument, errandDocument, personId, familyId.getMunicipalityId()));
+				caseRepository.save(mapper.toCachePrivateCaseStatus(statusDocument, errandDocument, personId, familyId.getMunicipalityId()));
 			}
 			default -> {
 				LOG.debug("Unable to get personId or OrgNumber, will cache errand with Id: {}, of family: {} as Unknown", flowInstanceID, familyId);
-				unknownRepository.save(mapper.toCacheUnknownCaseStatus(statusDocument, errandDocument, familyId.getMunicipalityId()));
+				caseRepository.save(mapper.toCacheUnknownCaseStatus(statusDocument, errandDocument, familyId.getMunicipalityId()));
 			}
 
 		}

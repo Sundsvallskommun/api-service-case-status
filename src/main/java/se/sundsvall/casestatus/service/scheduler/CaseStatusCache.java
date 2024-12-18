@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util.casestatuscache;
+package se.sundsvall.casestatus.service.scheduler;
 
 import java.util.Arrays;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 import se.sundsvall.dept44.requestid.RequestId;
 
 @Component

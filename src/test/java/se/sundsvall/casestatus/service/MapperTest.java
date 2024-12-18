@@ -4,22 +4,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.casestatus.service.CaseStatusService.MISSING;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import se.sundsvall.casestatus.integration.db.model.CompanyEntity;
-import se.sundsvall.casestatus.integration.db.model.PrivateEntity;
+import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 
 class MapperTest {
 
 	@Test
-	void mapToCaseStatusResponse_withCompanyEntity() {
+	void mapToCaseStatusResponse() {
 		// Arrange
 		final var flowInstanceId = "flowInstanceId";
 		final var errandType = "errandType";
 		final var status = "status";
 		final var firstSubmitted = "firstSubmitted";
 		final var lastStatusChange = "lastStatusChange";
-		final var companyEntity = CompanyEntity.builder()
+		final var caseEntity = CaseEntity.builder()
 			.withFlowInstanceId(flowInstanceId)
 			.withErrandType(errandType)
 			.withStatus(status)
@@ -28,36 +26,7 @@ class MapperTest {
 			.build();
 
 		// Act
-		final var response = Mapper.mapToCaseStatusResponse(companyEntity);
-
-		// Assert
-		assertThat(response).isNotNull();
-		assertThat(response.getId()).isEqualTo(flowInstanceId);
-		assertThat(response.getCaseType()).isEqualTo(errandType);
-		assertThat(response.getStatus()).isEqualTo(status);
-		assertThat(response.getFirstSubmitted()).isEqualTo(firstSubmitted);
-		assertThat(response.getLastStatusChange()).isEqualTo(lastStatusChange);
-		assertThat(response.isOpenEErrand()).isTrue();
-	}
-
-	@Test
-	void mapToCaseStatusResponse_withPrivateEntity() {
-		// Arrange
-		final var flowInstanceId = "flowInstanceId";
-		final var errandType = "errandType";
-		final var status = "status";
-		final var firstSubmitted = "firstSubmitted";
-		final var lastStatusChange = "lastStatusChange";
-		final var privateEntity = PrivateEntity.builder()
-			.withFlowInstanceId(flowInstanceId)
-			.withErrandType(errandType)
-			.withStatus(status)
-			.withFirstSubmitted(firstSubmitted)
-			.withLastStatusChange(lastStatusChange)
-			.build();
-
-		// Act
-		final var response = Mapper.mapToCaseStatusResponse(privateEntity);
+		final var response = Mapper.mapToCaseStatusResponse(caseEntity);
 
 		// Assert
 		assertThat(response).isNotNull();
@@ -84,7 +53,7 @@ class MapperTest {
 			.status(status);
 
 		// Act
-		final var response = Mapper.toCaseStatusResponse(caseStatusDTO, serviceName, Optional.of(newStatus), timestamp);
+		final var response = Mapper.toCaseStatusResponse(caseStatusDTO, serviceName, newStatus, timestamp);
 
 		// Assert
 		assertThat(response).isNotNull();

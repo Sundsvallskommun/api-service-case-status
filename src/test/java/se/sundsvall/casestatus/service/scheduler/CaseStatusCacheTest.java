@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.util.casestatuscache;
+package se.sundsvall.casestatus.service.scheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,8 +13,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import se.sundsvall.casestatus.util.ContextUtil;
-import se.sundsvall.casestatus.util.casestatuscache.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 
 @ExtendWith(MockitoExtension.class)
 class CaseStatusCacheTest {
@@ -28,14 +27,14 @@ class CaseStatusCacheTest {
 	@Test
 	void isProduction_test() {
 		ReflectionTestUtils.setField(caseStatusCache, "isProd", true);
-		var result = caseStatusCache.isProduction();
+		final var result = caseStatusCache.isProduction();
 		assertThat(result).isTrue();
 	}
 
 	@Test
 	void scheduledJob() {
 		ReflectionTestUtils.setField(caseStatusCache, "isProd", false);
-		try (MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
+		try (final MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
 			utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
 			caseStatusCache.scheduledCacheJob();
 			verify(caseStatusCacheWorker, times(12)).cacheStatusesForFamilyID(any(FamilyId.class));

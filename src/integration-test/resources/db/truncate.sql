@@ -1,1 +1,1 @@
-TRUNCATE table company;
+TRUNCATE table case_status;
