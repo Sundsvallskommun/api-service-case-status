@@ -36,6 +36,16 @@ spring:
           incident:
             authorization-grant-type: client_credentials
             provider: incident
+#----------------------------------------
+# Circuit breakers
+#----------------------------------------
+resilience4j:
+  circuitbreaker:
+    instances:
+      case-management:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      incident:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem            
 logbook:
   body-filters:
     x-path:
