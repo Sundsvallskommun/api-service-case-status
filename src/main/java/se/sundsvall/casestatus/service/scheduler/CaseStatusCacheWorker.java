@@ -28,15 +28,12 @@ public class CaseStatusCacheWorker {
 
 	private final CitizenIntegration citizenIntegration;
 
-	private final Mapper mapper;
-
 	private final CaseRepository caseRepository;
 
-	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration, final Mapper mapper,
+	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration,
 		final CaseRepository caseRepository) {
 		this.openEIntegration = openEIntegration;
 		this.citizenIntegration = citizenIntegration;
-		this.mapper = mapper;
 		this.caseRepository = caseRepository;
 	}
 
@@ -66,7 +63,7 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get orgNumber, will cache errand with Id: {}, of family: {} as Organization", flowInstanceID, familyId);
-				caseRepository.save(mapper.toCacheCompanyCaseStatus(statusDocument, errandDocument, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
+				caseRepository.save(Mapper.toCompanyCaseEntity(statusDocument, errandDocument, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
 			}
 			case PRIVATE -> {
 				final var personId = citizenIntegration.getPersonId(privateOrOrganisation.getValue());
@@ -75,11 +72,11 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get personId, will cache errand with Id: {}, of family: {} as Private", flowInstanceID, familyId);
-				caseRepository.save(mapper.toCachePrivateCaseStatus(statusDocument, errandDocument, personId, familyId.getMunicipalityId()));
+				caseRepository.save(Mapper.toPrivateCaseEntity(statusDocument, errandDocument, personId, familyId.getMunicipalityId()));
 			}
 			default -> {
 				LOG.debug("Unable to get personId or OrgNumber, will cache errand with Id: {}, of family: {} as Unknown", flowInstanceID, familyId);
-				caseRepository.save(mapper.toCacheUnknownCaseStatus(statusDocument, errandDocument, familyId.getMunicipalityId()));
+				caseRepository.save(Mapper.toUnknownCaseEntity(statusDocument, errandDocument, familyId.getMunicipalityId()));
 			}
 
 		}

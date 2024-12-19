@@ -30,7 +30,7 @@ class MapperTest {
 
 		// Assert
 		assertThat(response).isNotNull();
-		assertThat(response.getId()).isEqualTo(flowInstanceId);
+		assertThat(response.getExternalCaseId()).isEqualTo(flowInstanceId);
 		assertThat(response.getCaseType()).isEqualTo(errandType);
 		assertThat(response.getStatus()).isEqualTo(status);
 		assertThat(response.getFirstSubmitted()).isEqualTo(firstSubmitted);

@@ -3,15 +3,12 @@ package se.sundsvall.casestatus.service.scheduler;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.jsoup.nodes.Document;
-import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 import us.codecraft.xsoup.Xsoup;
 
-@Component
-public class Mapper {
+public final class Mapper {
 
 	private static final DateTimeFormatter DATE_TIME_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
 	private static final String XPATH_STATUS_VALUE = "//status/name/text()";
 	private static final String XPATH_CONTENT_TYPE_VALUE = "//status/contentType/text()";
 	private static final String XPATH_FLOW_INSTANCE_ID_VALUE = "//header/FlowInstanceID/text()";
@@ -20,11 +17,15 @@ public class Mapper {
 	private static final String XPATH_FIRST_SUBMITTED_VALUE = "//header/FirstSubmitted/text()";
 	private static final String XPATH_LAST_STATUS_CHANGE_VALUE = "//header/LastSubmitted/text()";
 
-	private String formatDateTime(final String dateString) {
+	private Mapper() {
+		// To prevent instantiation
+	}
+
+	private static String formatDateTime(final String dateString) {
 		return dateString.isEmpty() ? null : LocalDateTime.parse(dateString).format(DATE_TIME_FORMAT);
 	}
 
-	private CaseEntity buildCaseEntity(final Document statusObject, final Document errandObject, final String id, final String municipalityId, final boolean isPrivate) {
+	private static CaseEntity buildCaseEntity(final Document statusObject, final Document errandObject, final String id, final String municipalityId, final boolean isPrivate) {
 		final CaseEntity.CaseEntityBuilder builder = CaseEntity.builder()
 			.withStatus(Xsoup.select(statusObject, XPATH_STATUS_VALUE).get())
 			.withContentType(Xsoup.select(statusObject, XPATH_CONTENT_TYPE_VALUE).get())
@@ -44,15 +45,15 @@ public class Mapper {
 		return builder.build();
 	}
 
-	public CaseEntity toCacheCompanyCaseStatus(final Document statusObject, final Document errandObject, final String organisationNumber, final String municipalityId) {
+	public static CaseEntity toCompanyCaseEntity(final Document statusObject, final Document errandObject, final String organisationNumber, final String municipalityId) {
 		return buildCaseEntity(statusObject, errandObject, organisationNumber, municipalityId, false);
 	}
 
-	public CaseEntity toCachePrivateCaseStatus(final Document statusObject, final Document errandObject, final String personId, final String municipalityId) {
+	public static CaseEntity toPrivateCaseEntity(final Document statusObject, final Document errandObject, final String personId, final String municipalityId) {
 		return buildCaseEntity(statusObject, errandObject, personId, municipalityId, true);
 	}
 
-	public CaseEntity toCacheUnknownCaseStatus(final Document statusObject, final Document errandObject, final String municipalityId) {
+	public static CaseEntity toUnknownCaseEntity(final Document statusObject, final Document errandObject, final String municipalityId) {
 		return buildCaseEntity(statusObject, errandObject, null, municipalityId, false);
 	}
 }

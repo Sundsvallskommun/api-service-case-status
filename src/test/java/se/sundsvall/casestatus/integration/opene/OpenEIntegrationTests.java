@@ -13,8 +13,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
+import se.sundsvall.dept44.test.annotation.resource.Load;
+import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 
-@ExtendWith(MockitoExtension.class)
+@ExtendWith({
+	MockitoExtension.class, ResourceLoaderExtension.class
+})
 class OpenEIntegrationTests {
 
 	@Mock
@@ -118,6 +122,41 @@ class OpenEIntegrationTests {
 		assertThat(response).isEmpty();
 
 		verify(mockOpenEClient).getErrandStatus(any(String.class));
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
+
+	@Test
+	void getCaseStatuses(@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML,
+		@Load(value = "/xml/getErrandStatus.xml") final String getErrandStatusXML) {
+		final var legalId = "someLegalId";
+		final var flowInstanceId = "123";
+		final var municipalityId = "someMunicipalityId";
+		final var response = "<FlowInstances><flowinstance><flowInstanceId>" + flowInstanceId + "</flowInstanceId></flowinstance></FlowInstances>";
+
+		when(mockOpenEClient.getErrands(legalId)).thenReturn(response.getBytes(StandardCharsets.ISO_8859_1));
+		when(mockOpenEClient.getErrand(flowInstanceId)).thenReturn(getErrandXML.getBytes(StandardCharsets.ISO_8859_1));
+		when(mockOpenEClient.getErrandStatus(flowInstanceId)).thenReturn(getErrandStatusXML.getBytes(StandardCharsets.ISO_8859_1));
+
+		final var result = openEIntegration.getCaseStatuses(municipalityId, legalId);
+
+		assertThat(result).isNotEmpty();
+		verify(mockOpenEClient).getErrands(legalId);
+		verify(mockOpenEClient).getErrand(flowInstanceId);
+		verify(mockOpenEClient).getErrandStatus(flowInstanceId);
+		verifyNoMoreInteractions(mockOpenEClient);
+	}
+
+	@Test
+	void getCaseStatusesError() {
+		final var legalId = "someLegalId";
+		final var municipalityId = "someMunicipalityId";
+
+		when(mockOpenEClient.getErrands(legalId)).thenThrow(new NullPointerException());
+
+		final var result = openEIntegration.getCaseStatuses(municipalityId, legalId);
+
+		assertThat(result).isEmpty();
+		verify(mockOpenEClient).getErrands(legalId);
 		verifyNoMoreInteractions(mockOpenEClient);
 	}
 }
