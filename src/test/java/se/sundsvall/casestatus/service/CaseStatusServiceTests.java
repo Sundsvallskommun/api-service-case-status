@@ -138,8 +138,7 @@ class CaseStatusServiceTests {
 		final var result = caseStatusService.getCaseStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull();
-		assertThat(result.getId()).isEqualTo("someFlowInstanceId");
-		assertThat(result.getExternalCaseId()).isNull();
+		assertThat(result.getExternalCaseId()).isEqualTo("someFlowInstanceId");
 		assertThat(result.getCaseType()).isEqualTo("someErrandType");
 		assertThat(result.getFirstSubmitted()).isEqualTo("someFirstSubmittedValue");
 		assertThat(result.getLastStatusChange()).isEqualTo("someLastStatusChangeValue");
@@ -239,23 +238,59 @@ class CaseStatusServiceTests {
 	void getCaseStatusesForPartyPrivate() {
 		final var partyId = "somePartyId";
 		final var legalId = "someLegalId";
+		final var municipalityId = "someMunicipalityId";
 
-		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.PRIVATE, legalId));
+		when(partyIntegrationMock.getLegalIdByPartyId(municipalityId, partyId)).thenReturn(Map.of(PartyType.PRIVATE, legalId));
 
-		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID))
-			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"), new CaseStatusDTO().status("someOtherStatus")));
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, municipalityId))
+			.thenReturn(List.of(new CaseStatusDTO().externalCaseId("3").status("someStatus"), new CaseStatusDTO().externalCaseId("4").status("someOtherStatus")));
 
-		when(caseRepositoryMock.findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID))
-			.thenReturn(List.of(CaseEntity.builder().build()));
+		when(caseRepositoryMock.findByPersonIdAndMunicipalityId(partyId, municipalityId))
+			.thenReturn(List.of(CaseEntity.builder().withFlowInstanceId("1").build()));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
+		when(openEIntegrationMock.getCaseStatuses(municipalityId, legalId))
+			.thenReturn(List.of(CaseEntity.builder().withFlowInstanceId("2").build()));
 
-		assertThat(result).isNotNull().hasSize(3);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, municipalityId);
 
-		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
-		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
-		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock);
+		assertThat(result).isNotNull().hasSize(4);
+
+		verify(partyIntegrationMock).getLegalIdByPartyId(municipalityId, partyId);
+		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, municipalityId);
+		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, municipalityId);
+		verify(openEIntegrationMock).getCaseStatuses(municipalityId, legalId);
+		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock);
+	}
+
+	@Test
+	void getCaseStatusesForPartyPrivate_withFilter() {
+		final var partyId = "somePartyId";
+		final var legalId = "someLegalId";
+		final var municipalityId = "someMunicipalityId";
+
+		when(partyIntegrationMock.getLegalIdByPartyId(municipalityId, partyId)).thenReturn(Map.of(PartyType.PRIVATE, legalId));
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, municipalityId))
+			.thenReturn(List.of(new CaseStatusDTO().status("someStatus")));
+		when(caseRepositoryMock.findByPersonIdAndMunicipalityId(partyId, municipalityId))
+			.thenReturn(List.of(
+				CaseEntity.builder().withFlowInstanceId("1").withLastStatusChange("2023-01-01 10:00").build(),
+				CaseEntity.builder().withFlowInstanceId("1").withLastStatusChange("2023-01-01 12:00").build()));
+		when(openEIntegrationMock.getCaseStatuses(municipalityId, legalId))
+			.thenReturn(List.of(
+				CaseEntity.builder().withFlowInstanceId("2").withLastStatusChange("2023-01-01 11:00").build(),
+				CaseEntity.builder().withFlowInstanceId("2").withLastStatusChange("2023-01-01 09:00").build()));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, municipalityId);
+
+		assertThat(result).isNotNull().hasSize(2);
+		assertThat(result).extracting("externalCaseId").containsExactlyInAnyOrder("1", "2");
+		assertThat(result).extracting("lastStatusChange").containsExactlyInAnyOrder("2023-01-01 12:00", "2023-01-01 11:00");
+
+		verify(partyIntegrationMock).getLegalIdByPartyId(municipalityId, partyId);
+		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, municipalityId);
+		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, municipalityId);
+		verify(openEIntegrationMock).getCaseStatuses(municipalityId, legalId);
+		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock);
 	}
 
 	@Test

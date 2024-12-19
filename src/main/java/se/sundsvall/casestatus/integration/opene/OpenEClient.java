@@ -26,4 +26,6 @@ public interface OpenEClient {
 	@GetMapping(path = "/api/instanceapi/getinstance/{flowinstanceid}/pdf", produces = TEXT_XML_CHARSET_ISO_8859_1)
 	byte[] getPDF(@PathVariable(name = "flowinstanceid") final String id);
 
+	@GetMapping(path = "/api/instanceapi/getinstances/owner/citizenidentifier/{personnummer}", produces = TEXT_XML_CHARSET_ISO_8859_1)
+	byte[] getErrands(@PathVariable(name = "personnummer") String personnummer);
 }

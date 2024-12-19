@@ -16,7 +16,7 @@ public final class Mapper {
 
 	static CaseStatusResponse mapToCaseStatusResponse(final CaseEntity cachedCaseStatus) {
 		return CaseStatusResponse.builder()
-			.withId(cachedCaseStatus.getFlowInstanceId())
+			.withExternalCaseId(cachedCaseStatus.getFlowInstanceId())
 			.withCaseType(cachedCaseStatus.getErrandType())
 			.withStatus(cachedCaseStatus.getStatus())
 			.withFirstSubmitted(cachedCaseStatus.getFirstSubmitted())

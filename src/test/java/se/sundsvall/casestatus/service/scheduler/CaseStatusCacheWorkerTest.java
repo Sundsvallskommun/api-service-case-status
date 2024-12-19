@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -33,9 +32,6 @@ class CaseStatusCacheWorkerTest {
 	@Mock
 	private CaseRepository caseRepositoryMock;
 
-	@Mock(answer = Answers.CALLS_REAL_METHODS)
-	private Mapper mapper;
-
 	@InjectMocks
 	private CaseStatusCacheWorker caseStatusCacheWorker;
 
@@ -56,7 +52,6 @@ class CaseStatusCacheWorkerTest {
 		verify(openEIntegrationMock, times(2)).getErrand(any());
 		verify(openEIntegrationMock, times(2)).getErrandStatus(any());
 		verify(caseRepositoryMock, times(2)).save(any());
-		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any(), any());
 	}
 
 	@Test
@@ -77,7 +72,6 @@ class CaseStatusCacheWorkerTest {
 		verify(openEIntegrationMock, times(2)).getErrand(any());
 		verify(openEIntegrationMock, times(2)).getErrandStatus(any());
 		verify(caseRepositoryMock, times(2)).save(any());
-		verify(mapper, times(2)).toCachePrivateCaseStatus(any(), any(), any(), any());
 	}
 
 	@Test
@@ -101,11 +95,7 @@ class CaseStatusCacheWorkerTest {
 		verify(openEIntegrationMock, times(4)).getErrand(any());
 		verify(openEIntegrationMock, times(4)).getErrandStatus(any());
 		verify(caseRepositoryMock, times(4)).save(any());
-		verify(mapper, times(2)).toCacheCompanyCaseStatus(any(), any(), any(), any());
-		verify(mapper).toCachePrivateCaseStatus(any(), any(), any(), any());
-		verify(mapper).toCacheUnknownCaseStatus(any(), any(), any());
 		verifyNoMoreInteractions(openEIntegrationMock);
-		verifyNoMoreInteractions(mapper);
 	}
 
 }

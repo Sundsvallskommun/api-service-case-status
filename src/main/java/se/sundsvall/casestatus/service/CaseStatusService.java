@@ -9,8 +9,10 @@ import static se.sundsvall.casestatus.service.Mapper.toOepStatusResponse;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -101,10 +103,17 @@ public class CaseStatusService {
 			.collect(toList());
 
 		if (partyResult.containsKey(PRIVATE)) {
-			final var cachedStatuses = caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
+
+			openEIntegration.getCaseStatuses(municipalityId, partyResult.get(PRIVATE)).stream()
 				.map(Mapper::mapToCaseStatusResponse)
-				.toList();
-			result.addAll(cachedStatuses);
+				.forEach(result::add);
+
+			caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
+				.map(Mapper::mapToCaseStatusResponse)
+				.forEach(result::add);
+
+			return filterResponse(result);
+
 		} else if (partyResult.containsKey(ENTERPRISE)) {
 			final var cachedStatuses = caseRepository.findByOrganisationNumberAndMunicipalityId(partyResult.get(ENTERPRISE), municipalityId).stream()
 				.map(Mapper::mapToCaseStatusResponse)
@@ -134,5 +143,24 @@ public class CaseStatusService {
 			.flatMap((String enumValue) -> caseTypeRepository.findByEnumValueAndMunicipalityId(enumValue, municipalityId)
 				.map(CaseTypeEntity::getDescription))
 			.orElse(MISSING);
+	}
+
+	private List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> result) {
+		final var latestStatusById = result.stream()
+			.filter(response -> response.getExternalCaseId() != null) // Exclude entries with null id
+			.collect(Collectors.toMap(
+				CaseStatusResponse::getExternalCaseId,
+				response -> response,
+				(existing, newEntry) -> {
+					if (existing.getLastStatusChange() == null) {
+						return newEntry;
+					}
+					if (newEntry.getLastStatusChange() == null) {
+						return existing;
+					}
+					return existing.getLastStatusChange().compareTo(newEntry.getLastStatusChange()) > 0 ? existing : newEntry;
+				}));
+
+		return new ArrayList<>(latestStatusById.values());
 	}
 }

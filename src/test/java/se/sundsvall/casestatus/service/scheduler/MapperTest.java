@@ -3,7 +3,6 @@ package se.sundsvall.casestatus.service.scheduler;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.jsoup.Jsoup;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import se.sundsvall.dept44.test.annotation.resource.Load;
@@ -14,22 +13,15 @@ import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 })
 class MapperTest {
 
-	private Mapper mapper;
-
-	@BeforeEach
-	void setUp() {
-		mapper = new Mapper();
-	}
-
 	@Test
-	void toCacheCompanyCaseStatus(
+	void toCompanyCaseEntity(
 		@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML,
 		@Load(value = "/xml/getErrandStatus.xml") final String getErrandStatusXML) {
 
 		final var errandDoc = Jsoup.parse(getErrandXML);
 		final var errandStatusDoc = Jsoup.parse(getErrandStatusXML);
 
-		final var result = mapper.toCacheCompanyCaseStatus(errandStatusDoc, errandDoc, "someOrganisationNumber", "2281");
+		final var result = Mapper.toCompanyCaseEntity(errandStatusDoc, errandDoc, "someOrganisationNumber", "2281");
 
 		assertThat(result)
 			.isNotNull()
@@ -46,13 +38,13 @@ class MapperTest {
 	}
 
 	@Test
-	void toCachePrivateCaseStatus(@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML,
+	void toPrivateCaseEntity(@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML,
 		@Load(value = "/xml/getErrandStatus.xml") final String getErrandStatusXML) {
 
 		final var errandDoc = Jsoup.parse(getErrandXML);
 		final var errandStatusDoc = Jsoup.parse(getErrandStatusXML);
 
-		final var result = mapper.toCachePrivateCaseStatus(errandStatusDoc, errandDoc, "somePersonId", "2281");
+		final var result = Mapper.toPrivateCaseEntity(errandStatusDoc, errandDoc, "somePersonId", "2281");
 
 		assertThat(result)
 			.isNotNull()
@@ -74,7 +66,7 @@ class MapperTest {
 		final var errandDoc = Jsoup.parse(getErrandXML);
 		final var errandStatusDoc = Jsoup.parse(getErrandStatusXML);
 
-		final var result = mapper.toCacheUnknownCaseStatus(errandStatusDoc, errandDoc, "2281");
+		final var result = Mapper.toUnknownCaseEntity(errandStatusDoc, errandDoc, "2281");
 
 		assertThat(result)
 			.isNotNull()
