@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1" standalone="no"?>
+<FlowInstance xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.oeplatform.org/version/2.0/schemas/flowinstance" xsi:schemaLocation="http://www.oeplatform.org/version/2.0/schemas/flowinstance schema-511.xsd">
+	<Header>
+		<Flow>
+			<FamilyID>174</FamilyID>
+			<Version>9</Version>
+			<FlowID>511</FlowID>
+			<Name><![CDATA[Kontakt med SC Lön och Pension - TEST DRAKEN]]></Name>
+		</Flow>
+		<FlowInstanceID>3447</FlowInstanceID>
+		<Status>
+			<ID>4329</ID>
+			<Name><![CDATA[Preliminär]]></Name>
+		</Status>
+		<Poster>
+			<Firstname><![CDATA[Test]]></Firstname>
+			<Lastname><![CDATA[Testorsson]]></Lastname>
+			<Email><![CDATA[Test.testorsson@sundsvall.se]]></Email>
+			<ID>28190</ID>
+		</Poster>
+		<Owner>
+			<Firstname><![CDATA[Test]]></Firstname>
+			<Lastname><![CDATA[Testorsson]]></Lastname>
+			<Email><![CDATA[Test.testorsson@sundsvall.se]]></Email>
+			<ID>28190</ID>
+		</Owner>
+		<Posted>2024-11-19T10:38:38</Posted>
+		<FirstSubmitted>2024-11-19T10:38:38</FirstSubmitted>
+		<LastSubmitted>2024-11-19T10:38:38</LastSubmitted>
+	</Header>
+	<Values>
+		<applicant>
+			<QueryID>18399</QueryID>
+			<Name><![CDATA[Mina uppgifter]]></Name>
+			<firstname><![CDATA[Test]]></firstname>
+			<lastname><![CDATA[Testorsson]]></lastname>
+			<username><![CDATA[tst01tst]]></username>
+			<citizenIdentifier><![CDATA[199901011234]]></citizenIdentifier>
+			<title><![CDATA[It-konsult]]></title>
+			<organization><![CDATA[KSK AVD Digitalisering IT stab]]></organization>
+		</applicant>
+		<subject>
+			<QueryID>18401</QueryID>
+			<Name><![CDATA[Vad gäller ärendet?]]></Name>
+			<Value>Löefråga</Value>
+		</subject>
+		<caseDescription>
+			<QueryID>18402</QueryID>
+			<Name><![CDATA[Beskriv ditt ärende]]></Name>
+			<Value><![CDATA[Jag har en fundering om det fungerar att läsa in dokument till SupportManagement]]></Value>
+		</caseDescription>
+		<attachement>
+			<QueryID>18404</QueryID>
+			<Name><![CDATA[Filuppladdning]]></Name>
+			<File>
+				<ID>106</ID>
+				<Name><![CDATA[Somepdf.pdf]]></Name>
+				<Size>489831</Size>
+			</File>
+		</attachement>
+	</Values>
+</FlowInstance>

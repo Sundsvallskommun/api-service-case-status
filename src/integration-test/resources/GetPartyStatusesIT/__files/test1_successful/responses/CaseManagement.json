@@ -1,0 +1,11 @@
+[
+	{
+		"system": "BYGGR",
+		"externalCaseId": "string",
+		"caseId": "string",
+		"serviceName": "Nybyggnad - test",
+		"caseType": "NYBYGGNAD_ANSOKAN_OM_BYGGLOV",
+		"status": "Pågående",
+		"timestamp": "2022-09-01T10:48:35.292Z"
+	}
+]

@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/casemanagement/2281/1308f4ca-f7d6-4c88-9098-64be43b3a905/statuses"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test3_not_found_in_opene_or_casemanagement_but_in_db/responses/CaseManagement.json",
+		"status": 200
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/opene/api/instanceapi/getinstance/3447/xml"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test2_not_found_in_casemanagement_but_match_in_opene_and_casestatus_db/responses/opene-errand-3447.xml",
+		"status": 200
+	}
+}

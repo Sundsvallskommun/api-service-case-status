@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/opene/api/instanceapi/getstatus/3447"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_successful/responses/opene-status-3447.xml",
+		"status": 200
+	}
+}
