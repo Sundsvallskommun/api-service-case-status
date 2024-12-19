@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/opene/api/instanceapi/getinstances/owner/citizenidentifier/199901011234"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test4_not_found_anywhere/responses/opene-citizenidentifier.xml",
+		"status": 200
+	}
+}
