@@ -13,7 +13,7 @@ integration:
     password: somePassword
     username: someUsername
   party:
-    base-url: http://localhost:${wiremock.server.port}/incident
+    base-url: http://localhost:${wiremock.server.port}/party
 
 spring:
   main:
