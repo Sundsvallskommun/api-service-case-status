@@ -297,7 +297,7 @@ class CaseStatusServiceTests {
 	void getCaseStatusesForPartyEnterprise() {
 		final var partyId = "somePartyId";
 
-		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.ENTERPRISE, "someLegalId"));
+		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.ENTERPRISE, "1234567890"));
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID))
 			.thenReturn(List.of(new CaseStatusDTO().status("someStatus")));
 
@@ -307,7 +307,9 @@ class CaseStatusServiceTests {
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
-		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId("someLegalId", MUNICIPALITY_ID);
+		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId("1234567890", MUNICIPALITY_ID);
+		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId("123456-7890", MUNICIPALITY_ID);
+
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock);
 	}
 
