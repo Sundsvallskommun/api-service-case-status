@@ -3,6 +3,7 @@ package se.sundsvall.casestatus.integration.db.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -17,7 +18,9 @@ import lombok.Setter;
 @AllArgsConstructor
 @Builder(setterPrefix = "with")
 @Entity
-@Table(name = "case_type")
+@Table(name = "case_type", indexes = {
+	@Index(name = "idx_enum_value_municipality_id", columnList = "enum, municipality_id")
+})
 public class CaseTypeEntity {
 
 	@Id
