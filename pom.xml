@@ -14,7 +14,7 @@
 	<properties>
 		<jsoup.version>1.18.3</jsoup.version>
 		<xsoup.version>0.3.7</xsoup.version>
-		<shedlock.version>6.0.2</shedlock.version>
+		<shedlock.version>6.1.0</shedlock.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
 	</properties>
