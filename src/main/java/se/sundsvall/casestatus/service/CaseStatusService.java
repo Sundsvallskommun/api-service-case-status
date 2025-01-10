@@ -28,6 +28,7 @@ import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
+import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
 
 @Service
 public class CaseStatusService {
@@ -41,19 +42,21 @@ public class CaseStatusService {
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 	private final CaseTypeRepository caseTypeRepository;
 	private final PartyIntegration partyIntegration;
+	private final SupportManagementClient supportManagementClient;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final OpenEIntegration openEIntegration,
 		final CaseRepository caseRepository,
 		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
 		final CaseTypeRepository caseTypeRepository,
-		final PartyIntegration partyIntegration) {
+		final PartyIntegration partyIntegration, final SupportManagementClient supportManagementClient) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.openEIntegration = openEIntegration;
 		this.caseRepository = caseRepository;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
 		this.caseTypeRepository = caseTypeRepository;
 		this.partyIntegration = partyIntegration;
+		this.supportManagementClient = supportManagementClient;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
@@ -113,6 +116,8 @@ public class CaseStatusService {
 				.map(Mapper::mapToCaseStatusResponse)
 				.forEach(result::add);
 
+			result.addAll(getSupportManagementCases(municipalityId, partyId));
+
 			return filterResponse(result);
 
 		} else if (partyResult.containsKey(ENTERPRISE)) {
@@ -134,6 +139,18 @@ public class CaseStatusService {
 		}
 
 		return result;
+	}
+
+	List<CaseStatusResponse> getSupportManagementCases(final String municipalityId, final String partyId) {
+
+		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
+
+		return supportManagementClient.readAllNamespaceConfigs().stream()
+			.flatMap(namespace -> supportManagementClient
+				.findErrands(municipalityId, namespace.getNamespace(), filterString).stream()
+				.map(Mapper::toCaseStatusResponse))
+			.toList();
+
 	}
 
 	CaseStatusResponse mapToCaseStatusResponse(final CaseStatusDTO caseStatus, final String municipalityId) {
@@ -159,15 +176,14 @@ public class CaseStatusService {
 
 	private List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> result) {
 		final var latestStatusById = result.stream()
-			.filter(response -> response.getExternalCaseId() != null) // Exclude entries with null id
 			.collect(Collectors.toMap(
 				CaseStatusResponse::getExternalCaseId,
 				response -> response,
 				(existing, newEntry) -> {
-					if (existing.getLastStatusChange() == null) {
+					if (existing.getLastStatusChange() == null || existing.getLastStatusChange().equals(MISSING)) {
 						return newEntry;
 					}
-					if (newEntry.getLastStatusChange() == null) {
+					if (newEntry.getLastStatusChange() == null || newEntry.getLastStatusChange().equals(MISSING)) {
 						return existing;
 					}
 					return existing.getLastStatusChange().compareTo(newEntry.getLastStatusChange()) > 0 ? existing : newEntry;

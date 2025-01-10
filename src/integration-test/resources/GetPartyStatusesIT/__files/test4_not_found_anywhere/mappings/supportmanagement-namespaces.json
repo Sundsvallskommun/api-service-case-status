@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/supportmanagement/namespace-configs"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test4_not_found_anywhere/responses/supportmanagement-namespaces.json",
+		"status": 200
+	}
+}

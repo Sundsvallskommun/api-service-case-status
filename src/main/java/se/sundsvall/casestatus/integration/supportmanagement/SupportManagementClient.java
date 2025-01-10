@@ -8,7 +8,6 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -22,8 +21,8 @@ public interface SupportManagementClient {
 	List<NamespaceConfig> readAllNamespaceConfigs();
 
 	@GetMapping(path = "/{municipalityId}/{namespace}/errands")
-	ResponseEntity<Page<Errand>> findErrands(
-		@PathVariable("namespace") final String namespace,
+	Page<Errand> findErrands(
 		@PathVariable("municipalityId") final String municipalityId,
+		@PathVariable("namespace") final String namespace,
 		@RequestParam("filter") final String filter);
 }
