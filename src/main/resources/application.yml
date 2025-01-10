@@ -11,6 +11,9 @@ integration:
   party:
     connectTimeout: 5
     readTimeout: 30
+  support-management:
+    connectTimeout: 5
+    readTimeout: 30
 
 openapi:
   name: ${spring.application.name}
@@ -36,6 +39,9 @@ spring:
           party:
             authorization-grant-type: client_credentials
             provider: party
+          support-management:
+            authorization-grant-type: client_credentials
+            provider: support-management
 #----------------------------------------
 # Circuit breakers
 #----------------------------------------
