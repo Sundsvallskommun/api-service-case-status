@@ -14,6 +14,8 @@ integration:
     username: someUsername
   party:
     base-url: http://localhost:${wiremock.server.port}/party
+  support-management:
+    base-url: http://localhost:${wiremock.server.port}/supportmanagement
 
 spring:
   main:
@@ -50,6 +52,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/token
           party:
             token-uri: http://localhost:${wiremock.server.port:}/token
+          support-management:
+            token-uri: http://localhost:${wiremock.server.port:}/token
         registration:
           citizen:
             client-id: the-client-id
@@ -60,3 +64,6 @@ spring:
           party:
             client-id: the-client-id
             client-secret: the-client-secret
+          support-management:
+            client-id: the-client-id
+            client-secret: the-client
