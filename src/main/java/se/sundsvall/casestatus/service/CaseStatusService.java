@@ -8,12 +8,15 @@ import static se.sundsvall.casestatus.service.Mapper.toCaseStatusResponse;
 import static se.sundsvall.casestatus.service.Mapper.toOepStatusResponse;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
+import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -144,13 +147,22 @@ public class CaseStatusService {
 	List<CaseStatusResponse> getSupportManagementCases(final String municipalityId, final String partyId) {
 
 		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
+		final var allResponses = new ArrayList<CaseStatusResponse>();
 
-		return supportManagementClient.readAllNamespaceConfigs().stream()
-			.flatMap(namespace -> supportManagementClient
-				.findErrands(municipalityId, namespace.getNamespace(), filterString).stream()
-				.map(Mapper::toCaseStatusResponse))
-			.toList();
+		supportManagementClient.readAllNamespaceConfigs().forEach(namespace -> {
+			int pageNumber = 0;
+			Page<Errand> response;
 
+			do {
+				response = supportManagementClient.findErrands(municipalityId, namespace.getNamespace(), filterString, PageRequest.of(pageNumber, 100));
+				allResponses.addAll(response.stream()
+					.map(Mapper::toCaseStatusResponse)
+					.toList());
+				pageNumber++;
+			} while (response.hasNext());
+		});
+
+		return allResponses;
 	}
 
 	CaseStatusResponse mapToCaseStatusResponse(final CaseStatusDTO caseStatus, final String municipalityId) {
@@ -174,8 +186,14 @@ public class CaseStatusService {
 			.orElse(MISSING);
 	}
 
-	private List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> result) {
-		final var latestStatusById = result.stream()
+	private List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> request) {
+		// Filter out cases without external case id as duplicates will only be appearing in the list with external case id
+		final var casesWithoutExternalCaseId = request.stream()
+			.filter(response -> response.getExternalCaseId() == null)
+			.toList();
+
+		final var latestStatusById = request.stream()
+			.filter(response -> response.getExternalCaseId() != null)
 			.collect(Collectors.toMap(
 				CaseStatusResponse::getExternalCaseId,
 				response -> response,
@@ -189,7 +207,11 @@ public class CaseStatusService {
 					return existing.getLastStatusChange().compareTo(newEntry.getLastStatusChange()) > 0 ? existing : newEntry;
 				}));
 
-		return new ArrayList<>(latestStatusById.values());
+		final var result = new ArrayList<CaseStatusResponse>();
+		result.addAll(casesWithoutExternalCaseId);
+		result.addAll(latestStatusById.values());
+
+		return result;
 	}
 
 	private String getFormattedOrganizationNumber(final String organizationNumber) {

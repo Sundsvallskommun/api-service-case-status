@@ -1,10 +1,163 @@
 [
 	{
-		"caseType": "TYPE-1",
-		"firstSubmitted": "2022-01-01 12:00",
-		"id": "ec677eb3-604c-4935-bff7-f8f0b500c8f4",
+		"caseType": "HYGIENE",
+		"firstSubmitted": "2023-03-20 20:49",
+		"id": "01bb5e66-a03c-4410-b75d-ce869291fa92",
+		"lastStatusChange": "2023-03-23 07:34",
 		"openEErrand": false,
-		"status": "STATUS-1"
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "CHILDCARE_PROCESSING_AND_INVOICES",
+		"firstSubmitted": "2023-05-17 09:10",
+		"id": "03a7cf6c-0016-48e8-94ae-3e321d2082f3",
+		"lastStatusChange": "2023-05-23 08:59",
+		"openEErrand": false,
+		"status": "ONGOING"
+	},
+	{
+		"caseType": "SPORTS_AND_EXCERCISE",
+		"firstSubmitted": "2023-03-28 15:54",
+		"id": "0869dcb5-5c54-46e5-a500-07d6087993ca",
+		"lastStatusChange": "2023-03-29 11:22",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "ADDICTION_AND_MENTAL_ILLNESS",
+		"firstSubmitted": "2023-03-22 20:12",
+		"id": "091bccac-4991-4d7e-8243-9b26fcfadf3a",
+		"lastStatusChange": "2023-03-22 20:13",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "OTHER",
+		"firstSubmitted": "2023-03-17 09:53",
+		"id": "09bcc655-ce26-4c58-9ad4-c1bf137b8721",
+		"lastStatusChange": "2023-03-20 14:35",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "OPEN-HOURS",
+		"firstSubmitted": "2023-03-16 07:28",
+		"id": "109d0969-88ba-4391-a7fd-2f9032e6251b",
+		"lastStatusChange": "2023-03-16 15:49",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "LIBRARY",
+		"firstSubmitted": "2023-04-28 11:00",
+		"id": "13820d3c-bc00-473e-952e-4cd17e25dcae",
+		"lastStatusChange": "2023-05-30 10:58",
+		"openEErrand": false,
+		"status": "ONGOING"
+	},
+	{
+		"caseType": "ALL_OTHER_ISSUES",
+		"firstSubmitted": "2023-03-17 14:50",
+		"id": "19962f62-994c-482d-b7c1-cd950dd806ee",
+		"lastStatusChange": "2023-03-20 14:36",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "PASSWORD",
+		"firstSubmitted": "2023-10-03 19:38",
+		"id": "19e8d20f-3364-479b-bd73-b1255d09ecee",
+		"lastStatusChange": "2023-10-27 14:18",
+		"openEErrand": false,
+		"status": "ONGOING"
+	},
+	{
+		"caseType": "OUTDOOR_LIFE_AND_FISHING",
+		"firstSubmitted": "2023-08-25 09:24",
+		"id": "233b1827-5e32-4d59-b9ca-a79f17a0e62c",
+		"lastStatusChange": "2023-08-25 09:27",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "EMISSIONS_AND_HAZARDOUS_TO_ENVIRONMENT",
+		"firstSubmitted": "2023-03-29 15:31",
+		"id": "24fc2b52-f95f-4253-a640-6dbe3a2f902d",
+		"lastStatusChange": "2024-04-19 13:44",
+		"openEErrand": false,
+		"status": "NEW"
+	},
+	{
+		"caseType": "ERROR_REPORTING",
+		"firstSubmitted": "2023-03-22 16:58",
+		"id": "303be025-bf12-4527-a396-0789c6de2570",
+		"lastStatusChange": "2023-03-29 15:07",
+		"openEErrand": false,
+		"status": "NEW"
+	},
+	{
+		"caseType": "ADULT_EDUCATION",
+		"firstSubmitted": "2023-03-20 10:27",
+		"id": "33ed2044-e2ff-4bb9-8af5-48c4ac363eb5",
+		"lastStatusChange": "2023-03-20 14:15",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "CHILDREN_AND_YOUNG_PEOPLE_AND_FAMILY",
+		"firstSubmitted": "2023-03-17 09:48",
+		"id": "36ca7571-c9d9-4f70-b2e7-206191679ce5",
+		"lastStatusChange": "2023-03-17 09:49",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "OUTDOOR_LIFE_AND_FISHING",
+		"firstSubmitted": "2024-04-05 08:08",
+		"id": "37902e13-a651-47a1-a424-bfcfb53cc927",
+		"lastStatusChange": "2024-04-05 08:09",
+		"openEErrand": false,
+		"status": "ONGOING"
+	},
+	{
+		"caseType": "TRADE_UNION",
+		"firstSubmitted": "2023-10-03 19:30",
+		"id": "3c8bc176-dbf1-47e7-a764-386a3d747a48",
+		"lastStatusChange": "2023-10-03 19:31",
+		"openEErrand": false,
+		"status": "NEW"
+	},
+	{
+		"caseType": "OPEN-HOURS",
+		"firstSubmitted": "2023-03-14 11:21",
+		"id": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+		"lastStatusChange": "2023-03-14 13:27",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "ALL_ISSUES",
+		"firstSubmitted": "2024-04-05 15:15",
+		"id": "4675cb5b-a93f-4b9a-8f1b-ac28dc93aa76",
+		"lastStatusChange": "2024-04-05 15:19",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "ADULT_EDUCATION",
+		"firstSubmitted": "2023-03-17 14:53",
+		"id": "47c6c536-1394-4e35-99f7-d6efbdeb9c2a",
+		"lastStatusChange": "2023-03-17 15:24",
+		"openEErrand": false,
+		"status": "SOLVED"
+	},
+	{
+		"caseType": "CERTIFICATE",
+		"firstSubmitted": "2023-04-28 13:36",
+		"id": "54ee9577-d33f-4cb2-b72f-15ab716d4d5d",
+		"lastStatusChange": "2023-04-28 13:38",
+		"openEErrand": false,
+		"status": "SOLVED"
 	},
 	{
 		"caseType": "Kontakt med SC Lön och Pension - TEST DRAKEN",
