@@ -4,6 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.casestatus.service.CaseStatusService.MISSING;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
+import generated.se.sundsvall.supportmanagement.Classification;
+import generated.se.sundsvall.supportmanagement.Errand;
+import generated.se.sundsvall.supportmanagement.ExternalTag;
+import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 
@@ -93,5 +97,81 @@ class MapperTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getKey()).isEqualTo("status");
 		assertThat(response.getValue()).isEqualTo(openEId);
+	}
+
+	@Test
+	void toCaseStatusResponse_withExternalCaseId() {
+		// Arrange
+		final var errand = new Errand()
+			.id("errandId")
+			.classification(new Classification().type("someType"))
+			.status("someStatus")
+			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
+			.modified(OffsetDateTime.parse("2023-01-02T10:00:00Z"))
+			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
+			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
+
+		// Act
+		final var response = Mapper.toCaseStatusResponse(errand);
+
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getId()).isEqualTo("errandId");
+		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
+		assertThat(response.getCaseType()).isEqualTo("someType");
+		assertThat(response.getStatus()).isEqualTo("someStatus");
+		assertThat(response.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
+		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
+		assertThat(response.isOpenEErrand()).isTrue();
+	}
+
+	@Test
+	void toCaseStatusResponse_withoutExternalCaseId() {
+		// Arrange
+		final var errand = new Errand()
+			.id("errandId")
+			.classification(new Classification().type("someType"))
+			.status("someStatus")
+			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
+			.modified(OffsetDateTime.parse("2023-01-02T10:00:00Z"))
+			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"));
+
+		// Act
+		final var response = Mapper.toCaseStatusResponse(errand);
+
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getId()).isEqualTo("errandId");
+		assertThat(response.getExternalCaseId()).isNull();
+		assertThat(response.getCaseType()).isEqualTo("someType");
+		assertThat(response.getStatus()).isEqualTo("someStatus");
+		assertThat(response.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
+		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
+		assertThat(response.isOpenEErrand()).isFalse();
+	}
+
+	@Test
+	void toCaseStatusResponse_withNullModified() {
+		// Arrange
+		final var errand = new Errand()
+			.id("errandId")
+			.classification(new Classification().type("someType"))
+			.status("someStatus")
+			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
+			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
+			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
+
+		// Act
+		final var response = Mapper.toCaseStatusResponse(errand);
+
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getId()).isEqualTo("errandId");
+		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
+		assertThat(response.getCaseType()).isEqualTo("someType");
+		assertThat(response.getStatus()).isEqualTo("someStatus");
+		assertThat(response.getLastStatusChange()).isNull();
+		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
+		assertThat(response.isOpenEErrand()).isTrue();
 	}
 }

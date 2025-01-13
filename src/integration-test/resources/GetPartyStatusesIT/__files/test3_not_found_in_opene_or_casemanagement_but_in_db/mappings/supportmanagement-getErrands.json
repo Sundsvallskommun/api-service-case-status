@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test3_not_found_in_opene_or_casemanagement_but_in_db/responses/supportmanagement-getErrands.json",
+		"status": 200
+	}
+}

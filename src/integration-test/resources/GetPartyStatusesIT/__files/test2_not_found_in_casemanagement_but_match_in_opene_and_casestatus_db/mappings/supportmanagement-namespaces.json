@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/supportmanagement/namespace-configs"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test2_not_found_in_casemanagement_but_match_in_opene_and_casestatus_db/responses/supportmanagement-namespaces.json",
+		"status": 200
+	}
+}
