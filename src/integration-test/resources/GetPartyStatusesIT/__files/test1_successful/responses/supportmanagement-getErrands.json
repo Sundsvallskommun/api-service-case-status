@@ -1,108 +1,1107 @@
 {
-	"number": 0,
-	"last": true,
-	"size": 20,
-	"numberOfElements": 1,
-	"totalPages": 1,
-	"pageable": {
-		"paged": true,
-		"pageNumber": 0,
-		"offset": 0,
-		"pageSize": 20,
-		"unpaged": false,
-		"sort": []
-	},
-	"sort": [],
 	"content": [
 		{
-			"externalTags": [
-				{
-					"value": "VALUE-1",
-					"key": "KEY-1"
-				},
-				{
-					"value": "VALUE-2",
-					"key": "KEY-2"
-				}
-			],
-			"touched": "2022-01-01T12:00:00+01:00",
-			"errandNumber": "KC-23020001",
-			"escalationEmail": "ESCALATION_EMAIL_1",
-			"created": "2022-01-01T12:00:00+01:00",
+			"id": "01bb5e66-a03c-4410-b75d-ce869291fa92",
+			"errandNumber": "KC-23030203",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
 			"stakeholders": [
 				{
-					"firstName": "FIRST_NAME-1",
-					"lastName": "LAST_NAME-1",
-					"zipCode": "ZIP_CODE-2",
-					"country": "COUNTRY-2",
-					"role": "ROLE-2",
-					"address": "ADDRESS-2",
-					"careOf": "CARE_OF-2",
-					"externalId": "01e159b4-724d-40f9-91a4-9a7d021b8563",
-					"parameters": [],
-					"externalIdType": "PRIVATE",
-					"contactChannels": []
-				},
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
 				{
-					"firstName": "FIRST_NAME-1",
-					"lastName": "LAST_NAME-1",
-					"zipCode": "ZIP_CODE-1",
-					"country": "COUNTRY-1",
-					"role": "ROLE-1",
-					"address": "ADDRESS-1",
-					"careOf": "CARE_OF-1",
-					"externalId": "USER_ID",
-					"parameters": [
-						{
-							"displayName": "Parameter X",
-							"values": [
-								"value-x1",
-								"value-x2"
-							],
-							"key": "parameterX"
-						}
-					],
-					"externalIdType": "EMPLOYEE",
+					"key": "caseId",
+					"value": "20230320-957"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "ENVIRONMENT_OFFICE",
+				"type": "HYGIENE"
+			},
+			"status": "SOLVED",
+			"resolution": "ESCALATED",
+			"description": "testa väntar på komplettering",
+			"reporterUserId": "kctest",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-20T20:49:32.194+01:00",
+			"modified": "2023-03-23T07:34:23.219+01:00",
+			"touched": "2023-03-23T07:34:23+01:00"
+		},
+		{
+			"id": "03a7cf6c-0016-48e8-94ae-3e321d2082f3",
+			"errandNumber": "KC-23050067",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"careOf": "",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
 					"contactChannels": [
 						{
-							"type": "TYPE-1",
-							"value": "VALUE-1"
+							"type": "Email",
+							"value": "test@test.se"
 						}
-					]
+					],
+					"parameters": []
 				}
 			],
-			"title": "TITLE-1",
-			"priority": "LOW",
-			"classification": {
-				"category": "CATEGORY-1",
-				"type": "TYPE-1"
-			},
-			"labels": [],
-			"assignedGroupId": "ASSIGNED_GROUP_ID-1",
-			"id": "ec677eb3-604c-4935-bff7-f8f0b500c8f4",
-			"businessRelated": false,
-			"reporterUserId": "REPORTER_USER_ID-1",
-			"parameters": [
+			"externalTags": [
 				{
-					"displayName": "Displayname 2",
-					"values": [],
-					"key": "key2"
+					"key": "caseId",
+					"value": "20230517-1499"
 				},
 				{
-					"displayName": "Displayname 1",
-					"values": [
-						"value1",
-						"value2"
-					],
-					"key": "key1"
+					"key": "channel",
+					"value": "PHONE"
 				}
 			],
-			"assignedUserId": "ASSIGNED_USER_ID-1",
+			"parameters": [],
+			"classification": {
+				"category": "BOU",
+				"type": "CHILDCARE_PROCESSING_AND_INVOICES"
+			},
+			"status": "ONGOING",
+			"resolution": "INFORMED",
+			"description": "test test test test22223",
+			"reporterUserId": "kctest",
 			"suspension": {},
-			"status": "STATUS-1"
+			"labels": [],
+			"created": "2023-05-17T09:10:35.692+02:00",
+			"modified": "2023-05-23T08:59:19.926+02:00",
+			"touched": "2023-05-23T08:59:19+02:00"
+		},
+		{
+			"id": "0869dcb5-5c54-46e5-a500-07d6087993ca",
+			"errandNumber": "KC-23030293",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "a@example.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46701740635"
+						}
+					],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "CONTACT",
+					"firstName": "John",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "b@example.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46701740635"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230328-7624"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "CULTURE_AND_LEISURE",
+				"type": "SPORTS_AND_EXCERCISE"
+			},
+			"status": "SOLVED",
+			"resolution": "ESCALATED",
+			"description": "En beskrivning för att testa",
+			"reporterUserId": "kctest",
+			"assignedUserId": "edw25mol",
+			"escalationEmail": "henrik.sandstrom@sundsvall.se",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-28T15:54:19.818+02:00",
+			"modified": "2023-03-29T11:22:09.912+02:00",
+			"touched": "2023-03-29T11:22:09+02:00"
+		},
+		{
+			"id": "091bccac-4991-4d7e-8243-9b26fcfadf3a",
+			"errandNumber": "KC-23030255",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "test@test.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46706669035"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230322-882"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "IAF",
+				"type": "ADDICTION_AND_MENTAL_ILLNESS"
+			},
+			"status": "SOLVED",
+			"resolution": "INFORMED",
+			"description": "Testar UF4711",
+			"reporterUserId": "kctest",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-22T20:12:37.724+01:00",
+			"modified": "2023-03-22T20:13:52.175+01:00",
+			"touched": "2023-03-22T20:13:52+01:00"
+		},
+		{
+			"id": "09bcc655-ce26-4c58-9ad4-c1bf137b8721",
+			"errandNumber": "KC-23030168",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "CONTACT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230317-157"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "KSK_SERVICE_CENTER_SALARY_AND_PENSION",
+				"type": "OTHER"
+			},
+			"status": "SOLVED",
+			"description": "Slukhålet är tillbaka",
+			"reporterUserId": "kctest3",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-17T09:53:07.347+01:00",
+			"modified": "2023-03-20T14:35:16.794+01:00",
+			"touched": "2023-03-20T14:35:16+01:00"
+		},
+		{
+			"id": "109d0969-88ba-4391-a7fd-2f9032e6251b",
+			"errandNumber": "KC-23030112",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "a@example.com"
+						},
+						{
+							"type": "Email",
+							"value": "b@example.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+467000000"
+						},
+						{
+							"type": "Phone",
+							"value": "+467000001"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230316-556"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "SUPPORT-CASE",
+				"type": "OPEN-HOURS"
+			},
+			"status": "SOLVED",
+			"resolution": "ESCALATED",
+			"description": "Testar beskrivning",
+			"reporterUserId": "kctest",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-16T07:28:47.245+01:00",
+			"modified": "2023-03-16T15:49:56.977+01:00",
+			"touched": "2023-03-16T15:49:56+01:00"
+		},
+		{
+			"id": "13820d3c-bc00-473e-952e-4cd17e25dcae",
+			"errandNumber": "KC-23040114",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "a@b.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46700000000"
+						}
+					],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "CONTACT",
+					"firstName": "Tommy",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "b@c.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46700111111"
+						}
+					],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "CONTACT",
+					"firstName": "Sammy",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "v@b.com"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230428-2943"
+				},
+				{
+					"key": "channel",
+					"value": "PHONE"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "CULTURE_AND_LEISURE",
+				"type": "LIBRARY"
+			},
+			"status": "ONGOING",
+			"resolution": "INFORMED",
+			"description": "test",
+			"reporterUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-04-28T11:00:13.906+02:00",
+			"modified": "2023-05-30T10:58:00.932+02:00",
+			"touched": "2023-05-30T10:58:00+02:00"
+		},
+		{
+			"id": "19962f62-994c-482d-b7c1-cd950dd806ee",
+			"errandNumber": "KC-23030183",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "CONTACT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230317-281"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "SBK_OTHER_DEPARTMENTS",
+				"type": "ALL_OTHER_ISSUES"
+			},
+			"status": "SOLVED",
+			"description": "Slukhålet är tillbaka",
+			"reporterUserId": "kctest3",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-17T14:50:50.07+01:00",
+			"modified": "2023-03-20T14:36:52.314+01:00",
+			"touched": "2023-03-20T14:36:52+01:00"
+		},
+		{
+			"id": "19e8d20f-3364-479b-bd73-b1255d09ecee",
+			"errandNumber": "KC-23100010",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Tom",
+					"lastName": "Bilsson",
+					"address": "",
+					"careOf": "",
+					"zipCode": "",
+					"country": "SVERIGE",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "a@example.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+467000000"
+						}
+					],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "CONTACT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"careOf": "",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20231003-6668"
+				},
+				{
+					"key": "channel",
+					"value": "IN_PERSON"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "KSK_SERVICE_CENTER_IT",
+				"type": "PASSWORD"
+			},
+			"status": "ONGOING",
+			"resolution": "INFORMED",
+			"reporterUserId": "kctest",
+			"assignedUserId": "ali16ali",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-10-03T19:38:26.811+02:00",
+			"modified": "2023-10-27T14:18:56.881+02:00",
+			"touched": "2023-10-27T14:18:56+02:00"
+		},
+		{
+			"id": "233b1827-5e32-4d59-b9ca-a79f17a0e62c",
+			"errandNumber": "KC-23080036",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "henrik.sandstrom@sundsvall.se"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230825-8230"
+				},
+				{
+					"key": "channel",
+					"value": "EMAIL"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "CULTURE_AND_LEISURE",
+				"type": "OUTDOOR_LIFE_AND_FISHING"
+			},
+			"status": "SOLVED",
+			"resolution": "INFORMED",
+			"description": "Testar",
+			"reporterUserId": "kctest",
+			"assignedUserId": "edw25mol",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-08-25T09:24:36.754+02:00",
+			"modified": "2023-08-25T09:27:44.474+02:00",
+			"touched": "2023-08-25T09:27:44+02:00"
+		},
+		{
+			"id": "24fc2b52-f95f-4253-a640-6dbe3a2f902d",
+			"errandNumber": "KC-23030302",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230329-6366"
+				},
+				{
+					"key": "channel",
+					"value": "PHONE"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "ENVIRONMENT_OFFICE",
+				"type": "EMISSIONS_AND_HAZARDOUS_TO_ENVIRONMENT"
+			},
+			"status": "NEW",
+			"resolution": "INFORMED",
+			"reporterUserId": "kctest",
+			"assignedUserId": "mapema",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-29T15:31:08.831+02:00",
+			"modified": "2024-04-19T13:44:27.784+02:00",
+			"touched": "2024-04-19T13:44:27+02:00"
+		},
+		{
+			"id": "303be025-bf12-4527-a396-0789c6de2570",
+			"errandNumber": "KC-23030249",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d4554399-91bb-4258-a7a7-afb9f265dd66",
+					"externalIdType": "CONTACT",
+					"firstName": "Test",
+					"lastName": "Testsson 9",
+					"country": "Sweden",
+					"contactChannels": [],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "a@b.com"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230322-725"
+				},
+				{
+					"key": "channel",
+					"value": "IN_PERSON"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "SBK_PARKS_DEPARTMENT",
+				"type": "ERROR_REPORTING"
+			},
+			"status": "NEW",
+			"resolution": "INFORMED",
+			"description": "Förväntas inkomma med bild på nedfallet träd",
+			"reporterUserId": "kctest",
+			"assignedUserId": "edw25mol",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-22T16:58:22.184+01:00",
+			"modified": "2023-03-29T15:07:31.682+02:00",
+			"touched": "2023-03-29T15:07:31+02:00"
+		},
+		{
+			"id": "33ed2044-e2ff-4bb9-8af5-48c4ac363eb5",
+			"errandNumber": "KC-23030198",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "test2@test.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46701112211"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230320-182"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "IAF",
+				"type": "ADULT_EDUCATION"
+			},
+			"status": "SOLVED",
+			"resolution": "ESCALATED",
+			"description": "Eskalerings test.. Den här texten syns inte i eskaleringen !",
+			"reporterUserId": "kctest",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-20T10:27:49.84+01:00",
+			"modified": "2023-03-20T14:15:26.982+01:00",
+			"touched": "2023-03-20T14:15:26+01:00"
+		},
+		{
+			"id": "36ca7571-c9d9-4f70-b2e7-206191679ce5",
+			"errandNumber": "KC-23030167",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230317-211"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "IAF",
+				"type": "CHILDREN_AND_YOUNG_PEOPLE_AND_FAMILY"
+			},
+			"status": "SOLVED",
+			"description": "Slukhålet är tillbaka",
+			"reporterUserId": "kctest3",
+			"assignedUserId": "kctest3",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-17T09:48:00.468+01:00",
+			"modified": "2023-03-17T09:49:28.961+01:00",
+			"touched": "2023-03-17T09:49:28+01:00"
+		},
+		{
+			"id": "37902e13-a651-47a1-a424-bfcfb53cc927",
+			"errandNumber": "KC-24040011",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20240405-27"
+				},
+				{
+					"key": "channel",
+					"value": "PHONE"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "CULTURE_AND_LEISURE",
+				"type": "OUTDOOR_LIFE_AND_FISHING"
+			},
+			"status": "ONGOING",
+			"resolution": "INFORMED",
+			"description": "Testar",
+			"reporterUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2024-04-05T08:08:38.167+02:00",
+			"modified": "2024-04-05T08:09:09.748+02:00",
+			"touched": "2024-04-05T08:09:09+02:00"
+		},
+		{
+			"id": "3c8bc176-dbf1-47e7-a764-386a3d747a48",
+			"errandNumber": "KC-23100009",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [
+						{
+							"type": "Phone",
+							"value": "+46700000000"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20231003-967"
+				},
+				{
+					"key": "channel",
+					"value": "PHONE"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "COMPANIES_AND_OTHERS",
+				"type": "TRADE_UNION"
+			},
+			"status": "NEW",
+			"resolution": "INFORMED",
+			"reporterUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-10-03T19:30:30.86+02:00",
+			"modified": "2023-10-03T19:31:01.171+02:00",
+			"touched": "2023-10-03T19:31:01+02:00"
+		},
+		{
+			"id": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+			"errandNumber": "KC-23030013",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kimoz",
+					"lastName": "kimsson",
+					"address": "NORRMALMSGATAN 4",
+					"careOf": "",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "a@example.com"
+						},
+						{
+							"type": "Email",
+							"value": "b@example.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46701740635"
+						}
+					],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "CONTACT",
+					"firstName": "Tomas",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"careOf": "",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "edwintestar@test.com"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230314-784"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "SUPPORT-CASE",
+				"type": "OPEN-HOURS"
+			},
+			"status": "SOLVED",
+			"reporterUserId": "kctest",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-14T11:21:52.507+01:00",
+			"modified": "2023-03-14T13:27:31.017+01:00",
+			"touched": "2023-03-14T13:27:31+01:00"
+		},
+		{
+			"id": "4675cb5b-a93f-4b9a-8f1b-ac28dc93aa76",
+			"errandNumber": "KC-24040015",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20240405-2930"
+				},
+				{
+					"key": "channel",
+					"value": "PHONE"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "CHIEF_GUARDIANS_OFFICE",
+				"type": "ALL_ISSUES"
+			},
+			"status": "SOLVED",
+			"resolution": "INFORMED",
+			"description": "test 3",
+			"reporterUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2024-04-05T15:15:50.518+02:00",
+			"modified": "2024-04-05T15:19:28.134+02:00",
+			"touched": "2024-04-05T15:19:28+02:00"
+		},
+		{
+			"id": "47c6c536-1394-4e35-99f7-d6efbdeb9c2a",
+			"errandNumber": "KC-23030186",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "CONTACT",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230317-586"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "IAF",
+				"type": "ADULT_EDUCATION"
+			},
+			"status": "SOLVED",
+			"description": "Komplettering 15:22",
+			"reporterUserId": "kctest3",
+			"assignedUserId": "kctest4",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-17T14:53:43.527+01:00",
+			"modified": "2023-03-17T15:24:55.744+01:00",
+			"touched": "2023-03-17T15:24:55+01:00"
+		},
+		{
+			"id": "54ee9577-d33f-4cb2-b72f-15ab716d4d5d",
+			"errandNumber": "KC-23040116",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "",
+					"externalIdType": "PRIVATE",
+					"role": "CONTACT",
+					"firstName": "testa ",
+					"lastName": "testsson",
+					"address": "testa gatan 1",
+					"careOf": "",
+					"zipCode": "87111",
+					"country": "Sweden",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "Test@test.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46701112233"
+						}
+					],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "PRIVATE",
+					"role": "PRIMARY",
+					"firstName": "Kim",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"zipCode": "851 85",
+					"country": "SVERIGE",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "edwin.molina@sundsvall.se"
+						},
+						{
+							"type": "Phone",
+							"value": "+46761093661"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230428-668"
+				},
+				{
+					"key": "channel",
+					"value": "PHONE"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "KSK_SERVICE_CENTER_SALARY_AND_PENSION",
+				"type": "CERTIFICATE"
+			},
+			"status": "SOLVED",
+			"resolution": "ESCALATED",
+			"description": "testa",
+			"reporterUserId": "kctest",
+			"escalationEmail": "edwin.molina@sundsvall.se",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-04-28T13:36:11.479+02:00",
+			"modified": "2023-04-28T13:38:08.665+02:00",
+			"touched": "2023-04-28T13:38:08+02:00"
 		}
 	],
+	"pageable": {
+		"pageNumber": 0,
+		"pageSize": 20,
+		"sort": [],
+		"offset": 0,
+		"paged": true,
+		"unpaged": false
+	},
+	"last": false,
+	"totalElements": 20,
+	"totalPages": 1,
 	"first": true,
-	"totalElements": 1,
+	"size": 20,
+	"number": 0,
+	"sort": [],
+	"numberOfElements": 20,
 	"empty": false
 }

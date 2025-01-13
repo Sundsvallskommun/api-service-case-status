@@ -264,7 +264,7 @@ class CaseStatusServiceTests {
 		when(supportManagementClientMock.readAllNamespaceConfigs())
 			.thenReturn(List.of(new NamespaceConfig().namespace("namespace1"), new NamespaceConfig().namespace("namespace2")));
 
-		when(supportManagementClientMock.findErrands(any(String.class), any(String.class), any(String.class)))
+		when(supportManagementClientMock.findErrands(any(String.class), any(String.class), any(String.class), any()))
 			.thenReturn(new PageImpl<>(List.of(new Errand()
 				.id("someErrandId")
 				.modified(OffsetDateTime.now())
@@ -283,7 +283,7 @@ class CaseStatusServiceTests {
 		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, municipalityId);
 		verify(openEIntegrationMock).getCaseStatuses(municipalityId, legalId);
 		verify(supportManagementClientMock).readAllNamespaceConfigs();
-		verify(supportManagementClientMock, times(2)).findErrands(any(String.class), any(String.class), any(String.class));
+		verify(supportManagementClientMock, times(2)).findErrands(any(String.class), any(String.class), any(String.class), any());
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock, supportManagementClientMock);
 	}
 
@@ -310,7 +310,7 @@ class CaseStatusServiceTests {
 		when(supportManagementClientMock.readAllNamespaceConfigs())
 			.thenReturn(List.of(new NamespaceConfig().namespace("namespace1"), new NamespaceConfig().namespace("namespace2")));
 
-		when(supportManagementClientMock.findErrands(any(String.class), any(String.class), any(String.class)))
+		when(supportManagementClientMock.findErrands(any(String.class), any(String.class), any(String.class), any()))
 			.thenReturn(new PageImpl<>(List.of(new Errand()
 				.id("someErrandId")
 				.modified(lastStatusChange)
@@ -331,7 +331,7 @@ class CaseStatusServiceTests {
 		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, municipalityId);
 		verify(openEIntegrationMock).getCaseStatuses(municipalityId, legalId);
 		verify(supportManagementClientMock).readAllNamespaceConfigs();
-		verify(supportManagementClientMock, times(2)).findErrands(any(String.class), any(String.class), any(String.class));
+		verify(supportManagementClientMock, times(2)).findErrands(any(String.class), any(String.class), any(String.class), any());
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock, supportManagementClientMock);
 	}
 
