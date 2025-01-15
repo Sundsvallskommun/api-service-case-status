@@ -5,6 +5,9 @@ integration:
   case-management:
     connectTimeout: 5
     readTimeout: 30
+  eventlog:
+    connectTimeout: 5
+    readTimeout: 30
   open-e:
     connectTimeout: 5
     readTimeout: 30
@@ -36,6 +39,9 @@ spring:
           case-management:
             authorization-grant-type: client_credentials
             provider: case-management
+          eventlog:
+            authorization-grant-type: client_credentials
+            provider: eventlog
           party:
             authorization-grant-type: client_credentials
             provider: party
