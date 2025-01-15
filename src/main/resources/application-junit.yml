@@ -8,6 +8,8 @@ integration:
     base-url: http://case-management.url
   citizen:
     base-url: http://citizen.url
+  eventlog:
+    base-url: http://eventlog.url
   open-e:
     base-url: http://opene.url
     password: somePassword
@@ -48,6 +50,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           case-management:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          eventlog:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           party:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           support-management:
@@ -57,6 +61,9 @@ spring:
             client-id: the-client-id
             client-secret: the-client-secret
           case-management:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          eventlog:
             client-id: the-client-id
             client-secret: the-client-secret
           party:
