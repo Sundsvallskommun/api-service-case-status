@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.integration.opene.configuration;
+package se.sundsvall.casestatus.integration.opene.soap.configuration;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -10,10 +10,10 @@ import se.sundsvall.casestatus.Application;
 
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("junit")
-class OpenEPropertiesTest {
+class OpenECallbackPropertiesTest {
 
 	@Autowired
-	private OpenEProperties properties;
+	private OpenECallbackProperties properties;
 
 	@Test
 	void testProperties() {

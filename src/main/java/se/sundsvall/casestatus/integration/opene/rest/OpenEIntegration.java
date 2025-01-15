@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.integration.opene;
+package se.sundsvall.casestatus.integration.opene.rest;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

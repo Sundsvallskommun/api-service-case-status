@@ -29,7 +29,7 @@ import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
-import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
+import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
 

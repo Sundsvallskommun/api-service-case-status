@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.integration.opene.configuration;
+package se.sundsvall.casestatus.integration.opene.rest.configuration;
 
 import feign.auth.BasicAuthRequestInterceptor;
 import feign.soap.SOAPErrorDecoder;
