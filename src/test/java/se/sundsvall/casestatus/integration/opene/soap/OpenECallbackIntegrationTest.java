@@ -6,14 +6,15 @@ import static org.mockito.Mockito.when;
 
 import generated.se.sundsvall.opene.AddMessage;
 import generated.se.sundsvall.opene.AddMessageResponse;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.opene.soap.client.OpenECallbackExternalClient;
 import se.sundsvall.casestatus.integration.opene.soap.client.OpenECallbackInternalClient;
 
+@ExtendWith(MockitoExtension.class)
 class OpenECallbackIntegrationTest {
 
 	@Mock
@@ -24,11 +25,6 @@ class OpenECallbackIntegrationTest {
 
 	@InjectMocks
 	private OpenECallbackIntegration openECallbackIntegration;
-
-	@BeforeEach
-	void setUp() {
-		MockitoAnnotations.openMocks(this);
-	}
 
 	@Test
 	void testAddMessageInternal() {
