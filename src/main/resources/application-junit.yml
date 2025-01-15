@@ -14,6 +14,12 @@ integration:
     base-url: http://opene.url
     password: somePassword
     username: someUsername
+    callback:
+      internal-base-url: http://opene.url/callback/internal
+      external-base-url: http://opene.url/callback/external
+      external-password: somePassword
+      internal-password: somePassword
+      username: someUsername
   party:
     base-url: http://party.url
   support-management:

@@ -1,0 +1,194 @@
+<?xml version='1.0' encoding='UTF-8'?><!-- Published by JAX-WS RI (http://jax-ws.java.net). RI's version is JAX-WS RI 2.3.1 svn-revision#6ef5f7eb9a938dbc4562f25f8fa0b67cc4ff2dbb. -->
+<xs:schema xmlns:tns="http://www.oeplatform.org/version/1.0/schemas/integration/callback" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" version="1.0" targetNamespace="http://www.oeplatform.org/version/1.0/schemas/integration/callback">
+	<xs:element name="AccessDeniedFault" type="tns:AccessDenied"/>
+	<xs:element name="FlowInstanceNotFoundFault" type="tns:FlowInstanceNotFound"/>
+	<xs:element name="StatusNotFoundFault" type="tns:StatusNotFound"/>
+	<xs:element name="addEvent">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="date" type="xs:dateTime"/>
+                <xs:element name="message" type="xs:string"/>
+                <xs:element name="principal" type="tns:Principal" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="addEventResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="eventID" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="addInternalMessage">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="message" type="tns:IntegrationMessage"/>
+                <xs:element name="principal" type="tns:Principal" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="addInternalMessageResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="messageID" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="addMessage">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="message" type="tns:IntegrationMessage"/>
+                <xs:element name="principal" type="tns:Principal" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="addMessageResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="messageID" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="confirmDelivery">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="delivered" type="xs:boolean"/>
+                <xs:element name="logMessage" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="confirmDeliveryResponse">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="deleteInstance">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="logMessage" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="deleteInstanceResponse">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="getManagersRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="getManagersResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="managers" type="tns:Principal" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="managerGroups" type="tns:PrincipalGroup" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="setAttribute">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="name" type="xs:string"/>
+                <xs:element name="value" type="xs:string" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="setAttributeResponse">
+        <xs:complexType>
+            <xs:sequence/>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="setManagers">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="managers" type="tns:Principal" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="managerGroups" type="tns:PrincipalGroup" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="setManagersResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="setManagersReturn" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="setStatus">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="flowInstanceID" type="xs:int" minOccurs="0"/>
+                <xs:element name="externalID" type="tns:ExternalID" minOccurs="0"/>
+                <xs:element name="statusID" type="xs:int" minOccurs="0"/>
+                <xs:element name="statusAlias" type="xs:string" minOccurs="0"/>
+                <xs:element name="principal" type="tns:Principal" minOccurs="0"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:element name="setStatusResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="eventID" type="xs:int"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+	<xs:complexType name="Principal">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" nillable="true" minOccurs="0"/>
+            <xs:element name="userID" type="xs:string" nillable="true"/>
+        </xs:sequence>
+    </xs:complexType>
+	<xs:complexType name="ExternalID">
+        <xs:sequence>
+            <xs:element name="ID" type="xs:string"/>
+            <xs:element name="System" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+	<xs:complexType name="IntegrationMessage">
+        <xs:sequence>
+            <xs:element name="added" type="xs:dateTime"/>
+            <xs:element name="attachments" type="tns:Attachment" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="message" type="xs:string"/>
+            <xs:element name="userID" type="xs:string"/>
+        </xs:sequence>
+    </xs:complexType>
+	<xs:complexType name="Attachment">
+        <xs:sequence>
+            <xs:element name="encodedData" type="xs:base64Binary"/>
+            <xs:element name="filename" type="xs:string"/>
+            <xs:element name="size" type="xs:long"/>
+        </xs:sequence>
+    </xs:complexType>
+	<xs:complexType name="FlowInstanceNotFound">
+        <xs:sequence/>
+    </xs:complexType>
+	<xs:complexType name="PrincipalGroup">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string" nillable="true"/>
+        </xs:sequence>
+    </xs:complexType>
+	<xs:complexType name="StatusNotFound">
+        <xs:sequence/>
+    </xs:complexType>
+	<xs:complexType name="AccessDenied">
+        <xs:sequence/>
+    </xs:complexType>
+</xs:schema>

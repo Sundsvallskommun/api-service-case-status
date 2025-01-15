@@ -11,6 +11,9 @@ integration:
   open-e:
     connectTimeout: 5
     readTimeout: 30
+    callback:
+      connect-timeout: 5
+      read-timeout: 30
   party:
     connectTimeout: 5
     readTimeout: 30

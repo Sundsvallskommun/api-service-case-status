@@ -15,6 +15,7 @@
 		<jsoup.version>1.18.3</jsoup.version>
 		<xsoup.version>0.3.7</xsoup.version>
 		<shedlock.version>6.2.0</shedlock.version>
+		<jaxb-plugins.version>4.0.8</jaxb-plugins.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
 		<generated-sources-java-path>src/main/java</generated-sources-java-path>
 	</properties>
@@ -96,6 +97,41 @@
 				<configuration>
 					<argLine>${surefireArgLine} -Xmx1024m</argLine>
 				</configuration>
+			</plugin>
+			<!-- Generate java from wsdl -->
+			<plugin>
+				<groupId>org.jvnet.jaxb</groupId>
+				<artifactId>jaxb-maven-plugin</artifactId>
+				<version>${jaxb-plugins.version}</version>
+				<configuration>
+					<bindingDirectory>${project.basedir}/src/main/resources/integrations/opene</bindingDirectory>
+					<extension>true</extension>
+					<args>
+						<arg>-wsdl</arg>
+						<arg>-Xfluent-api</arg>
+					</args>
+					<plugins>
+						<plugin>
+							<groupId>org.jvnet.jaxb</groupId>
+							<artifactId>jaxb-plugins</artifactId>
+							<version>${jaxb-plugins.version}</version>
+						</plugin>
+					</plugins>
+					<generatePackage>generated.se.sundsvall.opene</generatePackage>
+					<schemaIncludes>
+						<include>**/*.wsdl</include>
+					</schemaIncludes>
+					<generateDirectory>${generated-sources-path}/${generated-sources-java-path}</generateDirectory>
+					<schemaDirectory>${project.basedir}/src/main/resources/integrations/opene</schemaDirectory>
+				</configuration>
+				<executions>
+					<execution>
+						<id>open-e</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+					</execution>
+				</executions>
 			</plugin>
 			<plugin>
 				<groupId>org.openapitools</groupId>

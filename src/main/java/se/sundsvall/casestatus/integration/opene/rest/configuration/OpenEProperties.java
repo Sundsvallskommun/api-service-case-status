@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.integration.opene.configuration;
+package se.sundsvall.casestatus.integration.opene.rest.configuration;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

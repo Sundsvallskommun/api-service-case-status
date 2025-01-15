@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.integration.opene;
+package se.sundsvall.casestatus.integration.opene.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;

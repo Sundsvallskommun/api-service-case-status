@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
-import se.sundsvall.casestatus.integration.opene.OpenEIntegration;
+import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
