@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.service.scheduler;
+package se.sundsvall.casestatus.service.scheduler.cache;
 
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
-import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 import us.codecraft.xsoup.Xsoup;
 
 @Component

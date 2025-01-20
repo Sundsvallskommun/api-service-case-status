@@ -8,15 +8,12 @@ import static se.sundsvall.casestatus.service.Mapper.toCaseStatusResponse;
 import static se.sundsvall.casestatus.service.Mapper.toOepStatusResponse;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
-import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -31,7 +28,6 @@ import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
-import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
 
 @Service
 public class CaseStatusService {
@@ -45,21 +41,21 @@ public class CaseStatusService {
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 	private final CaseTypeRepository caseTypeRepository;
 	private final PartyIntegration partyIntegration;
-	private final SupportManagementClient supportManagementClient;
+	private final SupportManagementService supportManagementService;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final OpenEIntegration openEIntegration,
 		final CaseRepository caseRepository,
 		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
 		final CaseTypeRepository caseTypeRepository,
-		final PartyIntegration partyIntegration, final SupportManagementClient supportManagementClient) {
+		final PartyIntegration partyIntegration, final SupportManagementService supportManagementService) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.openEIntegration = openEIntegration;
 		this.caseRepository = caseRepository;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
 		this.caseTypeRepository = caseTypeRepository;
 		this.partyIntegration = partyIntegration;
-		this.supportManagementClient = supportManagementClient;
+		this.supportManagementService = supportManagementService;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
@@ -119,7 +115,10 @@ public class CaseStatusService {
 				.map(Mapper::mapToCaseStatusResponse)
 				.forEach(result::add);
 
-			result.addAll(getSupportManagementCases(municipalityId, partyId));
+			final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
+			supportManagementService.getSupportManagementCases(municipalityId, filterString).stream()
+				.map(Mapper::toCaseStatusResponse)
+				.forEach(result::add);
 
 			return filterResponse(result);
 
@@ -142,27 +141,6 @@ public class CaseStatusService {
 		}
 
 		return result;
-	}
-
-	List<CaseStatusResponse> getSupportManagementCases(final String municipalityId, final String partyId) {
-
-		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
-		final var allResponses = new ArrayList<CaseStatusResponse>();
-
-		supportManagementClient.readAllNamespaceConfigs().forEach(namespace -> {
-			int pageNumber = 0;
-			Page<Errand> response;
-
-			do {
-				response = supportManagementClient.findErrands(municipalityId, namespace.getNamespace(), filterString, PageRequest.of(pageNumber, 100));
-				allResponses.addAll(response.stream()
-					.map(Mapper::toCaseStatusResponse)
-					.toList());
-				pageNumber++;
-			} while (response.hasNext());
-		});
-
-		return allResponses;
 	}
 
 	CaseStatusResponse mapToCaseStatusResponse(final CaseStatusDTO caseStatus, final String municipalityId) {

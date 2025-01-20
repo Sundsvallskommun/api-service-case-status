@@ -21,6 +21,8 @@ integration:
     connectTimeout: 5
     readTimeout: 30
 
+
+
 openapi:
   name: ${spring.application.name}
   title: ${spring.application.name}

@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.service.scheduler;
+package se.sundsvall.casestatus.service.scheduler.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -24,7 +24,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 
 @SpringBootTest(properties = {
 	"cache.scheduled.cron=* * * * * *", // Setup to execute every second

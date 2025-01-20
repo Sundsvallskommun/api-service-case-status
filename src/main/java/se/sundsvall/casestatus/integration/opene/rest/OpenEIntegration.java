@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
-import se.sundsvall.casestatus.service.scheduler.Mapper;
-import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.cache.Mapper;
+import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 import us.codecraft.xsoup.Xsoup;
 
 @Component
