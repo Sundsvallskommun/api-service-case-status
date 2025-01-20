@@ -1,9 +1,9 @@
-package se.sundsvall.casestatus.service.scheduler.domain;
+package se.sundsvall.casestatus.service.scheduler.cache.domain;
 
 import java.util.EnumSet;
 import lombok.Getter;
-import se.sundsvall.casestatus.service.scheduler.CaseStatusCache;
-import se.sundsvall.casestatus.service.scheduler.ContextUtil;
+import se.sundsvall.casestatus.service.scheduler.cache.CaseStatusCache;
+import se.sundsvall.casestatus.service.scheduler.cache.ContextUtil;
 
 public enum FamilyId {
 	ATTEFALLSATGARD(384, 427, "2281"),

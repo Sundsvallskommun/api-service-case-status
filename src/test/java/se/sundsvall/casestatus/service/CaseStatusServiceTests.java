@@ -15,7 +15,6 @@ import generated.se.sundsvall.party.PartyType;
 import generated.se.sundsvall.supportmanagement.Classification;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
-import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -26,8 +25,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
 import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
@@ -38,7 +35,6 @@ import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
-import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
 
 @ExtendWith(MockitoExtension.class)
 class CaseStatusServiceTests {
@@ -59,7 +55,7 @@ class CaseStatusServiceTests {
 	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
 	@Mock
-	private SupportManagementClient supportManagementClientMock;
+	private SupportManagementService supportManagementServiceMock;
 	@InjectMocks
 	private CaseStatusService caseStatusService;
 
@@ -261,18 +257,15 @@ class CaseStatusServiceTests {
 		when(openEIntegrationMock.getCaseStatuses(municipalityId, legalId))
 			.thenReturn(List.of(CaseEntity.builder().withFlowInstanceId("2").build()));
 
-		when(supportManagementClientMock.readAllNamespaceConfigs())
-			.thenReturn(List.of(new NamespaceConfig().namespace("namespace1"), new NamespaceConfig().namespace("namespace2")));
-
-		when(supportManagementClientMock.findErrands(any(String.class), any(String.class), any(String.class), any()))
-			.thenReturn(new PageImpl<>(List.of(new Errand()
+		when(supportManagementServiceMock.getSupportManagementCases(any(String.class), any(String.class)))
+			.thenReturn(List.of(new Errand()
 				.id("someErrandId")
 				.modified(OffsetDateTime.now())
 				.created(OffsetDateTime.now().minusDays(1))
 				.classification(new Classification().type("someType"))
 				.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
 				.addExternalTagsItem(new ExternalTag().key("caseId").value("5"))
-				.status("someStatus")), PageRequest.of(0, 10), 1));
+				.status("someStatus")));
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, municipalityId);
 
@@ -282,9 +275,8 @@ class CaseStatusServiceTests {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, municipalityId);
 		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, municipalityId);
 		verify(openEIntegrationMock).getCaseStatuses(municipalityId, legalId);
-		verify(supportManagementClientMock).readAllNamespaceConfigs();
-		verify(supportManagementClientMock, times(2)).findErrands(any(String.class), any(String.class), any(String.class), any());
-		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock, supportManagementClientMock);
+		verify(supportManagementServiceMock).getSupportManagementCases(any(String.class), any(String.class));
+		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock, supportManagementServiceMock);
 	}
 
 	@Test
@@ -307,18 +299,16 @@ class CaseStatusServiceTests {
 			.thenReturn(List.of(
 				CaseEntity.builder().withFlowInstanceId("2").withLastStatusChange("2023-01-01 11:00").build(),
 				CaseEntity.builder().withFlowInstanceId("2").withLastStatusChange("2023-01-01 09:00").build()));
-		when(supportManagementClientMock.readAllNamespaceConfigs())
-			.thenReturn(List.of(new NamespaceConfig().namespace("namespace1"), new NamespaceConfig().namespace("namespace2")));
 
-		when(supportManagementClientMock.findErrands(any(String.class), any(String.class), any(String.class), any()))
-			.thenReturn(new PageImpl<>(List.of(new Errand()
+		when(supportManagementServiceMock.getSupportManagementCases(any(String.class), any(String.class)))
+			.thenReturn(List.of(new Errand()
 				.id("someErrandId")
 				.modified(lastStatusChange)
 				.created(OffsetDateTime.now().minusDays(1))
 				.classification(new Classification().type("someType"))
 				.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
 				.addExternalTagsItem(new ExternalTag().key("caseId").value("5"))
-				.status("someStatus")), PageRequest.of(0, 10), 1));
+				.status("someStatus")));
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, municipalityId);
 
@@ -330,9 +320,8 @@ class CaseStatusServiceTests {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, municipalityId);
 		verify(caseRepositoryMock).findByPersonIdAndMunicipalityId(partyId, municipalityId);
 		verify(openEIntegrationMock).getCaseStatuses(municipalityId, legalId);
-		verify(supportManagementClientMock).readAllNamespaceConfigs();
-		verify(supportManagementClientMock, times(2)).findErrands(any(String.class), any(String.class), any(String.class), any());
-		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock, supportManagementClientMock);
+		verify(supportManagementServiceMock).getSupportManagementCases(any(String.class), any(String.class));
+		verifyNoMoreInteractions(partyIntegrationMock, caseManagementIntegrationMock, caseRepositoryMock, openEIntegrationMock, supportManagementServiceMock);
 	}
 
 	@Test

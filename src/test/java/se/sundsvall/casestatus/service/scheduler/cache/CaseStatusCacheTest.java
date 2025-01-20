@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.service.scheduler;
+package se.sundsvall.casestatus.service.scheduler.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -13,7 +13,7 @@ import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
-import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
+import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 
 @ExtendWith(MockitoExtension.class)
 class CaseStatusCacheTest {

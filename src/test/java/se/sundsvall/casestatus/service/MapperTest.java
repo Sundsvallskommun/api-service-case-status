@@ -174,4 +174,57 @@ class MapperTest {
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
 		assertThat(response.isOpenEErrand()).isTrue();
 	}
+
+	@Test
+	void toCaseEntity_withExternalCaseId() {
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var errand = new Errand()
+			.id("errandId")
+			.classification(new Classification().type("someType"))
+			.status("someStatus")
+			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
+			.modified(OffsetDateTime.parse("2023-01-02T10:00:00Z"))
+			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
+			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
+
+		// Act
+		final var caseEntity = Mapper.toCaseEntity(errand, municipalityId);
+
+		// Assert
+		assertThat(caseEntity).isNotNull();
+		assertThat(caseEntity.getFlowInstanceId()).isEqualTo("caseId");
+		assertThat(caseEntity.getFamilyId()).isEqualTo("123");
+		assertThat(caseEntity.getStatus()).isEqualTo("someStatus");
+		assertThat(caseEntity.getErrandType()).isEqualTo("someType");
+		assertThat(caseEntity.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
+		assertThat(caseEntity.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
+		assertThat(caseEntity.getMunicipalityId()).isEqualTo(municipalityId);
+	}
+
+	@Test
+	void toCaseEntity_withoutExternalCaseId() {
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var errand = new Errand()
+			.id("errandId")
+			.classification(new Classification().type("someType"))
+			.status("someStatus")
+			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
+			.modified(OffsetDateTime.parse("2023-01-02T10:00:00Z"))
+			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"));
+
+		// Act
+		final var caseEntity = Mapper.toCaseEntity(errand, municipalityId);
+
+		// Assert
+		assertThat(caseEntity).isNotNull();
+		assertThat(caseEntity.getFlowInstanceId()).isNull();
+		assertThat(caseEntity.getFamilyId()).isEqualTo("123");
+		assertThat(caseEntity.getStatus()).isEqualTo("someStatus");
+		assertThat(caseEntity.getErrandType()).isEqualTo("someType");
+		assertThat(caseEntity.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
+		assertThat(caseEntity.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
+		assertThat(caseEntity.getMunicipalityId()).isEqualTo(municipalityId);
+	}
 }

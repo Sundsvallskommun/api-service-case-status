@@ -3,9 +3,11 @@ package se.sundsvall.casestatus.integration.opene.soap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.casestatus.utility.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.utility.Constants.INTERNAL_CHANNEL_E_SERVICE;
 
-import generated.se.sundsvall.opene.AddMessage;
-import generated.se.sundsvall.opene.AddMessageResponse;
+import generated.se.sundsvall.opene.SetStatus;
+import generated.se.sundsvall.opene.SetStatusResponse;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,40 +29,40 @@ class OpenECallbackIntegrationTest {
 	private OpenECallbackIntegration openECallbackIntegration;
 
 	@Test
-	void testAddMessageInternal() {
+	void testSetStatusInternal() {
 		// Arrange
-		final var addMessage = new AddMessage();
-		final var expectedResponse = new AddMessageResponse();
-		when(openECallbackInternalClient.addMessage(any(AddMessage.class))).thenReturn(expectedResponse);
+		final var setStatus = new SetStatus();
+		final var expectedResponse = new SetStatusResponse();
+		when(openECallbackInternalClient.updateStatus(any(SetStatus.class))).thenReturn(expectedResponse);
 
 		// Act
-		final var actualResponse = openECallbackIntegration.addMessage("internal", addMessage);
+		final var actualResponse = openECallbackIntegration.setStatus(INTERNAL_CHANNEL_E_SERVICE, setStatus);
 
 		// Assert
 		assertThat(actualResponse).isEqualTo(expectedResponse);
 	}
 
 	@Test
-	void testAddMessageExternal() {
+	void testSetStatusExternal() {
 		// Arrange
-		final var addMessage = new AddMessage();
-		final var expectedResponse = new AddMessageResponse();
-		when(oepExternalClient.addMessage(any(AddMessage.class))).thenReturn(expectedResponse);
+		final var setStatus = new SetStatus();
+		final var expectedResponse = new SetStatusResponse();
+		when(oepExternalClient.updateStatus(any(SetStatus.class))).thenReturn(expectedResponse);
 
 		// Act
-		final var actualResponse = openECallbackIntegration.addMessage("external", addMessage);
+		final var actualResponse = openECallbackIntegration.setStatus(EXTERNAL_CHANNEL_E_SERVICE, setStatus);
 
 		// Assert
 		assertThat(actualResponse).isEqualTo(expectedResponse);
 	}
 
 	@Test
-	void testAddMessageInvalidInstance() {
+	void testSetStatusInvalidInstance() {
 		// Arrange
-		final var addMessage = new AddMessage();
+		final var setStatus = new SetStatus();
 
 		// Act
-		final var actualResponse = openECallbackIntegration.addMessage("invalid", addMessage);
+		final var actualResponse = openECallbackIntegration.setStatus("invalid", setStatus);
 
 		// Assert
 		assertThat(actualResponse).isNull();

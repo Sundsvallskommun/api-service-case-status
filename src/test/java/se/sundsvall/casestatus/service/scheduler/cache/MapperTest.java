@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.service.scheduler;
+package se.sundsvall.casestatus.service.scheduler.cache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.service.scheduler;
+package se.sundsvall.casestatus.service.scheduler.eventlog;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -24,10 +24,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
-import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
+import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 
 @SpringBootTest(properties = {
-	"cache.scheduled.cron=* * * * * *", // Setup to execute every second
+	"scheduler.eventlog.cron=* * * * * *", // Setup to execute every second
+	"scheduler.eventlog.name=eventlog",
 	"spring.flyway.enabled=true",
 	"integration.db.case-status.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
 	"integration.db.case-status.url=jdbc:tc:mariadb:10.6.4:////",
@@ -35,10 +36,10 @@ import se.sundsvall.casestatus.service.scheduler.domain.FamilyId;
 	"spring.lifecycle.timeout-per-shutdown-phase=0s"
 })
 @ActiveProfiles("junit")
-class CaseStatusCacheScheduledTest {
+class EventLogSchedulerShedlockTest {
 
 	@Autowired
-	private CaseStatusCacheWorker caseStatusCacheWorkerMock;
+	private EventLogWorker eventLogWorkerMock;
 
 	@Autowired
 	private NamedParameterJdbcTemplate jdbcTemplate;
@@ -55,7 +56,7 @@ class CaseStatusCacheScheduledTest {
 				.forever()
 				.until(() -> false);
 			return null;
-		}).when(caseStatusCacheWorkerMock).cacheStatusesForFamilyId(any(FamilyId.class));
+		}).when(eventLogWorkerMock).updateStatus(any(ExecutionInformationEntity.class));
 
 		// Make sure scheduling occurs multiple times
 		await().until(() -> mockCalledTime != null && LocalDateTime.now().isAfter(mockCalledTime.plusSeconds(2)));
@@ -63,12 +64,10 @@ class CaseStatusCacheScheduledTest {
 		// Verify lock
 		await()
 			.atMost(5, TimeUnit.SECONDS)
-			.untilAsserted(() -> assertThat(getLockedAt("cache_job"))
+			.untilAsserted(() -> assertThat(getLockedAt("eventlog"))
 				.isCloseTo(LocalDateTime.now(Clock.systemUTC()), within(10, ChronoUnit.SECONDS)));
 
-		// Only one call should be made as long as scheduledCacheJob() is locked and mock is waiting
-		// for first call to finish
-		verify(caseStatusCacheWorkerMock, times(1)).cacheStatusesForFamilyId(any());
+		verify(eventLogWorkerMock, times(1)).updateStatus(any(ExecutionInformationEntity.class));
 
 	}
 
@@ -87,12 +86,12 @@ class CaseStatusCacheScheduledTest {
 	}
 
 	@TestConfiguration
-	public static class CaseStatusCacheWorkerConfiguration {
+	public static class EventLogWorkerConfiguration {
 
 		@Bean
 		@Primary
-		public CaseStatusCacheWorker createMock() {
-			return Mockito.mock(CaseStatusCacheWorker.class);
+		public EventLogWorker createMock() {
+			return Mockito.mock(EventLogWorker.class);
 		}
 
 	}

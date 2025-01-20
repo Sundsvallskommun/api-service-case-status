@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.service.scheduler;
+package se.sundsvall.casestatus.service.scheduler.cache;
 
 import org.jetbrains.annotations.NotNull;
 import org.springframework.context.ApplicationContext;

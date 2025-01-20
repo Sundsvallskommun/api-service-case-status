@@ -1,4 +1,4 @@
-package se.sundsvall.casestatus.service.scheduler.domain;
+package se.sundsvall.casestatus.service.scheduler.cache.domain;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -10,8 +10,8 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.casestatus.service.scheduler.CaseStatusCache;
-import se.sundsvall.casestatus.service.scheduler.ContextUtil;
+import se.sundsvall.casestatus.service.scheduler.cache.CaseStatusCache;
+import se.sundsvall.casestatus.service.scheduler.cache.ContextUtil;
 
 @ExtendWith(MockitoExtension.class)
 class FamilyIdTest {

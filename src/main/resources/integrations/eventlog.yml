@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "2.0"
+  version: "2.1"
 servers:
-  - url: http://localhost:61273
+  - url: http://localhost:50106
     description: Generated server url
 tags:
   - name: Events
@@ -20,7 +20,7 @@ paths:
       summary: Fetch log events
       description: "Fetch log events for a specific logKey, with or without filtering\
         \ the result"
-      operationId: getEvents
+      operationId: getEventsForLogKey
       parameters:
         - name: municipalityId
           in: path
@@ -134,6 +134,80 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}:
+    get:
+      tags:
+        - Events
+      summary: Fetch log events
+      description: "Fetch log events, with or without filtering the result"
+      operationId: getEvents
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: filter
+          in: query
+          description: "Syntax description: [spring-filter](https://github.com/turkraft/springfilter#syntax)"
+          required: false
+          schema:
+            type: string
+          example: metadata.key:'userId' and metadata.value:'john123'
+        - name: page
+          in: query
+          description: Zero-based page index (0..N)
+          required: false
+          schema:
+            minimum: 0
+            type: integer
+            default: 0
+        - name: size
+          in: query
+          description: The size of the page to be returned
+          required: false
+          schema:
+            minimum: 1
+            type: integer
+            default: 20
+        - name: sort
+          in: query
+          description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PageEvent"
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not Found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -359,6 +433,11 @@ components:
         - type
       type: object
       properties:
+        logKey:
+          type: string
+          description: Unique identifier
+          readOnly: true
+          example: fbe2fb67-005c-4f26-990f-1c95b5f6933e
         type:
           $ref: "#/components/schemas/EventType"
         municipalityId:
@@ -478,8 +557,6 @@ components:
           format: int64
         sort:
           $ref: "#/components/schemas/SortObject"
-        unpaged:
-          type: boolean
         paged:
           type: boolean
         pageNumber:
@@ -488,6 +565,8 @@ components:
         pageSize:
           type: integer
           format: int32
+        unpaged:
+          type: boolean
     SortObject:
       type: object
       properties:
