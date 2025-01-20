@@ -41,6 +41,6 @@ class EventLogSchedulerTest {
 		// Act
 		eventLogScheduler.updateStatus();
 		// Assert
-		verify(eventLogWorker).updateStatus(municipalityId, executionInformationEntity);
+		verify(eventLogWorker).updateStatus(executionInformationEntity);
 	}
 }

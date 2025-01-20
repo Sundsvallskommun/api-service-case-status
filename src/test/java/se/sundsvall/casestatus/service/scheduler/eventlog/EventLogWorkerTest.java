@@ -60,7 +60,7 @@ class EventLogWorkerTest {
 		when(supportManagementService.getSupportManagementCases(eq(municipalityId), anyString())).thenReturn(errands);
 
 		// Act
-		eventLogWorker.updateStatus(municipalityId, executionInformationEntity);
+		eventLogWorker.updateStatus(executionInformationEntity);
 
 		// Assert
 		verify(eventlogClient, times(1)).getEvents(eq(municipalityId), any(PageRequest.class), anyString());

@@ -56,7 +56,7 @@ class EventLogSchedulerShedlockTest {
 				.forever()
 				.until(() -> false);
 			return null;
-		}).when(eventLogWorkerMock).updateStatus(any(String.class), any(ExecutionInformationEntity.class));
+		}).when(eventLogWorkerMock).updateStatus(any(ExecutionInformationEntity.class));
 
 		// Make sure scheduling occurs multiple times
 		await().until(() -> mockCalledTime != null && LocalDateTime.now().isAfter(mockCalledTime.plusSeconds(2)));
@@ -67,7 +67,7 @@ class EventLogSchedulerShedlockTest {
 			.untilAsserted(() -> assertThat(getLockedAt("eventlog"))
 				.isCloseTo(LocalDateTime.now(Clock.systemUTC()), within(10, ChronoUnit.SECONDS)));
 
-		verify(eventLogWorkerMock, times(1)).updateStatus(any(), any(ExecutionInformationEntity.class));
+		verify(eventLogWorkerMock, times(1)).updateStatus(any(ExecutionInformationEntity.class));
 
 	}
 

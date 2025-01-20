@@ -26,9 +26,9 @@ public class EventLogScheduler {
 		name = "${scheduler.eventlog.name}")
 	public void updateStatus() {
 
-		final var executionTime = executionInformationRepository.findById(municipalityId).orElse(initiateExecutionInfo(municipalityId));
+		final var executionInformation = executionInformationRepository.findById(municipalityId).orElse(initiateExecutionInfo(municipalityId));
 
-		eventLogWorker.updateStatus(municipalityId, executionTime);
+		eventLogWorker.updateStatus(executionInformation);
 	}
 
 	private ExecutionInformationEntity initiateExecutionInfo(final String municipalityId) {

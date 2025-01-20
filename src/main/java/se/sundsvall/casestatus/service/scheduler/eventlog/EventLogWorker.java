@@ -31,13 +31,13 @@ public class EventLogWorker {
 		this.openECallbackIntegration = openECallbackIntegration;
 	}
 
-	void updateStatus(final String municipalityId, final ExecutionInformationEntity executionTime) {
+	void updateStatus(final ExecutionInformationEntity executionInformation) {
 
-		final var logKeys = getEvents(municipalityId, executionTime);
+		final var logKeys = getEvents(executionInformation);
 
 		final var filter = createFilterString(logKeys);
 
-		final var result = supportManagementService.getSupportManagementCases(municipalityId, filter);
+		final var result = supportManagementService.getSupportManagementCases(executionInformation.getMunicipalityId(), filter);
 
 		sortByChannel(result).forEach(this::doOpenECallback);
 	}
@@ -46,15 +46,15 @@ public class EventLogWorker {
 		caseEntities.forEach(caseEntity -> openECallbackIntegration.setStatus(channel, caseEntity));
 	}
 
-	private ArrayList<String> getEvents(final String municipalityId, final ExecutionInformationEntity executionTime) {
+	private ArrayList<String> getEvents(final ExecutionInformationEntity executionInformation) {
 		int pageNumber = 0;
 		Page<Event> response;
 		final var logKeys = new ArrayList<String>();
 
-		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s'".formatted(executionTime.getLastSuccessfulExecution());
+		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s'".formatted(executionInformation.getLastSuccessfulExecution());
 
 		do {
-			response = eventlogClient.getEvents(municipalityId, PageRequest.of(pageNumber, 100), filterString);
+			response = eventlogClient.getEvents(executionInformation.getMunicipalityId(), PageRequest.of(pageNumber, 100), filterString);
 			logKeys.addAll(response.getContent().stream().map(Event::getLogKey).toList());
 			pageNumber++;
 		} while (response.hasNext());
