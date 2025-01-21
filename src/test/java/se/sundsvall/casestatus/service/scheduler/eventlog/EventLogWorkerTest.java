@@ -1,10 +1,12 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
+import static java.util.Collections.emptyList;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.casestatus.utility.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 
@@ -66,6 +68,27 @@ class EventLogWorkerTest {
 		verify(eventlogClient, times(1)).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
 		verify(supportManagementService, times(1)).getSupportManagementCases(eq(municipalityId), anyString());
 		verify(openECallbackIntegration, times(2)).setStatus(anyString(), any(SetStatus.class));
+	}
+
+	@Test
+	void testUpdateStatusWithEmptyLogKeys() {
+		// Arrange
+		final String municipalityId = "testMunicipalityId";
+		final var executionInformationEntity = ExecutionInformationEntity.builder()
+			.withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(OffsetDateTime.now())
+			.build();
+
+		when(eventPage.getContent()).thenReturn(emptyList());
+		when(eventPage.hasNext()).thenReturn(false);
+		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPage);
+
+		// Act
+		eventLogWorker.updateStatus(executionInformationEntity);
+
+		// Assert
+		verify(eventlogClient).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
+		verifyNoInteractions(supportManagementService, openECallbackIntegration);
 	}
 
 }
