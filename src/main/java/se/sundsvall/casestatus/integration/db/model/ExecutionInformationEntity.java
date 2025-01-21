@@ -22,9 +22,6 @@ import org.hibernate.annotations.TimeZoneStorageType;
 public class ExecutionInformationEntity {
 
 	@Id
-	@Column(name = "family_id", unique = true)
-	private String familyId;
-
 	@Column(name = "municipality_id", length = 4, nullable = false)
 	private String municipalityId;
 
