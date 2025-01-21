@@ -1,5 +1,6 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
+import static org.slf4j.LoggerFactory.getLogger;
 import static se.sundsvall.casestatus.utility.Constants.VALID_CHANNELS;
 
 import generated.se.sundsvall.eventlog.Event;
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -17,10 +19,12 @@ import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.opene.soap.OpenECallbackIntegration;
 import se.sundsvall.casestatus.service.Mapper;
 import se.sundsvall.casestatus.service.SupportManagementService;
+import se.sundsvall.dept44.requestid.RequestId;
 
 @Component
 public class EventLogWorker {
 
+	private final Logger log = getLogger(EventLogWorker.class);
 	private final EventlogClient eventlogClient;
 	private final SupportManagementService supportManagementService;
 	private final OpenECallbackIntegration openECallbackIntegration;
@@ -34,6 +38,11 @@ public class EventLogWorker {
 	void updateStatus(final ExecutionInformationEntity executionInformation) {
 
 		final var logKeys = getEvents(executionInformation);
+
+		if (logKeys.isEmpty()) {
+			log.info("RequestID: {} - No events found for municipality {}", RequestId.get(), executionInformation.getMunicipalityId());
+			return;
+		}
 
 		final var filter = createFilterString(logKeys);
 

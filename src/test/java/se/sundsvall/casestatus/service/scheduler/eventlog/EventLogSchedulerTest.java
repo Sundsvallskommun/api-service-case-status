@@ -42,5 +42,6 @@ class EventLogSchedulerTest {
 		eventLogScheduler.updateStatus();
 		// Assert
 		verify(eventLogWorker).updateStatus(executionInformationEntity);
+		verify(executionInformationRepository).save(executionInformationEntity);
 	}
 }

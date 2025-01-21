@@ -29,6 +29,9 @@ public class EventLogScheduler {
 		final var executionInformation = executionInformationRepository.findById(municipalityId).orElse(initiateExecutionInfo(municipalityId));
 
 		eventLogWorker.updateStatus(executionInformation);
+
+		executionInformation.setLastSuccessfulExecution(OffsetDateTime.now());
+		executionInformationRepository.save(executionInformation);
 	}
 
 	private ExecutionInformationEntity initiateExecutionInfo(final String municipalityId) {
