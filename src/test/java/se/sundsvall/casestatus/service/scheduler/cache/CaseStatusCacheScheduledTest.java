@@ -28,6 +28,7 @@ import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 
 @SpringBootTest(properties = {
 	"cache.scheduled.cron=* * * * * *", // Setup to execute every second
+	"cache.scheduled.name=cache_job",
 	"spring.flyway.enabled=true",
 	"integration.db.case-status.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
 	"integration.db.case-status.url=jdbc:tc:mariadb:10.6.4:////",
