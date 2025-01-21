@@ -8,33 +8,34 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
+import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 import us.codecraft.xsoup.Xsoup;
 
 @Component
 public class CaseStatusCacheWorker {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CaseStatusCacheWorker.class);
-
 	private static final String PRIVATE = "private";
-
 	private static final String ORG = "org";
-
 	private final OpenEIntegration openEIntegration;
-
 	private final CitizenIntegration citizenIntegration;
-
 	private final CaseRepository caseRepository;
+	private final Dept44HealthUtility dept44HealthUtility;
+	@Value("${cache.scheduled.name}")
+	private String jobName;
 
 	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration,
-		final CaseRepository caseRepository) {
+		final CaseRepository caseRepository, final Dept44HealthUtility dept44HealthUtility) {
 		this.openEIntegration = openEIntegration;
 		this.citizenIntegration = citizenIntegration;
 		this.caseRepository = caseRepository;
+		this.dept44HealthUtility = dept44HealthUtility;
 	}
 
 	public void cacheStatusesForFamilyId(final FamilyId familyId) {
@@ -42,6 +43,10 @@ public class CaseStatusCacheWorker {
 		LOG.debug("Running for familyId: {}", familyId);
 		final var response = new String(openEIntegration.getErrandIds(familyId), StandardCharsets.ISO_8859_1);
 
+		if (response.isEmpty()) {
+			dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, "Unable to get errandIds for familyId: " + familyId);
+			return;
+		}
 		final var flowInstances = Xsoup.select(Jsoup.parse(response), "//FlowInstances/flowinstance").getElements();
 
 		if (!flowInstances.isEmpty()) {

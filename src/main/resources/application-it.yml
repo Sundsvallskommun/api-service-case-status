@@ -6,6 +6,7 @@ scheduler:
 cache:
   isprod: false
   scheduled:
+    name: "cache_job"
     cron: "-"
     shedlock-lock-at-most-for: PT10M
 integration:
