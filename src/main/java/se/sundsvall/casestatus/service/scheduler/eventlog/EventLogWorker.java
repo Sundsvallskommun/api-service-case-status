@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.opene.soap.OpenECallbackIntegration;
@@ -28,11 +29,13 @@ public class EventLogWorker {
 	private final EventlogClient eventlogClient;
 	private final SupportManagementService supportManagementService;
 	private final OpenECallbackIntegration openECallbackIntegration;
+	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 
-	public EventLogWorker(final EventlogClient eventlogClient, final SupportManagementService supportManagementService, final OpenECallbackIntegration openECallbackIntegration) {
+	public EventLogWorker(final EventlogClient eventlogClient, final SupportManagementService supportManagementService, final OpenECallbackIntegration openECallbackIntegration, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository) {
 		this.eventlogClient = eventlogClient;
 		this.supportManagementService = supportManagementService;
 		this.openECallbackIntegration = openECallbackIntegration;
+		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
 	}
 
 	void updateStatus(final ExecutionInformationEntity executionInformation) {
@@ -75,7 +78,11 @@ public class EventLogWorker {
 			.filter(errand -> VALID_CHANNELS.contains(errand.getChannel()))
 			.collect(Collectors.groupingBy(
 				Errand::getChannel,
-				Collectors.mapping(Mapper::toSetStatus, Collectors.toList())));
+				Collectors.mapping(errand1 -> {
+					final var status = caseManagementOpeneViewRepository.findByCaseManagementId(errand1.getStatus());
+					return status.map(caseManagementOpeneView -> Mapper.toSetStatus(errand1, caseManagementOpeneView.getOpenEId()))
+						.orElse(null);
+				}, Collectors.toList())));
 	}
 
 	private String createFilterString(final ArrayList<String> logKeys) {
