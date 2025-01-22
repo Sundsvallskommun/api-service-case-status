@@ -4,7 +4,6 @@ import static se.sundsvall.casestatus.service.CaseStatusService.DATE_TIME_FORMAT
 import static se.sundsvall.casestatus.service.CaseStatusService.MISSING;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
-import generated.se.sundsvall.opene.ExternalID;
 import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
@@ -111,15 +110,13 @@ public final class Mapper {
 		return Optional.empty();
 	}
 
-	public static SetStatus toSetStatus(final Errand errand) {
+	public static SetStatus toSetStatus(final Errand errand, final String status) {
 
-		final var externalCaseId = getExternalCaseId(errand);
+		final var optionalExternalCaseId = getExternalCaseId(errand);
 
-		return new SetStatus()
-			.withStatusAlias(errand.getStatus())
-			.withExternalID(new ExternalID()
-				.withSystem("SUPPORT_MANAGEMENT")
-				.withID(errand.getId()))
-			.withFlowInstanceID(Integer.parseInt(externalCaseId.orElse("0")));
+		return optionalExternalCaseId.map(externalCaseId -> new SetStatus()
+			.withStatusAlias(status)
+			.withFlowInstanceID(Integer.parseInt(externalCaseId)))
+			.orElse(null);
 	}
 }
