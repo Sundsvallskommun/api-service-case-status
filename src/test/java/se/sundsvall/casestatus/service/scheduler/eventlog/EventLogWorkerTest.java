@@ -76,7 +76,7 @@ class EventLogWorkerTest {
 
 		when(eventPage.getContent()).thenReturn(List.of(new Event(), new Event()));
 		when(eventPage.hasNext()).thenReturn(false);
-		(when(caseManagementOpeneViewRepository.findByCaseManagementId(internalStatus))).thenReturn(Optional.of(caseMapping));
+		when(caseManagementOpeneViewRepository.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
 
 		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPage);
 		when(supportManagementService.getSupportManagementCases(eq(municipalityId), anyString())).thenReturn(errands);
