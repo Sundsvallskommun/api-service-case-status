@@ -9,6 +9,7 @@ import generated.se.sundsvall.supportmanagement.Errand;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.springframework.data.domain.Page;
@@ -75,14 +76,14 @@ public class EventLogWorker {
 
 	private Map<String, List<SetStatus>> sortByChannel(final List<Errand> result) {
 		return result.stream()
-			.filter(errand -> VALID_CHANNELS.contains(errand.getChannel()))
+			.filter(errand -> errand.getChannel() != null && VALID_CHANNELS.contains(errand.getChannel()))
 			.collect(Collectors.groupingBy(
 				Errand::getChannel,
-				Collectors.mapping(errand1 -> {
-					final var status = caseManagementOpeneViewRepository.findByCaseManagementId(errand1.getStatus());
-					return status.map(caseManagementOpeneView -> Mapper.toSetStatus(errand1, caseManagementOpeneView.getOpenEId()))
-						.orElse(null);
-				}, Collectors.toList())));
+				Collectors.mapping(errand -> caseManagementOpeneViewRepository
+					.findByCaseManagementId(errand.getStatus())
+					.map(view -> Mapper.toSetStatus(errand, view.getOpenEId()))
+					.orElse(null),
+					Collectors.filtering(Objects::nonNull, Collectors.toList()))));
 	}
 
 	private String createFilterString(final ArrayList<String> logKeys) {

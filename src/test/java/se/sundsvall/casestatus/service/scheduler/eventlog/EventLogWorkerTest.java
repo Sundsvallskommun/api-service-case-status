@@ -57,11 +57,13 @@ class EventLogWorkerTest {
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
-		final List<Errand> errands = List.of(new Errand()
-			.status(internalStatus)
-			.channel(EXTERNAL_CHANNEL_E_SERVICE)
-			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
-			.addExternalTagsItem(new ExternalTag().key("caseId").value("1")),
+		final List<Errand> errands = List.of(
+			new Errand(),
+			new Errand()
+				.status(internalStatus)
+				.channel(EXTERNAL_CHANNEL_E_SERVICE)
+				.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
+				.addExternalTagsItem(new ExternalTag().key("caseId").value("1")),
 			new Errand()
 				.status(internalStatus)
 				.channel(EXTERNAL_CHANNEL_E_SERVICE)
