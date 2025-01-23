@@ -55,26 +55,6 @@ class CaseStatusCacheWorkerTest {
 	}
 
 	@Test
-	void cacheStatusesForFamilyID_NYBYGGNADSKARTA(@Load(value = "/xml/getErrandList_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandIdsXML,
-		@Load(value = "/xml/getErrand_nybyggnad.xml") final String getErrandXML,
-		@Load(value = "/xml/getErrandStatus.xml") final String getErrandStatusXML) {
-
-		final FamilyId familyId = FamilyId.NYBYGGNADSKARTA;
-
-		when(openEIntegrationMock.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
-		when(openEIntegrationMock.getErrand(any())).thenReturn(getErrandXML.getBytes());
-		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
-		when(citizenIntegrationMock.getPersonId(any())).thenReturn("somePersonId");
-
-		caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
-
-		verify(openEIntegrationMock).getErrandIds(any());
-		verify(openEIntegrationMock, times(2)).getErrand(any());
-		verify(openEIntegrationMock, times(2)).getErrandStatus(any());
-		verify(caseRepositoryMock, times(2)).save(any());
-	}
-
-	@Test
 	void cacheStatusesForFamilyID(@Load(value = "/xml/getErrandList_ROKKANALELDSTAD.xml") final String getErrandIdsXML,
 		@Load(value = "/xml/getErrand_ROKKANALELDSTAD1.xml") final String getErrandXML1,
 		@Load(value = "/xml/getErrand_ROKKANALELDSTAD2.xml") final String getErrandXML2,

@@ -37,7 +37,7 @@ class CaseStatusCacheTest {
 		try (final MockedStatic<ContextUtil> utilities = Mockito.mockStatic(ContextUtil.class)) {
 			utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
 			caseStatusCache.scheduledCacheJob();
-			verify(caseStatusCacheWorker, times(12)).cacheStatusesForFamilyId(any(FamilyId.class));
+			verify(caseStatusCacheWorker, times(11)).cacheStatusesForFamilyId(any(FamilyId.class));
 		}
 
 	}

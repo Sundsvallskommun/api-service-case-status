@@ -92,8 +92,6 @@ public class CaseStatusCacheWorker {
 			return parseApplicantInfo(flowInstance);
 		}
 		return switch (familyID) {
-			case NYBYGGNADSKARTA -> Xsoup.select(flowInstance.first(), "clientEstablishment/text()").get() != null ? new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/OrganizationNumber/text()").get())
-				: new ImmutablePair<>(PRIVATE, Xsoup.select(flowInstance.first(), "clientPrivate/SocialSecurityNumber/text()").get());
 			case ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR, TILLSTANDFORSALJNINGTOBAKSVAROR,
 				ANMALANFORSELJNINGSERVERINGFOLKOL, FORSALJNINGECIGGARETTER -> new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()")
 					.get() != null ? Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()").get()
