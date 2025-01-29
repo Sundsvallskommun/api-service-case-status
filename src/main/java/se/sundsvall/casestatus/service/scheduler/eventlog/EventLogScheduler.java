@@ -23,7 +23,9 @@ public class EventLogScheduler {
 
 	@Dept44Scheduled(
 		cron = "${scheduler.eventlog.cron}",
-		name = "${scheduler.eventlog.name}")
+		name = "${scheduler.eventlog.name}",
+		lockAtMostFor = "${scheduler.eventlog.shedlock-lock-at-most-for}",
+		maximumExecutionTime = "${scheduler.eventlog.maximum-execution-time}")
 	public void updateStatus() {
 
 		final var executionInformation = executionInformationRepository.findById(municipalityId).orElse(initiateExecutionInfo(municipalityId));

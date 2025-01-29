@@ -26,7 +26,8 @@ public class CaseStatusCache {
 	@Dept44Scheduled(
 		cron = "${cache.scheduled.cron}",
 		name = "${cache.scheduled.name}",
-		lockAtMostFor = "${cache.scheduled.shedlock-lock-at-most-for}")
+		lockAtMostFor = "${cache.scheduled.shedlock-lock-at-most-for}",
+		maximumExecutionTime = "${cache.scheduled.maximum-execution-time}")
 	public void scheduledCacheJob() {
 		try {
 			RequestId.init();

@@ -3,12 +3,15 @@ scheduler:
     cron: "-"
     name: "eventlog"
     municipalityId: 123
+    shedlock-lock-at-most-for: PT10M
+    maximum-execution-time: PT10M
 cache:
   isprod: false
   scheduled:
     name: "cache_job"
     cron: "-"
     shedlock-lock-at-most-for: PT10M
+    maximum-execution-time: PT10M
 integration:
   case-management:
     base-url: http://localhost:${wiremock.server.port}/casemanagement
