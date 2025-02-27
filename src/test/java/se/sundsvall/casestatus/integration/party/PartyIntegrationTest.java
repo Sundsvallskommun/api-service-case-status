@@ -32,7 +32,7 @@ class PartyIntegrationTest {
 	private PartyIntegration partyIntegration;
 
 	@Test
-	void getLegalIdByPartyId_privateFound() {
+	void getLegalIdByPartyIdPrivateFound() {
 		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID)).thenReturn(Optional.of(LEGAL_ID));
 
 		final var result = partyIntegration.getLegalIdByPartyId(MUNICIPALITY_ID, PARTY_ID);
@@ -43,7 +43,7 @@ class PartyIntegrationTest {
 	}
 
 	@Test
-	void getLegalIdByPartyId_enterpriseFound() {
+	void getLegalIdByPartyIdEnterpriseFound() {
 		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID)).thenReturn(Optional.empty());
 		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, ENTERPRISE, PARTY_ID)).thenReturn(Optional.of(LEGAL_ID));
 
@@ -56,7 +56,7 @@ class PartyIntegrationTest {
 	}
 
 	@Test
-	void getPartyIdByLegalId_badRequest() {
+	void getPartyIdByLegalIdBadRequest() {
 		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID)).thenReturn(Optional.empty());
 		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, ENTERPRISE, PARTY_ID)).thenReturn(Optional.empty());
 
@@ -70,7 +70,7 @@ class PartyIntegrationTest {
 	}
 
 	@Test
-	void getPartyIdByLegalId_privateFound() {
+	void getPartyIdByLegalIdPrivateFound() {
 		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID)).thenReturn(Optional.of(PARTY_ID));
 
 		final var result = partyIntegration.getPartyIdByLegalId(MUNICIPALITY_ID, LEGAL_ID);
@@ -81,7 +81,7 @@ class PartyIntegrationTest {
 	}
 
 	@Test
-	void getPartyIdByLegalId_enterpriseFound() {
+	void getPartyIdByLegalIdEnterpriseFound() {
 		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID)).thenReturn(Optional.empty());
 		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, LEGAL_ID)).thenReturn(Optional.of(PARTY_ID));
 
@@ -94,7 +94,7 @@ class PartyIntegrationTest {
 	}
 
 	@Test
-	void getLegalIdByPartyId_badRequest() {
+	void getLegalIdByPartyIdBadRequest() {
 		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID)).thenReturn(Optional.empty());
 		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, LEGAL_ID)).thenReturn(Optional.empty());
 
