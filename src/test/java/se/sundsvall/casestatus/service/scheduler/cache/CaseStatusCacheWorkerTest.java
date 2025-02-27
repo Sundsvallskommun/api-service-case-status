@@ -1,19 +1,21 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
+import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
+import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
@@ -27,7 +29,7 @@ class CaseStatusCacheWorkerTest {
 	private OpenEIntegration openEIntegrationMock;
 
 	@Mock
-	private CitizenIntegration citizenIntegrationMock;
+	private PartyIntegration partyIntegrationMock;
 
 	@Mock
 	private CaseRepository caseRepositoryMock;
@@ -67,7 +69,7 @@ class CaseStatusCacheWorkerTest {
 		when(openEIntegrationMock.getErrandIds(any(FamilyId.class))).thenReturn(getErrandIdsXML.getBytes());
 		when(openEIntegrationMock.getErrand(any())).thenReturn(getErrandXML1.getBytes()).thenReturn(getErrandXML2.getBytes()).thenReturn(getErrandXML3.getBytes()).thenReturn(getErrandXML4.getBytes());
 		when(openEIntegrationMock.getErrandStatus(any())).thenReturn(getErrandStatusXML.getBytes());
-		when(citizenIntegrationMock.getPersonId(any())).thenReturn("somePersonId");
+		when(partyIntegrationMock.getPartyIdByLegalId(any(), any())).thenReturn(Map.of(PRIVATE, "somePersonId"));
 
 		caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
 

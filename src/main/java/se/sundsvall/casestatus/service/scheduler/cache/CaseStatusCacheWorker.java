@@ -1,5 +1,6 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
+import generated.se.sundsvall.party.PartyType;
 import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -10,9 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import se.sundsvall.casestatus.integration.citizen.CitizenIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
+import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 import us.codecraft.xsoup.Xsoup;
@@ -24,16 +25,16 @@ public class CaseStatusCacheWorker {
 	private static final String PRIVATE = "private";
 	private static final String ORG = "org";
 	private final OpenEIntegration openEIntegration;
-	private final CitizenIntegration citizenIntegration;
+	private final PartyIntegration partyIntegration;
 	private final CaseRepository caseRepository;
 	private final Dept44HealthUtility dept44HealthUtility;
 	@Value("${cache.scheduled.name}")
 	private String jobName;
 
-	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final CitizenIntegration citizenIntegration,
+	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final PartyIntegration partyIntegration,
 		final CaseRepository caseRepository, final Dept44HealthUtility dept44HealthUtility) {
 		this.openEIntegration = openEIntegration;
-		this.citizenIntegration = citizenIntegration;
+		this.partyIntegration = partyIntegration;
 		this.caseRepository = caseRepository;
 		this.dept44HealthUtility = dept44HealthUtility;
 	}
@@ -71,7 +72,7 @@ public class CaseStatusCacheWorker {
 				caseRepository.save(Mapper.toCompanyCaseEntity(statusDocument, errandDocument, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
 			}
 			case PRIVATE -> {
-				final var personId = citizenIntegration.getPersonId(privateOrOrganisation.getValue());
+				final var personId = partyIntegration.getPartyIdByLegalId(familyId.getMunicipalityId(), privateOrOrganisation.getValue()).get(PartyType.PRIVATE);
 				if ((personId == null) || personId.isEmpty()) {
 					LOG.info("Unable to get personId, will not cache errand with Id: {}, of family: {}", flowInstanceID, familyId);
 					return;

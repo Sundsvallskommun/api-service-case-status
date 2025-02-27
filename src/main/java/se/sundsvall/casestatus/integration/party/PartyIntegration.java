@@ -15,6 +15,7 @@ import org.zalando.problem.Problem;
 public class PartyIntegration {
 
 	static final String INVALID_PARTY_ID = "Invalid partyId: %s";
+	static final String INVALID_LEGAL_ID = "Invalid legalId: %s";
 	private static final Logger LOG = LoggerFactory.getLogger(PartyIntegration.class);
 	private final PartyClient client;
 
@@ -36,5 +37,20 @@ public class PartyIntegration {
 		}
 
 		throw Problem.valueOf(BAD_REQUEST, INVALID_PARTY_ID.formatted(partyId));
+	}
+
+	public Map<PartyType, String> getPartyIdByLegalId(final String municipalityId, final String legalId) {
+		final var personalNumber = client.getPartyIdByLegalId(municipalityId, PRIVATE, legalId);
+		if (personalNumber.isPresent()) {
+			return Map.of(PRIVATE, personalNumber.get());
+		}
+
+		final var organizationNumber = client.getPartyIdByLegalId(municipalityId, ENTERPRISE, legalId);
+		if (organizationNumber.isPresent()) {
+			return Map.of(ENTERPRISE, organizationNumber.get());
+		}
+
+		throw Problem.valueOf(BAD_REQUEST, INVALID_LEGAL_ID.formatted(legalId));
+
 	}
 }
