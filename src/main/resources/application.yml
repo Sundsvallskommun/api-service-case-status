@@ -1,7 +1,4 @@
 integration:
-  citizen:
-    connectTimeout: 5
-    readTimeout: 30
   case-management:
     connectTimeout: 5
     readTimeout: 30
@@ -21,8 +18,6 @@ integration:
     connectTimeout: 5
     readTimeout: 30
 
-
-
 openapi:
   name: ${spring.application.name}
   title: ${spring.application.name}
@@ -38,9 +33,6 @@ spring:
     oauth2:
       client:
         registration:
-          citizen:
-            authorization-grant-type: client_credentials
-            provider: citizen
           case-management:
             authorization-grant-type: client_credentials
             provider: case-management

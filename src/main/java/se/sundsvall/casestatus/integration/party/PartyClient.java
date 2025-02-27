@@ -23,4 +23,10 @@ public interface PartyClient {
 		@PathVariable("type") PartyType type,
 		@PathVariable("partyId") String partyId);
 
+	@GetMapping("/{municipalityId}/{type}/{legalId}/partyId")
+	Optional<String> getPartyIdByLegalId(
+		@PathVariable("municipalityId") String municipalityId,
+		@PathVariable("type") PartyType type,
+		@PathVariable("legalId") String legalId);
+
 }

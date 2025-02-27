@@ -15,8 +15,6 @@ cache:
 integration:
   case-management:
     base-url: http://localhost:${wiremock.server.port}/casemanagement
-  citizen:
-    base-url: http://localhost:${wiremock.server.port}/citizen
   eventlog:
     base-url: http://localhost:${wiremock.server.port}/eventlog
   open-e:
@@ -63,8 +61,6 @@ spring:
     oauth2:
       client:
         provider:
-          citizen:
-            token-uri: http://localhost:${wiremock.server.port:}/token
           case-management:
             token-uri: http://localhost:${wiremock.server.port:}/token
           eventlog:
@@ -74,9 +70,6 @@ spring:
           support-management:
             token-uri: http://localhost:${wiremock.server.port:}/token
         registration:
-          citizen:
-            client-id: the-client-id
-            client-secret: the-client-secret
           case-management:
             client-id: the-client-id
             client-secret: the-client-secret
