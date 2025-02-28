@@ -64,7 +64,7 @@ public class EventLogWorker {
 		Page<Event> response;
 		final var logKeys = new ArrayList<String>();
 
-		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s' and source.type == 'Errand' and owner == 'SupportManagement' and type == 'UPDATE'"
+		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'"
 			.formatted(executionInformation.getLastSuccessfulExecution());
 		do {
 			response = eventlogClient.getEvents(executionInformation.getMunicipalityId(), PageRequest.of(pageNumber, 100), filterString);
