@@ -1,8 +1,5 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
-import static org.slf4j.LoggerFactory.getLogger;
-import static se.sundsvall.casestatus.utility.Constants.VALID_CHANNELS;
-
 import generated.se.sundsvall.eventlog.Event;
 import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
@@ -12,6 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
+import static org.slf4j.LoggerFactory.getLogger;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -21,6 +19,7 @@ import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.opene.soap.OpenECallbackIntegration;
 import se.sundsvall.casestatus.service.Mapper;
 import se.sundsvall.casestatus.service.SupportManagementService;
+import static se.sundsvall.casestatus.utility.Constants.VALID_CHANNELS;
 import se.sundsvall.dept44.requestid.RequestId;
 
 @Component
@@ -64,8 +63,8 @@ public class EventLogWorker {
 		Page<Event> response;
 		final var logKeys = new ArrayList<String>();
 
-		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s'".formatted(executionInformation.getLastSuccessfulExecution());
-
+		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'"
+			.formatted(executionInformation.getLastSuccessfulExecution());
 		do {
 			response = eventlogClient.getEvents(executionInformation.getMunicipalityId(), PageRequest.of(pageNumber, 100), filterString);
 			logKeys.addAll(response.getContent().stream().map(Event::getLogKey).toList());
@@ -80,9 +79,9 @@ public class EventLogWorker {
 			.collect(Collectors.groupingBy(
 				Errand::getChannel,
 				Collectors.mapping(errand -> caseManagementOpeneViewRepository
-					.findByCaseManagementId(errand.getStatus())
-					.map(view -> Mapper.toSetStatus(errand, view.getOpenEId()))
-					.orElse(null),
+						.findByCaseManagementId(errand.getStatus())
+						.map(view -> Mapper.toSetStatus(errand, view.getOpenEId()))
+						.orElse(null),
 					Collectors.filtering(Objects::nonNull, Collectors.toList()))));
 	}
 
