@@ -28,11 +28,12 @@ public class EventLogScheduler {
 		maximumExecutionTime = "${scheduler.eventlog.maximum-execution-time}")
 	public void updateStatus() {
 
+		final var startTime = OffsetDateTime.now();
 		final var executionInformation = executionInformationRepository.findById(municipalityId).orElse(initiateExecutionInfo(municipalityId));
 
 		eventLogWorker.updateStatus(executionInformation);
 
-		executionInformation.setLastSuccessfulExecution(OffsetDateTime.now());
+		executionInformation.setLastSuccessfulExecution(startTime);
 		executionInformationRepository.save(executionInformation);
 	}
 
