@@ -1,6 +1,7 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.anyString;
@@ -14,16 +15,21 @@ import generated.se.sundsvall.eventlog.Event;
 import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
+import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import se.sundsvall.casestatus.Application;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
@@ -31,25 +37,29 @@ import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.opene.soap.OpenECallbackIntegration;
 import se.sundsvall.casestatus.service.SupportManagementService;
 
-@ExtendWith(MockitoExtension.class)
+@ActiveProfiles("junit")
+@SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class EventLogWorkerTest {
 
-	@Mock
+	@MockitoBean
 	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 
-	@Mock
+	@MockitoBean
 	private EventlogClient eventlogClient;
 
-	@Mock
+	@MockitoBean
 	private SupportManagementService supportManagementService;
 
-	@Mock
+	@MockitoBean
 	private OpenECallbackIntegration openECallbackIntegration;
 
 	@Mock
 	private Page<Event> eventPage;
 
-	@InjectMocks
+	@Captor
+	private ArgumentCaptor<String> filterArgumentCaptor;
+
+	@Autowired
 	private EventLogWorker eventLogWorker;
 
 	@Test
@@ -80,7 +90,7 @@ class EventLogWorkerTest {
 		when(eventPage.hasNext()).thenReturn(false);
 		when(caseManagementOpeneViewRepository.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
 
-		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPage);
+		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPage);
 		when(supportManagementService.getSupportManagementCases(eq(municipalityId), anyString())).thenReturn(errands);
 
 		// Act
@@ -91,6 +101,8 @@ class EventLogWorkerTest {
 		verify(supportManagementService, times(1)).getSupportManagementCases(eq(municipalityId), anyString());
 		verify(openECallbackIntegration, times(2)).setStatus(anyString(), any(SetStatus.class));
 		verify(caseManagementOpeneViewRepository, times(2)).findByCaseManagementId(internalStatus);
+		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
+			"' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'");
 	}
 
 	@Test
@@ -110,8 +122,10 @@ class EventLogWorkerTest {
 		eventLogWorker.updateStatus(executionInformationEntity);
 
 		// Assert
-		verify(eventlogClient).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
+		verify(eventlogClient).getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture());
 		verifyNoInteractions(supportManagementService, openECallbackIntegration);
+		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
+			"' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'");
 	}
 
 }

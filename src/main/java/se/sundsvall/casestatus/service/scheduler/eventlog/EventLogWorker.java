@@ -6,12 +6,14 @@ import static se.sundsvall.casestatus.utility.Constants.VALID_CHANNELS;
 import generated.se.sundsvall.eventlog.Event;
 import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
@@ -31,12 +33,15 @@ public class EventLogWorker {
 	private final SupportManagementService supportManagementService;
 	private final OpenECallbackIntegration openECallbackIntegration;
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
+	private final Duration clockSkew;
 
-	public EventLogWorker(final EventlogClient eventlogClient, final SupportManagementService supportManagementService, final OpenECallbackIntegration openECallbackIntegration, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository) {
+	public EventLogWorker(final EventlogClient eventlogClient, final SupportManagementService supportManagementService, final OpenECallbackIntegration openECallbackIntegration, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
+		@Value("${scheduler.eventlog.clock-skew:PT5S}") final Duration clockSkew) {
 		this.eventlogClient = eventlogClient;
 		this.supportManagementService = supportManagementService;
 		this.openECallbackIntegration = openECallbackIntegration;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
+		this.clockSkew = clockSkew;
 	}
 
 	void updateStatus(final ExecutionInformationEntity executionInformation) {
@@ -65,7 +70,7 @@ public class EventLogWorker {
 		final var logKeys = new ArrayList<String>();
 
 		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'"
-			.formatted(executionInformation.getLastSuccessfulExecution());
+			.formatted(executionInformation.getLastSuccessfulExecution().minus(clockSkew));
 		do {
 			response = eventlogClient.getEvents(executionInformation.getMunicipalityId(), PageRequest.of(pageNumber, 100), filterString);
 			logKeys.addAll(response.getContent().stream().map(Event::getLogKey).toList());

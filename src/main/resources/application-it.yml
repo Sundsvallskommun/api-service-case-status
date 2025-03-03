@@ -5,6 +5,7 @@ scheduler:
     municipalityId: 123
     shedlock-lock-at-most-for: PT10M
     maximum-execution-time: PT10M
+    clock-skew: PT5S
 cache:
   isprod: false
   scheduled:
