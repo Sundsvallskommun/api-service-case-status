@@ -26,7 +26,7 @@ public class SupportManagementService {
 			Page<Errand> response;
 
 			do {
-				response = supportManagementClient.findErrands(municipalityId, namespace.getNamespace(), filter, PageRequest.of(pageNumber, 100));
+				response = supportManagementClient.findErrands(municipalityId, namespace.getNamespace(), filter, PageRequest.of(pageNumber, 20));
 				allResponses.addAll(response.getContent());
 				pageNumber++;
 			} while (response.hasNext());
