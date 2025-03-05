@@ -46,18 +46,18 @@ public class EventLogWorker {
 
 	void updateStatus(final ExecutionInformationEntity executionInformation) {
 
-		final var logKeys = getEvents(executionInformation);
+		final var logKeys = getEvents(executionInformation).stream().filter(Objects::nonNull).toList();
 
 		if (logKeys.isEmpty()) {
 			log.info("RequestID: {} - No events found for municipality {}", RequestId.get(), executionInformation.getMunicipalityId());
 			return;
 		}
 
-		final var filter = createFilterString(logKeys);
+		logKeys.forEach(errandId -> {
+			final var errand = supportManagementService.getSupportManagementCase(executionInformation.getMunicipalityId(), errandId);
+			sortByChannel(List.of(errand)).forEach(this::doOpenECallback);
+		});
 
-		final var result = supportManagementService.getSupportManagementCases(executionInformation.getMunicipalityId(), filter);
-
-		sortByChannel(result).forEach(this::doOpenECallback);
 	}
 
 	private void doOpenECallback(final String channel, final List<SetStatus> caseEntities) {
@@ -89,13 +89,6 @@ public class EventLogWorker {
 					.map(view -> Mapper.toSetStatus(errand, view.getOpenEId()))
 					.orElse(null),
 					Collectors.filtering(Objects::nonNull, Collectors.toList()))));
-	}
-
-	private String createFilterString(final ArrayList<String> logKeys) {
-		return "id in [" + logKeys.stream()
-			.map(logKey -> "'" + logKey + "'")
-			.collect(Collectors.joining(","))
-			+ "]";
 	}
 
 }
