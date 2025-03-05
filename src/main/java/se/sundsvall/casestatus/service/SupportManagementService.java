@@ -39,7 +39,7 @@ public class SupportManagementService {
 	public Errand getSupportManagementCase(final String municipalityId, final String errandId) {
 
 		return supportManagementClient.readAllNamespaceConfigs().stream()
-			.map(namespace -> supportManagementClient.findErrand(municipalityId, namespace.getNamespace(), errandId))
+			.map(namespace -> { return supportManagementClient.findErrand(municipalityId, namespace.getNamespace(), errandId); })
 			.filter(Optional::isPresent)
 			.map(Optional::get)
 			.findFirst()
