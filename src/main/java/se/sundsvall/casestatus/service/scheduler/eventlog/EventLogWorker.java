@@ -55,7 +55,9 @@ public class EventLogWorker {
 
 		logKeys.forEach(errandId -> {
 			final var errand = supportManagementService.getSupportManagementCase(executionInformation.getMunicipalityId(), errandId);
-			sortByChannel(List.of(errand)).forEach(this::doOpenECallback);
+			if (errand != null) {
+				sortByChannel(List.of(errand)).forEach(this::doOpenECallback);
+			}
 		});
 
 	}
