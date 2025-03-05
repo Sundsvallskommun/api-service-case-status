@@ -52,16 +52,14 @@ class SupportManagementServiceTest {
 		// Arrange
 		final var municipalityId = "municipalityId";
 		final var errandId = "errandId";
-		final var namespace = "namespace";
+		final var namespace = "SALARYANDPENSION";
 		final var errand = new Errand().id("errandId");
-		when(supportManagementClient.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace), new NamespaceConfig().namespace("otherNamespace")));
 		when(supportManagementClient.findErrand(municipalityId, namespace, errandId)).thenReturn(java.util.Optional.of(errand));
 		// Act
 		final var result = supportManagementService.getSupportManagementCase(municipalityId, errandId);
 		// Assert
 		assertThat(result).isNotNull();
 		assertThat(result.getId()).isEqualTo("errandId");
-		verify(supportManagementClient).readAllNamespaceConfigs();
 		verify(supportManagementClient).findErrand(eq(municipalityId), any(), eq(errandId));
 		verifyNoMoreInteractions(supportManagementClient);
 
