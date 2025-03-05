@@ -53,6 +53,8 @@ resilience4j:
     instances:
       case-management:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      support-management:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
 logbook:
   body-filters:
     x-path:

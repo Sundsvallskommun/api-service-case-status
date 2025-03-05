@@ -15,7 +15,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import se.sundsvall.casestatus.integration.supportmanagement.configuration.SupportManagementConfiguration;
 
-@FeignClient(name = CLIENT_ID, url = "${integration.support-management.base-url}", configuration = SupportManagementConfiguration.class)
+@FeignClient(name = CLIENT_ID,
+	url = "${integration.support-management.base-url}",
+	configuration = SupportManagementConfiguration.class,
+	dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)
 public interface SupportManagementClient {
 
