@@ -65,7 +65,7 @@ class EventLogWorkerTest {
 	@Test
 	void testUpdateStatus() {
 		// Arrange
-		final String municipalityId = "testMunicipalityId";
+		final var municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final List<Errand> errands = List.of(
 			new Errand(),
@@ -86,19 +86,21 @@ class EventLogWorkerTest {
 			.build();
 		final var caseMapping = CaseManagementOpeneView.builder().withCaseManagementId(internalStatus).withOpenEId("someOpenEStatus").build();
 
-		when(eventPage.getContent()).thenReturn(List.of(new Event(), new Event()));
+		when(eventPage.getContent()).thenReturn(List.of(new Event().logKey("someKey"), new Event().logKey("someOtherLogKey"), new Event().logKey("thirdLogKey")));
 		when(eventPage.hasNext()).thenReturn(false);
 		when(caseManagementOpeneViewRepository.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
 
 		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPage);
-		when(supportManagementService.getSupportManagementCases(eq(municipalityId), anyString())).thenReturn(errands);
+		when(supportManagementService.getSupportManagementCase(municipalityId, "someKey")).thenReturn(errands.getLast());
+		when(supportManagementService.getSupportManagementCase(municipalityId, "someOtherLogKey")).thenReturn(errands.get(1));
+		when(supportManagementService.getSupportManagementCase(municipalityId, "thirdLogKey")).thenReturn(errands.getFirst());
 
 		// Act
 		eventLogWorker.updateStatus(executionInformationEntity);
 
 		// Assert
 		verify(eventlogClient, times(1)).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementService, times(1)).getSupportManagementCases(eq(municipalityId), anyString());
+		verify(supportManagementService, times(3)).getSupportManagementCase(eq(municipalityId), anyString());
 		verify(openECallbackIntegration, times(2)).setStatus(anyString(), any(SetStatus.class));
 		verify(caseManagementOpeneViewRepository, times(2)).findByCaseManagementId(internalStatus);
 		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
