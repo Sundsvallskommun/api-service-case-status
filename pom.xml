@@ -12,7 +12,7 @@
 	<version>3.1</version>
 	<name>api-service-casestatus</name>
 	<properties>
-		<jsoup.version>1.18.3</jsoup.version>
+		<jsoup.version>1.19.1</jsoup.version>
 		<xsoup.version>0.3.7</xsoup.version>
 		<jaxb-plugins.version>4.0.8</jaxb-plugins.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
