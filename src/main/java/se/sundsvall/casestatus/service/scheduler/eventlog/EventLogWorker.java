@@ -46,7 +46,7 @@ public class EventLogWorker {
 
 	void updateStatus(final ExecutionInformationEntity executionInformation) {
 
-		final var logKeys = getEvents(executionInformation);
+		final var logKeys = getEvents(executionInformation).stream().distinct().toList();
 
 		if (logKeys.isEmpty()) {
 			log.info("RequestID: {} - No events found for municipality {}", RequestId.get(), executionInformation.getMunicipalityId());
@@ -63,7 +63,7 @@ public class EventLogWorker {
 		caseEntities.forEach(caseEntity -> openECallbackIntegration.setStatus(channel, caseEntity));
 	}
 
-	private ArrayList<String> getEvents(final ExecutionInformationEntity executionInformation) {
+	private List<String> getEvents(final ExecutionInformationEntity executionInformation) {
 		int pageNumber = 0;
 		Page<Event> response;
 		final var logKeys = new ArrayList<String>();
@@ -90,7 +90,7 @@ public class EventLogWorker {
 					Collectors.filtering(Objects::nonNull, Collectors.toList()))));
 	}
 
-	private String createFilterString(final ArrayList<String> logKeys) {
+	private String createFilterString(final List<String> logKeys) {
 		return "id in [" + logKeys.stream()
 			.map(logKey -> "'" + logKey + "'")
 			.collect(Collectors.joining(","))
