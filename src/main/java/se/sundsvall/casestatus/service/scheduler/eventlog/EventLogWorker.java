@@ -56,7 +56,6 @@ public class EventLogWorker {
 		final var filter = createFilterString(logKeys);
 
 		final var result = supportManagementService.getSupportManagementCases(executionInformation.getMunicipalityId(), filter);
-
 		sortByChannel(result).forEach(this::doOpenECallback);
 	}
 

@@ -32,6 +32,6 @@ public class SupportManagementService {
 			} while (response.hasNext());
 		});
 
-		return allResponses;
+		return allResponses.stream().distinct().toList();
 	}
 }
