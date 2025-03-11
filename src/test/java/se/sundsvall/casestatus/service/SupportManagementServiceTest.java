@@ -44,4 +44,24 @@ class SupportManagementServiceTest {
 		assertThat(result).isNotNull().hasSize(1);
 		assertThat(result.getFirst().getId()).isEqualTo("errandId");
 	}
+
+	@Test
+	void getSupportManagementCasesFilterDuplicates() {
+
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var filter = "filter";
+		final var namespace = "namespace";
+		final var errand = new Errand().id("errandId");
+		final var errandsPage = new PageImpl<>(List.of(errand, errand));
+		when(supportManagementClient.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementClient.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
+
+		// Act
+		final var result = supportManagementService.getSupportManagementCases(municipalityId, filter);
+
+		// Assert
+		assertThat(result).isNotNull().hasSize(1);
+		assertThat(result.getFirst().getId()).isEqualTo("errandId");
+	}
 }
