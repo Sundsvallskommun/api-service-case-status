@@ -1,8 +1,8 @@
 package se.sundsvall.casestatus.service.mapper;
 
 import static java.util.Optional.ofNullable;
-import static se.sundsvall.casestatus.utility.Constants.MISSING;
-import static se.sundsvall.casestatus.utility.Constants.UNKNOWN;
+import static se.sundsvall.casestatus.util.Constants.MISSING;
+import static se.sundsvall.casestatus.util.Constants.UNKNOWN;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.time.LocalDateTime;

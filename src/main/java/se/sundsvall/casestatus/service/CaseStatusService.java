@@ -2,16 +2,19 @@ package se.sundsvall.casestatus.service;
 
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static se.sundsvall.casestatus.service.Mapper.toCasePdfResponse;
 import static se.sundsvall.casestatus.service.Mapper.toOepStatusResponse;
-import static se.sundsvall.casestatus.utility.Constants.MISSING;
+import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.toCaseStatusResponse;
+import static se.sundsvall.casestatus.util.Constants.MISSING;
+import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
-import java.time.format.DateTimeFormatter;
+import generated.se.sundsvall.party.PartyType;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -29,7 +32,6 @@ import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 @Service
 public class CaseStatusService {
 
-	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 	private static final String CASE_NOT_FOUND = "Case with id %s not found";
 	private final CaseManagementIntegration caseManagementIntegration;
 	private final OpenEIntegration openEIntegration;
@@ -97,49 +99,64 @@ public class CaseStatusService {
 	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId) {
 		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
-		final var result = caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
-			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.collect(toList());
-
 		if (partyResult.containsKey(PRIVATE)) {
-
-			openEIntegration.getCaseStatuses(municipalityId, partyResult.get(PRIVATE)).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.forEach(result::add);
-
-			caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.forEach(result::add);
-
-			final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
-			supportManagementService.getSupportManagementCases(municipalityId, filterString).stream()
-				.map(Mapper::toCaseStatusResponse)
-				.forEach(result::add);
-
-			return filterResponse(result);
-
+			var statuses = getPrivateCaseStatuses(partyId, partyResult, municipalityId);
+			return filterResponse(statuses);
 		} else if (partyResult.containsKey(ENTERPRISE)) {
-
-			// Due to discrepancies in the organization number format in open-E, we need to check both the original and the
-			// formatted number.
-			final var legalId = getFormattedOrganizationNumber(partyResult.get(ENTERPRISE));
-
-			final var cachedStatusesUnformatted = caseRepository.findByOrganisationNumberAndMunicipalityId(partyResult.get(ENTERPRISE), municipalityId).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.toList();
-
-			final var cachedStatusesFormatted = caseRepository.findByOrganisationNumberAndMunicipalityId(legalId, municipalityId).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.toList();
-
-			result.addAll(cachedStatusesUnformatted);
-			result.addAll(cachedStatusesFormatted);
+			var statuses = getEnterpriseCaseStatuses(partyId, partyResult, municipalityId);
+			return filterResponse(statuses);
 		}
-
-		return result;
+		return emptyList();
 	}
 
-	private List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> request) {
+	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final Map<PartyType, String> partyMap, final String municipalityId) {
+		List<CaseStatusResponse> statuses = new ArrayList<>();
+		var legalId = partyMap.get(PRIVATE);
+
+		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
+			.forEach(statuses::add);
+
+		openEIntegration.getCaseStatuses(municipalityId, legalId).stream()
+			.map(Mapper::mapToCaseStatusResponse)
+			.forEach(statuses::add);
+
+		caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
+			.map(Mapper::mapToCaseStatusResponse)
+			.forEach(statuses::add);
+
+		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
+		supportManagementService.getSupportManagementCases(municipalityId, filterString)
+			.forEach((namespace, errands) -> errands.stream()
+				.map(errand -> toCaseStatusResponse(errand, namespace))
+				.forEach(statuses::add));
+
+		return statuses;
+	}
+
+	List<CaseStatusResponse> getEnterpriseCaseStatuses(final String partyId, final Map<PartyType, String> partyMap, final String municipalityId) {
+		List<CaseStatusResponse> statuses = new ArrayList<>();
+		var legalId = partyMap.get(ENTERPRISE);
+
+		// Fetching statuses from CaseManagement.
+		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
+			.forEach(statuses::add);
+
+		// Fetching cached statuses for the given organization number.
+		caseRepository.findByOrganisationNumberAndMunicipalityId(legalId, municipalityId).stream()
+			.map(Mapper::mapToCaseStatusResponse)
+			.forEach(statuses::add);
+
+		// Fetching cached statuses for the formatted organization number.
+		caseRepository.findByOrganisationNumberAndMunicipalityId(getFormattedOrganizationNumber(legalId), municipalityId).stream()
+			.map(Mapper::mapToCaseStatusResponse)
+			.forEach(statuses::add);
+
+		return statuses;
+	}
+
+	List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> request) {
 		// Filter out cases without external case id as duplicates will only be appearing in the list with external case id
 		final var casesWithoutExternalCaseId = request.stream()
 			.filter(response -> response.getExternalCaseId() == null)
@@ -167,22 +184,4 @@ public class CaseStatusService {
 		return result;
 	}
 
-	private String getFormattedOrganizationNumber(final String organizationNumber) {
-
-		// Control that the organizationNumber is not null and that it is a valid length
-		if (IntStream.of(13, 12, 11, 10).anyMatch(i -> organizationNumber.length() == i)) {
-			// Remove all non-digit characters
-			final String cleanNumber = organizationNumber.replaceAll("\\D", "");
-
-			if (cleanNumber.length() == 12) {
-				// Insert the hyphen at the correct position
-				return cleanNumber.substring(0, 8) + "-" + cleanNumber.substring(8);
-
-			}
-			if (cleanNumber.length() == 10) {
-				return cleanNumber.substring(0, 6) + "-" + cleanNumber.substring(6);
-			}
-		}
-		return organizationNumber;
-	}
 }

@@ -18,7 +18,7 @@ public class CaseStatusResponse {
 	private String caseId;
 
 	@Schema(description = "External case id", example = "1234567890")
-	private String externalCaseId; // TODO: Ta bort när samtliga mappningar är uppdaterade
+	private String externalCaseId;
 
 	@Schema(description = "Case type", example = "Building permit")
 	private String caseType;
