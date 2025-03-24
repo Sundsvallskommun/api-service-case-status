@@ -1,7 +1,7 @@
 package se.sundsvall.casestatus.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.casestatus.service.CaseStatusService.MISSING;
+import static se.sundsvall.casestatus.utility.Constants.MISSING;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.supportmanagement.Classification;
@@ -61,7 +61,7 @@ class MapperTest {
 
 		// Assert
 		assertThat(response).isNotNull();
-		assertThat(response.getId()).isEqualTo(caseId);
+		assertThat(response.getCaseId()).isEqualTo(caseId);
 		assertThat(response.getExternalCaseId()).isEqualTo(externalCaseId);
 		assertThat(response.getCaseType()).isEqualTo(serviceName);
 		assertThat(response.getStatus()).isEqualTo(newStatus);
@@ -116,7 +116,7 @@ class MapperTest {
 
 		// Assert
 		assertThat(response).isNotNull();
-		assertThat(response.getId()).isEqualTo("errandId");
+		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
 		assertThat(response.getCaseType()).isEqualTo("someType");
 		assertThat(response.getStatus()).isEqualTo("someStatus");
@@ -141,7 +141,7 @@ class MapperTest {
 
 		// Assert
 		assertThat(response).isNotNull();
-		assertThat(response.getId()).isEqualTo("errandId");
+		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isNull();
 		assertThat(response.getCaseType()).isEqualTo("someType");
 		assertThat(response.getStatus()).isEqualTo("someStatus");
@@ -166,7 +166,7 @@ class MapperTest {
 
 		// Assert
 		assertThat(response).isNotNull();
-		assertThat(response.getId()).isEqualTo("errandId");
+		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
 		assertThat(response.getCaseType()).isEqualTo("someType");
 		assertThat(response.getStatus()).isEqualTo("someStatus");

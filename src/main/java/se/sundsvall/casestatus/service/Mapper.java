@@ -1,7 +1,7 @@
 package se.sundsvall.casestatus.service;
 
 import static se.sundsvall.casestatus.service.CaseStatusService.DATE_TIME_FORMATTER;
-import static se.sundsvall.casestatus.service.CaseStatusService.MISSING;
+import static se.sundsvall.casestatus.utility.Constants.MISSING;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.opene.SetStatus;
@@ -32,7 +32,7 @@ public final class Mapper {
 
 	static CaseStatusResponse toCaseStatusResponse(final CaseStatusDTO caseStatus, final String serviceName, final String status, final String timestamp) {
 		return CaseStatusResponse.builder()
-			.withId(caseStatus.getCaseId())
+			.withCaseId(caseStatus.getCaseId())
 			.withExternalCaseId(caseStatus.getExternalCaseId())
 			.withCaseType(serviceName)
 			.withStatus(status)
@@ -50,7 +50,7 @@ public final class Mapper {
 			.orElse(null);
 
 		return CaseStatusResponse.builder()
-			.withId(errand.getId())
+			.withCaseId(errand.getId())
 			.withExternalCaseId(externalCaseId.orElse(null))
 			.withCaseType(errand.getClassification().getType())
 			.withStatus(errand.getStatus())

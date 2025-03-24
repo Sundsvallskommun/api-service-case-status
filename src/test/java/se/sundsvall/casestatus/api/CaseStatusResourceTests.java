@@ -69,7 +69,7 @@ class CaseStatusResourceTests {
 	@Test
 	void getCaseStatus() {
 		when(mockCaseStatusService.getCaseStatus(any(String.class), any(String.class))).thenReturn(CaseStatusResponse.builder()
-			.withId("someId")
+			.withCaseId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
 			.withCaseType("someCaseType")
@@ -86,7 +86,7 @@ class CaseStatusResourceTests {
 			.expectHeader()
 			.contentType(APPLICATION_JSON)
 			.expectBody()
-			.jsonPath("$.id").isEqualTo("someId")
+			.jsonPath("$.caseId").isEqualTo("someId")
 			.jsonPath("$.externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$.caseType").isEqualTo("someCaseType")
 			.jsonPath("$.firstSubmitted").isEqualTo("someFirstSubmittedValue")
@@ -126,7 +126,7 @@ class CaseStatusResourceTests {
 	@Test
 	void getOrganisationStatuses() {
 		when(mockCaseStatusService.getCaseStatuses(any(String.class), any(String.class))).thenReturn(List.of(CaseStatusResponse.builder()
-			.withId("someId")
+			.withCaseId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
 			.withCaseType("someCaseType")
@@ -144,7 +144,7 @@ class CaseStatusResourceTests {
 			.contentType(APPLICATION_JSON)
 			.expectBody()
 			.jsonPath("$").isArray()
-			.jsonPath("$[0].id").isEqualTo("someId")
+			.jsonPath("$[0].caseId").isEqualTo("someId")
 			.jsonPath("$[0].externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$[0].caseType").isEqualTo("someCaseType")
 			.jsonPath("$[0].firstSubmitted").isEqualTo("someFirstSubmittedValue")
@@ -161,7 +161,7 @@ class CaseStatusResourceTests {
 	void getPartyStatuses() {
 
 		final var caseStatusResponse = CaseStatusResponse.builder()
-			.withId("someId")
+			.withCaseId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
 			.withCaseType("someCaseType")

@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>se.sundsvall.casestatus</groupId>
 	<artifactId>api-service-casestatus</artifactId>
-	<version>3.1</version>
+	<version>4.0</version>
 	<name>api-service-casestatus</name>
 	<properties>
 		<jsoup.version>1.19.1</jsoup.version>

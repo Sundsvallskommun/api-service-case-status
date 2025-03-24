@@ -9,7 +9,7 @@ class CaseStatusResponseTests {
 	@Test
 	void builderAndGettersWorkAsExpected() {
 		final var response = CaseStatusResponse.builder()
-			.withId("someId")
+			.withCaseId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
 			.withCaseType("someCaseType")
@@ -18,7 +18,7 @@ class CaseStatusResponseTests {
 			.withIsOpenEErrand(true)
 			.build();
 
-		assertThat(response.getId()).isEqualTo("someId");
+		assertThat(response.getCaseId()).isEqualTo("someId");
 		assertThat(response.getExternalCaseId()).isEqualTo("someExternalCaseId");
 		assertThat(response.getStatus()).isEqualTo("someStatus");
 		assertThat(response.getCaseType()).isEqualTo("someCaseType");
