@@ -32,9 +32,6 @@ public class CaseStatusResponse {
 	@Schema(description = "Last status change", example = "2021-01-01")
 	private String lastStatusChange;
 
-	@Schema(description = "Is open e-errand", example = "true")
-	private boolean isOpenEErrand; // TODO: Ta bort när samtliga mappningar är uppdaterade
-
 	@Schema(description = "The system that the case is in", example = "BYGGR")
 	private String system;
 

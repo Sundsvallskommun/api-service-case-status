@@ -15,7 +15,6 @@ class CaseStatusResponseTests {
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someValue")
 			.withLastStatusChange("someValue")
-			.withIsOpenEErrand(true)
 			.build();
 
 		assertThat(response.getCaseId()).isEqualTo("someId");
@@ -24,6 +23,5 @@ class CaseStatusResponseTests {
 		assertThat(response.getCaseType()).isEqualTo("someCaseType");
 		assertThat(response.getFirstSubmitted()).isEqualTo("someValue");
 		assertThat(response.getLastStatusChange()).isEqualTo("someValue");
-		assertThat(response.isOpenEErrand()).isTrue();
 	}
 }

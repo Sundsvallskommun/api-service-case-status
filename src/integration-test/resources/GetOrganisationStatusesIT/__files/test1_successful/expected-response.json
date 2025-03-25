@@ -1,20 +1,20 @@
 [
 	{
 		"caseId": "string",
-		"caseType": "Nybyggnad - test",
 		"externalCaseId": "string",
+		"caseType": "Nybyggnad - test",
+		"status": "Pågående",
 		"firstSubmitted": "Saknas",
 		"lastStatusChange": "2022-09-01 10:48",
-		"openEErrand": false,
-		"status": "Pågående",
 		"system": "BYGGR"
 	},
 	{
-		"caseType": "Ansökan - strandskyddsdispens",
+		"caseId": "100757",
 		"externalCaseId": "100757",
+		"caseType": "Ansökan - strandskyddsdispens",
+		"status": "Inskickat",
 		"firstSubmitted": "2022-05-11 14:24",
 		"lastStatusChange": "2022-05-11 14:24",
-		"openEErrand": true,
-		"status": "Inskickat"
+		"system": "OPEN_E_PLATFORM"
 	}
 ]
