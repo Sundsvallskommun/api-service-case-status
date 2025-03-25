@@ -145,7 +145,6 @@ class CaseStatusServiceTests {
 		assertThat(result.getCaseType()).isEqualTo("someErrandType");
 		assertThat(result.getFirstSubmitted()).isEqualTo("someFirstSubmittedValue");
 		assertThat(result.getLastStatusChange()).isEqualTo("someLastStatusChangeValue");
-		assertThat(result.isOpenEErrand()).isTrue();
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
 		verify(caseRepositoryMock).findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class));

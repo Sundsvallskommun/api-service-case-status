@@ -3,10 +3,10 @@ package se.sundsvall.casestatus.service;
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.toList;
-import static se.sundsvall.casestatus.service.Mapper.toCasePdfResponse;
-import static se.sundsvall.casestatus.service.Mapper.toOepStatusResponse;
+import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
+import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
 import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.toCaseStatusResponse;
+import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
 import static se.sundsvall.casestatus.util.Constants.MISSING;
 import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
@@ -28,11 +28,11 @@ import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneVie
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
+import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 
 @Service
 public class CaseStatusService {
 
-	private static final String CASE_NOT_FOUND = "Case with id %s not found";
 	private final CaseManagementIntegration caseManagementIntegration;
 	private final OpenEIntegration openEIntegration;
 	private final CaseRepository caseRepository;
@@ -73,7 +73,7 @@ public class CaseStatusService {
 		return caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
 			.or(() -> caseRepository.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
-				.map(Mapper::mapToCaseStatusResponse))
+				.map(OpenEMapper::toCaseStatusResponse))
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 	}
 
@@ -84,16 +84,17 @@ public class CaseStatusService {
 	}
 
 	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {
-		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
+		List<CaseStatusResponse> statuses = new ArrayList<>();
+
+		caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.collect(toList());
+			.forEach(statuses::add);
 
-		final var cachedStatuses = caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
-			.map(Mapper::mapToCaseStatusResponse)
-			.toList();
+		caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
+			.map(OpenEMapper::toCaseStatusResponse)
+			.forEach(statuses::add);
 
-		result.addAll(cachedStatuses);
-		return result;
+		return statuses;
 	}
 
 	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId) {
@@ -118,11 +119,11 @@ public class CaseStatusService {
 			.forEach(statuses::add);
 
 		openEIntegration.getCaseStatuses(municipalityId, legalId).stream()
-			.map(Mapper::mapToCaseStatusResponse)
+			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
 		caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
-			.map(Mapper::mapToCaseStatusResponse)
+			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
 		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
@@ -145,12 +146,12 @@ public class CaseStatusService {
 
 		// Fetching cached statuses for the given organization number.
 		caseRepository.findByOrganisationNumberAndMunicipalityId(legalId, municipalityId).stream()
-			.map(Mapper::mapToCaseStatusResponse)
+			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
 		// Fetching cached statuses for the formatted organization number.
 		caseRepository.findByOrganisationNumberAndMunicipalityId(getFormattedOrganizationNumber(legalId), municipalityId).stream()
-			.map(Mapper::mapToCaseStatusResponse)
+			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
 		return statuses;

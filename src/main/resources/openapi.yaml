@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "4.0"
 servers:
-  - url: http://localhost:53417
+  - url: http://localhost:50453
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/statuses:
@@ -267,9 +267,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object
@@ -402,9 +402,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
         suppressed:
           type: array
@@ -485,8 +485,6 @@ components:
           type: string
           description: Human readable identifier for the case
           example: BYGGR-2024-123456
-        openEErrand:
-          type: boolean
       description: Case status response
     CasePdfResponse:
       type: object

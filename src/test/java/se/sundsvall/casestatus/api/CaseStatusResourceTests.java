@@ -75,7 +75,6 @@ class CaseStatusResourceTests {
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someFirstSubmittedValue")
 			.withLastStatusChange("someLastStatusChangeValue")
-			.withIsOpenEErrand(true)
 			.build());
 
 		webTestClient.get()
@@ -90,8 +89,7 @@ class CaseStatusResourceTests {
 			.jsonPath("$.externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$.caseType").isEqualTo("someCaseType")
 			.jsonPath("$.firstSubmitted").isEqualTo("someFirstSubmittedValue")
-			.jsonPath("$.lastStatusChange").isEqualTo("someLastStatusChangeValue")
-			.jsonPath("$.openEErrand").isEqualTo(true);
+			.jsonPath("$.lastStatusChange").isEqualTo("someLastStatusChangeValue");
 
 		verify(mockCaseStatusService).getCaseStatus(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
@@ -132,7 +130,6 @@ class CaseStatusResourceTests {
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someFirstSubmittedValue")
 			.withLastStatusChange("someLastStatusChangeValue")
-			.withIsOpenEErrand(true)
 			.build()));
 
 		webTestClient.get()
@@ -148,8 +145,7 @@ class CaseStatusResourceTests {
 			.jsonPath("$[0].externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$[0].caseType").isEqualTo("someCaseType")
 			.jsonPath("$[0].firstSubmitted").isEqualTo("someFirstSubmittedValue")
-			.jsonPath("$[0].lastStatusChange").isEqualTo("someLastStatusChangeValue")
-			.jsonPath("$[0].openEErrand").isEqualTo(true);
+			.jsonPath("$[0].lastStatusChange").isEqualTo("someLastStatusChangeValue");
 
 		verify(mockCaseStatusService).getCaseStatuses(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
@@ -167,7 +163,6 @@ class CaseStatusResourceTests {
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someFirstSubmittedValue")
 			.withLastStatusChange("someLastStatusChangeValue")
-			.withIsOpenEErrand(true)
 			.build();
 
 		when(mockCaseStatusService.getCaseStatusesForParty(any(String.class), any(String.class))).thenReturn(List.of(caseStatusResponse));

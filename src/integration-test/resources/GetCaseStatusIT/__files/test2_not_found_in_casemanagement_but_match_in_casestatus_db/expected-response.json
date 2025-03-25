@@ -1,8 +1,9 @@
 {
-	"lastStatusChange": "2022-05-11 14:24",
-	"openEErrand": true,
+	"caseId": "100757",
 	"externalCaseId": "100757",
-	"firstSubmitted": "2022-05-11 14:24",
 	"caseType": "Ansökan - strandskyddsdispens",
-	"status": "Inskickat"
+	"status": "Inskickat",
+	"firstSubmitted": "2022-05-11 14:24",
+	"lastStatusChange": "2022-05-11 14:24",
+	"system": "OPEN_E_PLATFORM"
 }
