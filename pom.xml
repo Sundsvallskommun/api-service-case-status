@@ -152,6 +152,7 @@
 								<useBeanValidation>true</useBeanValidation>
 								<useSwaggerAnnotations>true</useSwaggerAnnotations>
 								<interfaceOnly>false</interfaceOnly>
+								<useOneOfInterfaces>false</useOneOfInterfaces>
 							</configOptions>
 						</configuration>
 					</execution>

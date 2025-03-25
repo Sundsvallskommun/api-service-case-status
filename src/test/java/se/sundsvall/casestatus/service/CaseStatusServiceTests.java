@@ -103,13 +103,15 @@ class CaseStatusServiceTests {
 			.externalCaseId(EXTERNAL_CASE_ID)
 			.caseType("PARKING_PERMIT")
 			.timestamp(LocalDateTime.now())
-			.status("someStatus");
+			.status("someStatus")
+			.errandNumber("errandNumber")
+			.namespace("namespace");
 
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.of(caseStatus));
 
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID))
-			.thenReturn(CaseStatusResponse.builder().withCaseId("someCaseId").withExternalCaseId(EXTERNAL_CASE_ID).withCaseType("PARKING_PERMIT").build());
+			.thenReturn(CaseStatusResponse.builder().withCaseId("someCaseId").withExternalCaseId(EXTERNAL_CASE_ID).withCaseType("PARKING_PERMIT").withNamespace("namespace").withErrandNumber("errandNumber").build());
 
 		final var result = caseStatusService.getCaseStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
@@ -117,6 +119,8 @@ class CaseStatusServiceTests {
 		assertThat(result.getCaseId()).isEqualTo("someCaseId");
 		assertThat(result.getExternalCaseId()).isEqualTo(EXTERNAL_CASE_ID);
 		assertThat(result.getCaseType()).isEqualTo("PARKING_PERMIT");
+		assertThat(result.getNamespace()).isEqualTo("namespace");
+		assertThat(result.getErrandNumber()).isEqualTo("errandNumber");
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
@@ -145,7 +149,6 @@ class CaseStatusServiceTests {
 		assertThat(result.getCaseType()).isEqualTo("someErrandType");
 		assertThat(result.getFirstSubmitted()).isEqualTo("someFirstSubmittedValue");
 		assertThat(result.getLastStatusChange()).isEqualTo("someLastStatusChangeValue");
-		assertThat(result.isOpenEErrand()).isTrue();
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
 		verify(caseRepositoryMock).findByFlowInstanceIdAndMunicipalityId(any(String.class), any(String.class));

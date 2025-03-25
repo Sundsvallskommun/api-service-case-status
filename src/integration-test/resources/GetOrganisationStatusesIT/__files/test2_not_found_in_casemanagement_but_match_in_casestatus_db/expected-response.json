@@ -1,18 +1,20 @@
 [
 	{
-		"caseType": "Beställa nybyggnadskarta",
+		"caseId": "3447",
 		"externalCaseId": "3447",
+		"caseType": "Beställa nybyggnadskarta",
+		"status": "Inskickat",
 		"firstSubmitted": "2022-02-09 09:51",
 		"lastStatusChange": "2022-02-09 09:51",
-		"openEErrand": true,
-		"status": "Inskickat"
+		"system": "OPEN_E_PLATFORM"
 	},
 	{
-		"caseType": "Beställa nybyggnadskarta",
+		"caseId": "89767",
 		"externalCaseId": "89767",
+		"caseType": "Beställa nybyggnadskarta",
+		"status": "Inskickat",
 		"firstSubmitted": "2022-02-09 09:51",
 		"lastStatusChange": "2022-02-09 09:51",
-		"openEErrand": true,
-		"status": "Inskickat"
+		"system": "OPEN_E_PLATFORM"
 	}
 ]
