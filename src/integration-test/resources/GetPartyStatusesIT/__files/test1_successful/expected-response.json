@@ -5,6 +5,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-20 20:49",
 		"lastStatusChange": "2023-03-23 07:34",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030203",
 		"openEErrand": false
 	},
 	{
@@ -13,6 +16,9 @@
 		"status": "ONGOING",
 		"firstSubmitted": "2023-05-17 09:10",
 		"lastStatusChange": "2023-05-23 08:59",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23050067",
 		"openEErrand": false
 	},
 	{
@@ -21,6 +27,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-28 15:54",
 		"lastStatusChange": "2023-03-29 11:22",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030293",
 		"openEErrand": false
 	},
 	{
@@ -29,6 +38,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-22 20:12",
 		"lastStatusChange": "2023-03-22 20:13",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030255",
 		"openEErrand": false
 	},
 	{
@@ -37,6 +49,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-17 09:53",
 		"lastStatusChange": "2023-03-20 14:35",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030168",
 		"openEErrand": false
 	},
 	{
@@ -45,6 +60,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-16 07:28",
 		"lastStatusChange": "2023-03-16 15:49",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030112",
 		"openEErrand": false
 	},
 	{
@@ -53,6 +71,9 @@
 		"status": "ONGOING",
 		"firstSubmitted": "2023-04-28 11:00",
 		"lastStatusChange": "2023-05-30 10:58",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23040114",
 		"openEErrand": false
 	},
 	{
@@ -61,6 +82,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-17 14:50",
 		"lastStatusChange": "2023-03-20 14:36",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030183",
 		"openEErrand": false
 	},
 	{
@@ -69,6 +93,9 @@
 		"status": "ONGOING",
 		"firstSubmitted": "2023-10-03 19:38",
 		"lastStatusChange": "2023-10-27 14:18",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23100010",
 		"openEErrand": false
 	},
 	{
@@ -77,6 +104,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-08-25 09:24",
 		"lastStatusChange": "2023-08-25 09:27",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23080036",
 		"openEErrand": false
 	},
 	{
@@ -85,6 +115,9 @@
 		"status": "NEW",
 		"firstSubmitted": "2023-03-29 15:31",
 		"lastStatusChange": "2024-04-19 13:44",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030302",
 		"openEErrand": false
 	},
 	{
@@ -93,6 +126,9 @@
 		"status": "NEW",
 		"firstSubmitted": "2023-03-22 16:58",
 		"lastStatusChange": "2023-03-29 15:07",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030249",
 		"openEErrand": false
 	},
 	{
@@ -101,6 +137,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-20 10:27",
 		"lastStatusChange": "2023-03-20 14:15",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030198",
 		"openEErrand": false
 	},
 	{
@@ -109,6 +148,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-17 09:48",
 		"lastStatusChange": "2023-03-17 09:49",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030167",
 		"openEErrand": false
 	},
 	{
@@ -117,6 +159,9 @@
 		"status": "ONGOING",
 		"firstSubmitted": "2024-04-05 08:08",
 		"lastStatusChange": "2024-04-05 08:09",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-24040011",
 		"openEErrand": false
 	},
 	{
@@ -125,6 +170,9 @@
 		"status": "NEW",
 		"firstSubmitted": "2023-10-03 19:30",
 		"lastStatusChange": "2023-10-03 19:31",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23100009",
 		"openEErrand": false
 	},
 	{
@@ -133,6 +181,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-14 11:21",
 		"lastStatusChange": "2023-03-14 13:27",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030013",
 		"openEErrand": false
 	},
 	{
@@ -141,6 +192,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2024-04-05 15:15",
 		"lastStatusChange": "2024-04-05 15:19",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-24040015",
 		"openEErrand": false
 	},
 	{
@@ -149,6 +203,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-03-17 14:53",
 		"lastStatusChange": "2023-03-17 15:24",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23030186",
 		"openEErrand": false
 	},
 	{
@@ -157,6 +214,9 @@
 		"status": "SOLVED",
 		"firstSubmitted": "2023-04-28 13:36",
 		"lastStatusChange": "2023-04-28 13:38",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "MYNAMESPACE",
+		"errandNumber": "KC-23040116",
 		"openEErrand": false
 	},
 	{

@@ -41,8 +41,8 @@ class SupportManagementServiceTest {
 		final var result = supportManagementService.getSupportManagementCases(municipalityId, filter);
 
 		// Assert
-		assertThat(result).isNotNull().hasSize(1);
-		assertThat(result.getFirst().getId()).isEqualTo("errandId");
+		assertThat(result.get(namespace)).isNotNull().hasSize(1);
+		assertThat(result.get(namespace).getFirst().getId()).isEqualTo("errandId");
 	}
 
 	@Test
@@ -61,7 +61,7 @@ class SupportManagementServiceTest {
 		final var result = supportManagementService.getSupportManagementCases(municipalityId, filter);
 
 		// Assert
-		assertThat(result).isNotNull().hasSize(1);
-		assertThat(result.getFirst().getId()).isEqualTo("errandId");
+		assertThat(result.get(namespace)).isNotNull().hasSize(2);
+		assertThat(result.get(namespace).getFirst().getId()).isEqualTo("errandId");
 	}
 }

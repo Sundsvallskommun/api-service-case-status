@@ -1,13 +1,15 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static se.sundsvall.casestatus.utility.Constants.VALID_CHANNELS;
+import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.toSetStatus;
+import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
 
 import generated.se.sundsvall.eventlog.Event;
 import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -21,7 +23,6 @@ import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.opene.soap.OpenECallbackIntegration;
-import se.sundsvall.casestatus.service.Mapper;
 import se.sundsvall.casestatus.service.SupportManagementService;
 import se.sundsvall.dept44.requestid.RequestId;
 
@@ -35,7 +36,11 @@ public class EventLogWorker {
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 	private final Duration clockSkew;
 
-	public EventLogWorker(final EventlogClient eventlogClient, final SupportManagementService supportManagementService, final OpenECallbackIntegration openECallbackIntegration, final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
+	public EventLogWorker(
+		final EventlogClient eventlogClient,
+		final SupportManagementService supportManagementService,
+		final OpenECallbackIntegration openECallbackIntegration,
+		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
 		@Value("${scheduler.eventlog.clock-skew:PT5S}") final Duration clockSkew) {
 		this.eventlogClient = eventlogClient;
 		this.supportManagementService = supportManagementService;
@@ -55,8 +60,11 @@ public class EventLogWorker {
 
 		final var filter = createFilterString(logKeys);
 
-		final var result = supportManagementService.getSupportManagementCases(executionInformation.getMunicipalityId(), filter);
-		sortByChannel(result).forEach(this::doOpenECallback);
+		var errands = supportManagementService.getSupportManagementCases(executionInformation.getMunicipalityId(), filter).values().stream()
+			.flatMap(Collection::stream)
+			.toList();
+
+		sortByChannel(errands).forEach(this::doOpenECallback);
 	}
 
 	private void doOpenECallback(final String channel, final List<SetStatus> caseEntities) {
@@ -83,9 +91,8 @@ public class EventLogWorker {
 			.filter(errand -> errand.getChannel() != null && VALID_CHANNELS.contains(errand.getChannel()))
 			.collect(Collectors.groupingBy(
 				Errand::getChannel,
-				Collectors.mapping(errand -> caseManagementOpeneViewRepository
-					.findByCaseManagementId(errand.getStatus())
-					.map(view -> Mapper.toSetStatus(errand, view.getOpenEId()))
+				Collectors.mapping(errand -> caseManagementOpeneViewRepository.findByCaseManagementId(errand.getStatus())
+					.map(view -> toSetStatus(errand, view.getOpenEId()))
 					.orElse(null),
 					Collectors.filtering(Objects::nonNull, Collectors.toList()))));
 	}
