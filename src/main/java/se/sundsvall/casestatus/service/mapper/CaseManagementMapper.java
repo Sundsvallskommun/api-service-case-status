@@ -38,9 +38,8 @@ public final class CaseManagementMapper {
 			.withFirstSubmitted(MISSING)
 			.withSystem(ofNullable(caseStatus.getSystem()).map(CaseStatusDTO.SystemEnum::toString).orElse(UNKNOWN))
 			.withExternalCaseId(caseStatus.getExternalCaseId())
-			// TODO: Add the mappings for the following fields when CaseManagement is updated.
-			.withErrandNumber(null)
-			.withNamespace(null)
+			.withErrandNumber(caseStatus.getErrandNumber())
+			.withNamespace(caseStatus.getNamespace())
 			.build();
 	}
 

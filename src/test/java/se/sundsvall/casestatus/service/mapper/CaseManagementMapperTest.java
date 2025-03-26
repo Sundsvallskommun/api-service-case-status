@@ -56,8 +56,8 @@ class CaseManagementMapperTest {
 			assertThat(response.getStatus()).isEqualTo("status");
 			assertThat(response.getLastStatusChange()).isEqualTo("2025-04-01 12:30");
 			assertThat(response.getFirstSubmitted()).isEqualTo("Saknas");
-			assertThat(response.getErrandNumber()).isNull();
-			assertThat(response.getNamespace()).isNull();
+			assertThat(response.getErrandNumber()).isEqualTo("errandNumber");
+			assertThat(response.getNamespace()).isEqualTo("namespace");
 		});
 	}
 

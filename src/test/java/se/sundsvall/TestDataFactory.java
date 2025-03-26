@@ -17,6 +17,8 @@ public final class TestDataFactory {
 		caseStatus.setServiceName("serviceName");
 		caseStatus.setTimestamp(LocalDateTime.now());
 		caseStatus.setSystem(system);
+		caseStatus.setErrandNumber("errandNumber");
+		caseStatus.setNamespace("namespace");
 		return caseStatus;
 	}
 
