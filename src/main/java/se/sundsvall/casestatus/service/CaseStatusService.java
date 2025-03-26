@@ -100,7 +100,8 @@ public class CaseStatusService {
 		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
 		if (partyResult.containsKey(PRIVATE)) {
-			var statuses = getPrivateCaseStatuses(partyId, municipalityId);
+			var legalId = partyResult.get(PRIVATE);
+			var statuses = getPrivateCaseStatuses(partyId, legalId, municipalityId);
 			return filterResponses(statuses);
 		} else if (partyResult.containsKey(ENTERPRISE)) {
 			var legalId = partyResult.get(ENTERPRISE);
@@ -110,14 +111,14 @@ public class CaseStatusService {
 		return emptyList();
 	}
 
-	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final String municipalityId) {
+	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final String legalId, final String municipalityId) {
 		List<CaseStatusResponse> statuses = new ArrayList<>();
 
 		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
 			.forEach(statuses::add);
 
-		caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
+		openEIntegration.getCaseStatuses(municipalityId, legalId).stream()
 			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
@@ -139,12 +140,12 @@ public class CaseStatusService {
 			.forEach(statuses::add);
 
 		// Fetching cached statuses for the given organization number.
-		caseRepository.findByOrganisationNumberAndMunicipalityId(legalId, municipalityId).stream()
+		openEIntegration.getCaseStatuses(municipalityId, legalId).stream()
 			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
 		// Fetching cached statuses for the formatted organization number.
-		caseRepository.findByOrganisationNumberAndMunicipalityId(getFormattedOrganizationNumber(legalId), municipalityId).stream()
+		openEIntegration.getCaseStatuses(municipalityId, getFormattedOrganizationNumber(legalId)).stream()
 			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 

@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_successful_private/responses/api-supportmanagement-get-errands.json",
+		"status": 200
+	}
+}
