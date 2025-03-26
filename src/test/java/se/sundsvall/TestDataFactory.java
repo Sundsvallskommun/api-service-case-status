@@ -22,11 +22,25 @@ public final class TestDataFactory {
 		return caseStatus;
 	}
 
-	public static CaseStatusResponse createCaseStatusResponse(final CaseStatusDTO.SystemEnum system) {
+	public static CaseStatusResponse createCaseStatusResponse(final String system) {
 		return CaseStatusResponse.builder()
-			.withSystem(system.getValue())
+			.withSystem(system)
 			.withCaseId("caseId")
 			.withExternalCaseId("externalCaseId")
+			.withCaseType("caseType")
+			.withStatus("status")
+			.withLastStatusChange("2025-03-24 12:00:00")
+			.withFirstSubmitted("2025-03-24 12:00:00")
+			.withErrandNumber("errandNumber")
+			.withNamespace("namespace")
+			.build();
+	}
+
+	public static CaseStatusResponse createCaseStatusResponse(final String system, final String externalCaseId) {
+		return CaseStatusResponse.builder()
+			.withSystem(system)
+			.withCaseId("caseId")
+			.withExternalCaseId(externalCaseId)
 			.withCaseType("caseType")
 			.withStatus("status")
 			.withLastStatusChange("2025-03-24 12:00:00")

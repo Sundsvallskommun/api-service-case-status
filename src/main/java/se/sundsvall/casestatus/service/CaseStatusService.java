@@ -7,14 +7,13 @@ import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfRespon
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
 import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.toCaseStatusResponse;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
-import static se.sundsvall.casestatus.util.Constants.MISSING;
+import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
-import generated.se.sundsvall.party.PartyType;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -101,25 +100,21 @@ public class CaseStatusService {
 		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
 		if (partyResult.containsKey(PRIVATE)) {
-			var statuses = getPrivateCaseStatuses(partyId, partyResult, municipalityId);
-			return filterResponse(statuses);
+			var statuses = getPrivateCaseStatuses(partyId, municipalityId);
+			return filterResponses(statuses);
 		} else if (partyResult.containsKey(ENTERPRISE)) {
-			var statuses = getEnterpriseCaseStatuses(partyId, partyResult, municipalityId);
-			return filterResponse(statuses);
+			var legalId = partyResult.get(ENTERPRISE);
+			var statuses = getEnterpriseCaseStatuses(partyId, legalId, municipalityId);
+			return filterResponses(statuses);
 		}
 		return emptyList();
 	}
 
-	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final Map<PartyType, String> partyMap, final String municipalityId) {
+	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final String municipalityId) {
 		List<CaseStatusResponse> statuses = new ArrayList<>();
-		var legalId = partyMap.get(PRIVATE);
 
 		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.forEach(statuses::add);
-
-		openEIntegration.getCaseStatuses(municipalityId, legalId).stream()
-			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
 		caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
@@ -135,9 +130,8 @@ public class CaseStatusService {
 		return statuses;
 	}
 
-	List<CaseStatusResponse> getEnterpriseCaseStatuses(final String partyId, final Map<PartyType, String> partyMap, final String municipalityId) {
+	List<CaseStatusResponse> getEnterpriseCaseStatuses(final String partyId, final String legalId, final String municipalityId) {
 		List<CaseStatusResponse> statuses = new ArrayList<>();
-		var legalId = partyMap.get(ENTERPRISE);
 
 		// Fetching statuses from CaseManagement.
 		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
@@ -157,32 +151,34 @@ public class CaseStatusService {
 		return statuses;
 	}
 
-	List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> request) {
-		// Filter out cases without external case id as duplicates will only be appearing in the list with external case id
-		final var casesWithoutExternalCaseId = request.stream()
-			.filter(response -> response.getExternalCaseId() == null)
-			.toList();
+	/**
+	 * CaseStatusResponses are processed and if there are duplicate externalCaseId's some filtering is done. Responses with
+	 * null externalCaseId's are not filtered. If there are multiple responses with the same externalCaseId, the ones with
+	 * system
+	 * OPEN_E_PLATFORM are removed.
+	 *
+	 * @param  responses List of CaseStatusResponses
+	 * @return           Filtered list of CaseStatusResponses
+	 */
+	List<CaseStatusResponse> filterResponses(final List<CaseStatusResponse> responses) {
+		var nullExternalCaseIdStream = responses.stream()
+			.filter(response -> response.getExternalCaseId() == null);
 
-		final var latestStatusById = request.stream()
+		var filteredStream = responses.stream()
 			.filter(response -> response.getExternalCaseId() != null)
-			.collect(Collectors.toMap(
-				CaseStatusResponse::getExternalCaseId,
-				response -> response,
-				(existing, newEntry) -> {
-					if (existing.getLastStatusChange() == null || existing.getLastStatusChange().equals(MISSING)) {
-						return newEntry;
-					}
-					if (newEntry.getLastStatusChange() == null || newEntry.getLastStatusChange().equals(MISSING)) {
-						return existing;
-					}
-					return existing.getLastStatusChange().compareTo(newEntry.getLastStatusChange()) > 0 ? existing : newEntry;
-				}));
+			.collect(Collectors.groupingBy(CaseStatusResponse::getExternalCaseId))
+			.entrySet().stream()
+			.flatMap(entry -> {
+				var entries = entry.getValue();
+				if (entries.size() > 1 && entries.stream().anyMatch(response -> OPEN_E_PLATFORM.equals(response.getSystem()))) {
+					return entries.stream()
+						.filter(response -> !OPEN_E_PLATFORM.equals(response.getSystem()));
+				}
+				return entries.stream();
+			});
 
-		final var result = new ArrayList<CaseStatusResponse>();
-		result.addAll(casesWithoutExternalCaseId);
-		result.addAll(latestStatusById.values());
-
-		return result;
+		return Stream.concat(nullExternalCaseIdStream, filteredStream)
+			.toList();
 	}
 
 }
