@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/opene/api/instanceapi/getinstances/owner/citizenidentifier/199901011234"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_successful_private/responses/api-oep-get-citizen-errands.xml",
+		"status": 200
+	}
+}
