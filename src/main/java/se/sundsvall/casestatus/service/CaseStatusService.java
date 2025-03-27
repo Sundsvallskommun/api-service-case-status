@@ -2,18 +2,18 @@ package se.sundsvall.casestatus.service;
 
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
-import static java.util.stream.Collectors.toList;
-import static se.sundsvall.casestatus.service.Mapper.toCasePdfResponse;
-import static se.sundsvall.casestatus.service.Mapper.toCaseStatusResponse;
-import static se.sundsvall.casestatus.service.Mapper.toOepStatusResponse;
+import static java.util.Collections.emptyList;
+import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
+import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
+import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.toCaseStatusResponse;
+import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
+import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
-import generated.se.sundsvall.casemanagement.CaseStatusDTO;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -23,39 +23,38 @@ import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
-import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
-import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
+import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
+import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 
 @Service
 public class CaseStatusService {
 
-	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-	static final String MISSING = "Saknas";
-	private static final String CASE_NOT_FOUND = "Case with id %s not found";
 	private final CaseManagementIntegration caseManagementIntegration;
 	private final OpenEIntegration openEIntegration;
 	private final CaseRepository caseRepository;
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
-	private final CaseTypeRepository caseTypeRepository;
 	private final PartyIntegration partyIntegration;
 	private final SupportManagementService supportManagementService;
+
+	private final CaseManagementMapper caseManagementMapper;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final OpenEIntegration openEIntegration,
 		final CaseRepository caseRepository,
 		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
-		final CaseTypeRepository caseTypeRepository,
-		final PartyIntegration partyIntegration, final SupportManagementService supportManagementService) {
+		final PartyIntegration partyIntegration,
+		final SupportManagementService supportManagementService,
+		final CaseManagementMapper caseManagementMapper) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.openEIntegration = openEIntegration;
 		this.caseRepository = caseRepository;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
-		this.caseTypeRepository = caseTypeRepository;
 		this.partyIntegration = partyIntegration;
 		this.supportManagementService = supportManagementService;
+		this.caseManagementMapper = caseManagementMapper;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
@@ -70,12 +69,10 @@ public class CaseStatusService {
 	}
 
 	public CaseStatusResponse getCaseStatus(final String externalCaseId, final String municipalityId) {
-		return caseManagementIntegration
-			.getCaseStatusForExternalId(externalCaseId, municipalityId)
-			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
-			.or(() -> caseRepository
-				.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
-				.map(Mapper::mapToCaseStatusResponse))
+		return caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
+			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
+			.or(() -> caseRepository.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
+				.map(OpenEMapper::toCaseStatusResponse))
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 	}
 
@@ -86,128 +83,103 @@ public class CaseStatusService {
 	}
 
 	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {
-		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
-			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
-			.collect(toList());
+		List<CaseStatusResponse> statuses = new ArrayList<>();
 
-		final var cachedStatuses = caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
-			.map(Mapper::mapToCaseStatusResponse)
-			.toList();
+		caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
+			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
+			.forEach(statuses::add);
 
-		result.addAll(cachedStatuses);
-		return result;
+		caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
+			.map(OpenEMapper::toCaseStatusResponse)
+			.forEach(statuses::add);
+
+		return statuses;
 	}
 
 	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId) {
 		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
-		final var result = caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
-			.map(dto -> mapToCaseStatusResponse(dto, municipalityId))
-			.collect(toList());
-
 		if (partyResult.containsKey(PRIVATE)) {
-
-			openEIntegration.getCaseStatuses(municipalityId, partyResult.get(PRIVATE)).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.forEach(result::add);
-
-			caseRepository.findByPersonIdAndMunicipalityId(partyId, municipalityId).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.forEach(result::add);
-
-			final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
-			supportManagementService.getSupportManagementCases(municipalityId, filterString).stream()
-				.map(Mapper::toCaseStatusResponse)
-				.forEach(result::add);
-
-			return filterResponse(result);
-
+			var legalId = partyResult.get(PRIVATE);
+			var statuses = getPrivateCaseStatuses(partyId, legalId, municipalityId);
+			return filterResponses(statuses);
 		} else if (partyResult.containsKey(ENTERPRISE)) {
-
-			// Due to discrepancies in the organization number format in open-E, we need to check both the original and the
-			// formatted number.
-			final var legalId = getFormattedOrganizationNumber(partyResult.get(ENTERPRISE));
-
-			final var cachedStatusesUnformatted = caseRepository.findByOrganisationNumberAndMunicipalityId(partyResult.get(ENTERPRISE), municipalityId).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.toList();
-
-			final var cachedStatusesFormatted = caseRepository.findByOrganisationNumberAndMunicipalityId(legalId, municipalityId).stream()
-				.map(Mapper::mapToCaseStatusResponse)
-				.toList();
-
-			result.addAll(cachedStatusesUnformatted);
-			result.addAll(cachedStatusesFormatted);
+			var legalId = partyResult.get(ENTERPRISE);
+			var statuses = getEnterpriseCaseStatuses(partyId, legalId, municipalityId);
+			return filterResponses(statuses);
 		}
-
-		return result;
+		return emptyList();
 	}
 
-	CaseStatusResponse mapToCaseStatusResponse(final CaseStatusDTO caseStatus, final String municipalityId) {
-		final var status = caseManagementOpeneViewRepository.findByCaseManagementId(caseStatus.getStatus())
-			.map(CaseManagementOpeneView::getOpenEId)
-			.orElse(caseStatus.getStatus());
+	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final String legalId, final String municipalityId) {
+		List<CaseStatusResponse> statuses = new ArrayList<>();
 
-		final var timestamp = Optional.ofNullable(caseStatus.getTimestamp())
-			.map(DATE_TIME_FORMATTER::format)
-			.orElse(MISSING);
+		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
+			.forEach(statuses::add);
 
-		final var serviceName = Optional.ofNullable(caseStatus.getServiceName()).orElse(getCaseType(caseStatus, municipalityId));
+		openEIntegration.getCaseStatuses(municipalityId, legalId).stream()
+			.map(OpenEMapper::toCaseStatusResponse)
+			.forEach(statuses::add);
 
-		return toCaseStatusResponse(caseStatus, serviceName, status, timestamp);
+		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
+		supportManagementService.getSupportManagementCases(municipalityId, filterString)
+			.forEach((namespace, errands) -> errands.stream()
+				.map(errand -> toCaseStatusResponse(errand, namespace))
+				.forEach(statuses::add));
+
+		return statuses;
 	}
 
-	private String getCaseType(final CaseStatusDTO caseStatus, final String municipalityId) {
-		return Optional.ofNullable(caseStatus.getCaseType())
-			.flatMap((String enumValue) -> caseTypeRepository.findByEnumValueAndMunicipalityId(enumValue, municipalityId)
-				.map(CaseTypeEntity::getDescription))
-			.orElse(MISSING);
+	List<CaseStatusResponse> getEnterpriseCaseStatuses(final String partyId, final String legalId, final String municipalityId) {
+		List<CaseStatusResponse> statuses = new ArrayList<>();
+
+		// Fetching statuses from CaseManagement.
+		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
+			.forEach(statuses::add);
+
+		// Fetching cached statuses for the given organization number.
+		openEIntegration.getCaseStatuses(municipalityId, legalId).stream()
+			.map(OpenEMapper::toCaseStatusResponse)
+			.forEach(statuses::add);
+
+		// Fetching cached statuses for the formatted organization number.
+		openEIntegration.getCaseStatuses(municipalityId, getFormattedOrganizationNumber(legalId)).stream()
+			.map(OpenEMapper::toCaseStatusResponse)
+			.forEach(statuses::add);
+
+		return statuses;
 	}
 
-	private List<CaseStatusResponse> filterResponse(final List<CaseStatusResponse> request) {
-		// Filter out cases without external case id as duplicates will only be appearing in the list with external case id
-		final var casesWithoutExternalCaseId = request.stream()
-			.filter(response -> response.getExternalCaseId() == null)
-			.toList();
+	/**
+	 * CaseStatusResponses are processed and if there are duplicate externalCaseId's some filtering is done. Responses with
+	 * null externalCaseId's are not filtered. If there are multiple responses with the same externalCaseId, the ones with
+	 * system
+	 * OPEN_E_PLATFORM are removed.
+	 *
+	 * @param  responses List of CaseStatusResponses
+	 * @return           Filtered list of CaseStatusResponses
+	 */
+	List<CaseStatusResponse> filterResponses(final List<CaseStatusResponse> responses) {
+		var nullExternalCaseIdStream = responses.stream()
+			.filter(response -> response.getExternalCaseId() == null);
 
-		final var latestStatusById = request.stream()
+		var filteredStream = responses.stream()
 			.filter(response -> response.getExternalCaseId() != null)
-			.collect(Collectors.toMap(
-				CaseStatusResponse::getExternalCaseId,
-				response -> response,
-				(existing, newEntry) -> {
-					if (existing.getLastStatusChange() == null || existing.getLastStatusChange().equals(MISSING)) {
-						return newEntry;
-					}
-					if (newEntry.getLastStatusChange() == null || newEntry.getLastStatusChange().equals(MISSING)) {
-						return existing;
-					}
-					return existing.getLastStatusChange().compareTo(newEntry.getLastStatusChange()) > 0 ? existing : newEntry;
-				}));
+			.collect(Collectors.groupingBy(CaseStatusResponse::getExternalCaseId))
+			.entrySet().stream()
+			.flatMap(entry -> {
+				var entries = entry.getValue();
+				if (entries.size() > 1 && entries.stream().anyMatch(response -> OPEN_E_PLATFORM.equals(response.getSystem()))) {
+					return entries.stream()
+						.filter(response -> !OPEN_E_PLATFORM.equals(response.getSystem()));
+				}
+				return entries.stream();
+			});
 
-		final var result = new ArrayList<CaseStatusResponse>();
-		result.addAll(casesWithoutExternalCaseId);
-		result.addAll(latestStatusById.values());
-
-		return result;
+		return Stream.concat(nullExternalCaseIdStream, filteredStream)
+			.toList();
 	}
 
-	private String getFormattedOrganizationNumber(final String organizationNumber) {
-
-		// Control that the organizationNumber is not null and that it is a valid length
-		if (IntStream.of(13, 12, 11, 10).anyMatch(i -> organizationNumber.length() == i)) {
-			// Remove all non-digit characters
-			final String cleanNumber = organizationNumber.replaceAll("\\D", "");
-
-			if (cleanNumber.length() == 12) {
-				// Insert the hyphen at the correct position
-				return cleanNumber.substring(0, 8) + "-" + cleanNumber.substring(8);
-
-			}
-			if (cleanNumber.length() == 10) {
-				return cleanNumber.substring(0, 6) + "-" + cleanNumber.substring(6);
-			}
-		}
-		return organizationNumber;
-	}
 }

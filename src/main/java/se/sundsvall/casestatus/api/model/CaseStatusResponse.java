@@ -15,17 +15,30 @@ import lombok.NoArgsConstructor;
 public class CaseStatusResponse {
 
 	@Schema(description = "Case id", example = "1234567890")
-	private String id;
+	private String caseId;
+
 	@Schema(description = "External case id", example = "1234567890")
 	private String externalCaseId;
+
 	@Schema(description = "Case type", example = "Building permit")
 	private String caseType;
+
 	@Schema(description = "Status", example = "In progress")
 	private String status;
+
 	@Schema(description = "First submitted", example = "2021-01-01")
 	private String firstSubmitted;
+
 	@Schema(description = "Last status change", example = "2021-01-01")
 	private String lastStatusChange;
-	@Schema(description = "Is open e-errand", example = "true")
-	private boolean isOpenEErrand;
+
+	@Schema(description = "The system that the case is in", example = "BYGGR")
+	private String system;
+
+	@Schema(description = "The namespace of the case", example = "Namespace")
+	private String namespace;
+
+	@Schema(description = "Human readable identifier for the case", example = "BYGGR-2024-123456")
+	private String errandNumber;
+
 }

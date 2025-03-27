@@ -9,7 +9,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.casestatus.utility.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 
 import generated.se.sundsvall.eventlog.Event;
 import generated.se.sundsvall.opene.SetStatus;
@@ -18,6 +18,7 @@ import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -91,14 +92,14 @@ class EventLogWorkerTest {
 		when(caseManagementOpeneViewRepository.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
 
 		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPage);
-		when(supportManagementService.getSupportManagementCases(eq(municipalityId), anyString())).thenReturn(errands);
+		when(supportManagementService.getSupportManagementCases(eq(municipalityId), anyString())).thenReturn(Map.of("namespace", errands));
 
 		// Act
 		eventLogWorker.updateStatus(executionInformationEntity);
 
 		// Assert
-		verify(eventlogClient, times(1)).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementService, times(1)).getSupportManagementCases(eq(municipalityId), anyString());
+		verify(eventlogClient).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
+		verify(supportManagementService).getSupportManagementCases(eq(municipalityId), anyString());
 		verify(openECallbackIntegration, times(2)).setStatus(anyString(), any(SetStatus.class));
 		verify(caseManagementOpeneViewRepository, times(2)).findByCaseManagementId(internalStatus);
 		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +

@@ -69,13 +69,12 @@ class CaseStatusResourceTests {
 	@Test
 	void getCaseStatus() {
 		when(mockCaseStatusService.getCaseStatus(any(String.class), any(String.class))).thenReturn(CaseStatusResponse.builder()
-			.withId("someId")
+			.withCaseId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someFirstSubmittedValue")
 			.withLastStatusChange("someLastStatusChangeValue")
-			.withIsOpenEErrand(true)
 			.build());
 
 		webTestClient.get()
@@ -86,12 +85,11 @@ class CaseStatusResourceTests {
 			.expectHeader()
 			.contentType(APPLICATION_JSON)
 			.expectBody()
-			.jsonPath("$.id").isEqualTo("someId")
+			.jsonPath("$.caseId").isEqualTo("someId")
 			.jsonPath("$.externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$.caseType").isEqualTo("someCaseType")
 			.jsonPath("$.firstSubmitted").isEqualTo("someFirstSubmittedValue")
-			.jsonPath("$.lastStatusChange").isEqualTo("someLastStatusChangeValue")
-			.jsonPath("$.openEErrand").isEqualTo(true);
+			.jsonPath("$.lastStatusChange").isEqualTo("someLastStatusChangeValue");
 
 		verify(mockCaseStatusService).getCaseStatus(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
@@ -126,13 +124,12 @@ class CaseStatusResourceTests {
 	@Test
 	void getOrganisationStatuses() {
 		when(mockCaseStatusService.getCaseStatuses(any(String.class), any(String.class))).thenReturn(List.of(CaseStatusResponse.builder()
-			.withId("someId")
+			.withCaseId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someFirstSubmittedValue")
 			.withLastStatusChange("someLastStatusChangeValue")
-			.withIsOpenEErrand(true)
 			.build()));
 
 		webTestClient.get()
@@ -144,12 +141,11 @@ class CaseStatusResourceTests {
 			.contentType(APPLICATION_JSON)
 			.expectBody()
 			.jsonPath("$").isArray()
-			.jsonPath("$[0].id").isEqualTo("someId")
+			.jsonPath("$[0].caseId").isEqualTo("someId")
 			.jsonPath("$[0].externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$[0].caseType").isEqualTo("someCaseType")
 			.jsonPath("$[0].firstSubmitted").isEqualTo("someFirstSubmittedValue")
-			.jsonPath("$[0].lastStatusChange").isEqualTo("someLastStatusChangeValue")
-			.jsonPath("$[0].openEErrand").isEqualTo(true);
+			.jsonPath("$[0].lastStatusChange").isEqualTo("someLastStatusChangeValue");
 
 		verify(mockCaseStatusService).getCaseStatuses(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
@@ -161,13 +157,12 @@ class CaseStatusResourceTests {
 	void getPartyStatuses() {
 
 		final var caseStatusResponse = CaseStatusResponse.builder()
-			.withId("someId")
+			.withCaseId("someId")
 			.withExternalCaseId("someExternalCaseId")
 			.withStatus("someStatus")
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someFirstSubmittedValue")
 			.withLastStatusChange("someLastStatusChangeValue")
-			.withIsOpenEErrand(true)
 			.build();
 
 		when(mockCaseStatusService.getCaseStatusesForParty(any(String.class), any(String.class))).thenReturn(List.of(caseStatusResponse));

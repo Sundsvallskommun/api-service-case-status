@@ -2,7 +2,9 @@ package se.sundsvall.casestatus.service;
 
 import generated.se.sundsvall.supportmanagement.Errand;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -17,21 +19,24 @@ public class SupportManagementService {
 		this.supportManagementClient = supportManagementClient;
 	}
 
-	public List<Errand> getSupportManagementCases(final String municipalityId, final String filter) {
+	public Map<String, List<Errand>> getSupportManagementCases(final String municipalityId, final String filter) {
 
-		final var allResponses = new ArrayList<Errand>();
+		var errandMap = new HashMap<String, List<Errand>>();
 
-		supportManagementClient.readAllNamespaceConfigs().forEach(namespace -> {
+		supportManagementClient.readAllNamespaceConfigs().forEach(config -> {
 			int pageNumber = 0;
 			Page<Errand> response;
+			List<Errand> allErrands = new ArrayList<>();
 
 			do {
-				response = supportManagementClient.findErrands(municipalityId, namespace.getNamespace(), filter, PageRequest.of(pageNumber, 100));
-				allResponses.addAll(response.getContent());
+				response = supportManagementClient.findErrands(municipalityId, config.getNamespace(), filter, PageRequest.of(pageNumber, 100));
+				allErrands.addAll(response.getContent());
 				pageNumber++;
 			} while (response.hasNext());
+
+			errandMap.put(config.getNamespace(), allErrands);
 		});
 
-		return allResponses.stream().distinct().toList();
+		return errandMap;
 	}
 }

@@ -1,7 +1,7 @@
 package se.sundsvall.casestatus.integration.opene.soap;
 
-import static se.sundsvall.casestatus.utility.Constants.EXTERNAL_CHANNEL_E_SERVICE;
-import static se.sundsvall.casestatus.utility.Constants.INTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
 
 import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.opene.SetStatusResponse;
