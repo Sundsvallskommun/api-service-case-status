@@ -39,4 +39,9 @@ public class SupportManagementService {
 
 		return errandMap;
 	}
+
+	public Errand getSupportManagementCaseById(final String municipalityId, final String errandId) {
+		return supportManagementClient.readAllNamespaceConfigs().stream().map(namespace -> supportManagementClient.findErrandById(municipalityId, namespace.getNamespace(), errandId)).findFirst().orElse(null);
+	}
+
 }
