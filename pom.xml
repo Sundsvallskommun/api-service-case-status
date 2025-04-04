@@ -149,7 +149,8 @@
 								<modelPackage>generated.se.sundsvall.casemanagement</modelPackage>
 								<openApiNullable>false</openApiNullable>
 								<generatePom>false</generatePom>
-								<useBeanValidation>true</useBeanValidation>
+								<useBeanValidation>false</useBeanValidation>
+								<useOneOfInterfaces>false</useOneOfInterfaces>
 								<useSwaggerAnnotations>true</useSwaggerAnnotations>
 								<interfaceOnly>false</interfaceOnly>
 								<useOneOfInterfaces>false</useOneOfInterfaces>
