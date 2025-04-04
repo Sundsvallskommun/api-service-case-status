@@ -27,4 +27,10 @@ public interface SupportManagementClient {
 		@PathVariable("namespace") final String namespace,
 		@RequestParam("filter") final String filter,
 		PageRequest pageRequest);
+
+	@GetMapping(path = "/{municipalityId}/{namespace}/errands/{errandId}")
+	Errand findErrandById(
+		@PathVariable("municipalityId") final String municipalityId,
+		@PathVariable("namespace") final String namespace,
+		@PathVariable("errandId") final String errandId);
 }

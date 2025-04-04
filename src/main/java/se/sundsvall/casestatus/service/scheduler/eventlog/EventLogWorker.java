@@ -9,7 +9,6 @@ import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -58,13 +57,11 @@ public class EventLogWorker {
 			return;
 		}
 
-		final var filter = createFilterString(logKeys);
-
-		var errands = supportManagementService.getSupportManagementCases(executionInformation.getMunicipalityId(), filter).values().stream()
-			.flatMap(Collection::stream)
+		final var result = logKeys.stream()
+			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), id))
 			.toList();
 
-		sortByChannel(errands).forEach(this::doOpenECallback);
+		sortByChannel(result).forEach(this::doOpenECallback);
 	}
 
 	private void doOpenECallback(final String channel, final List<SetStatus> caseEntities) {
@@ -95,13 +92,6 @@ public class EventLogWorker {
 					.map(view -> toSetStatus(errand, view.getOpenEId()))
 					.orElse(null),
 					Collectors.filtering(Objects::nonNull, Collectors.toList()))));
-	}
-
-	private String createFilterString(final List<String> logKeys) {
-		return "id in [" + logKeys.stream()
-			.map(logKey -> "'" + logKey + "'")
-			.collect(Collectors.joining(","))
-			+ "]";
 	}
 
 }

@@ -18,7 +18,6 @@ import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -68,18 +67,13 @@ class EventLogWorkerTest {
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
-		final List<Errand> errands = List.of(
-			new Errand(),
-			new Errand()
-				.status(internalStatus)
-				.channel(EXTERNAL_CHANNEL_E_SERVICE)
-				.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
-				.addExternalTagsItem(new ExternalTag().key("caseId").value("1")),
-			new Errand()
-				.status(internalStatus)
-				.channel(EXTERNAL_CHANNEL_E_SERVICE)
-				.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
-				.addExternalTagsItem(new ExternalTag().key("caseId").value("2")));
+		final var logkey = "1";
+		final var logkey2 = "2";
+		final var errand = new Errand()
+			.status(internalStatus)
+			.channel(EXTERNAL_CHANNEL_E_SERVICE)
+			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
+			.addExternalTagsItem(new ExternalTag().key("caseId").value(logkey));
 
 		final var executionInformationEntity = ExecutionInformationEntity.builder()
 			.withMunicipalityId(municipalityId)
@@ -87,19 +81,18 @@ class EventLogWorkerTest {
 			.build();
 		final var caseMapping = CaseManagementOpeneView.builder().withCaseManagementId(internalStatus).withOpenEId("someOpenEStatus").build();
 
-		when(eventPage.getContent()).thenReturn(List.of(new Event(), new Event()));
+		when(eventPage.getContent()).thenReturn(List.of(new Event().logKey(logkey), new Event().logKey(logkey2)));
 		when(eventPage.hasNext()).thenReturn(false);
 		when(caseManagementOpeneViewRepository.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
 
 		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPage);
-		when(supportManagementService.getSupportManagementCases(eq(municipalityId), anyString())).thenReturn(Map.of("namespace", errands));
-
+		when(supportManagementService.getSupportManagementCaseById(eq(municipalityId), anyString())).thenReturn(errand);
 		// Act
 		eventLogWorker.updateStatus(executionInformationEntity);
 
 		// Assert
 		verify(eventlogClient).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementService).getSupportManagementCases(eq(municipalityId), anyString());
+		verify(supportManagementService, times(2)).getSupportManagementCaseById(eq(municipalityId), anyString());
 		verify(openECallbackIntegration, times(2)).setStatus(anyString(), any(SetStatus.class));
 		verify(caseManagementOpeneViewRepository, times(2)).findByCaseManagementId(internalStatus);
 		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
