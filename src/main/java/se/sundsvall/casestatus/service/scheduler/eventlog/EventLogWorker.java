@@ -57,8 +57,10 @@ public class EventLogWorker {
 			return;
 		}
 
+		final var namespaces = supportManagementService.getSupportManagementNamespaces();
+
 		final var result = logKeys.stream()
-			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), id))
+			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), namespaces, id))
 			.toList();
 
 		sortByChannel(result).forEach(this::doOpenECallback);
