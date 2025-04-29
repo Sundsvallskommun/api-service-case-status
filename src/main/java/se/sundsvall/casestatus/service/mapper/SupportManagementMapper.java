@@ -9,15 +9,23 @@ import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.integration.db.SupportManagementStatusRepository;
+import se.sundsvall.casestatus.integration.db.model.SupportManagementStatusEntity;
 
-public final class SupportManagementMapper {
+@Component
+public class SupportManagementMapper {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
-	private SupportManagementMapper() {}
+	private final SupportManagementStatusRepository supportManagementStatusRepository;
 
-	public static CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace) {
+	public SupportManagementMapper(final SupportManagementStatusRepository supportManagementStatusRepository) {
+		this.supportManagementStatusRepository = supportManagementStatusRepository;
+	}
+
+	public CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace) {
 		final var externalCaseId = getExternalCaseId(errand);
 
 		final var modified = Optional.ofNullable(errand.getModified())
@@ -31,14 +39,20 @@ public final class SupportManagementMapper {
 		return CaseStatusResponse.builder()
 			.withCaseId(errand.getId())
 			.withExternalCaseId(externalCaseId.orElse(null))
-			.withCaseType(errand.getClassification().getType())
-			.withStatus(errand.getStatus())
+			.withCaseType(errand.getTitle())
+			.withStatus(getStatus(errand.getStatus()))
 			.withLastStatusChange(modified)
 			.withFirstSubmitted(firstSubmitted)
 			.withSystem(SUPPORT_MANAGEMENT)
 			.withErrandNumber(errand.getErrandNumber())
 			.withNamespace(namespace)
 			.build();
+	}
+
+	public String getStatus(final String systemStatus) {
+		return supportManagementStatusRepository.findBySystemStatus(systemStatus)
+			.map(SupportManagementStatusEntity::getGenericStatus)
+			.orElse(systemStatus);
 	}
 
 	public static SetStatus toSetStatus(final Errand errand, final String status) {
@@ -61,4 +75,5 @@ public final class SupportManagementMapper {
 
 		return Optional.empty();
 	}
+
 }

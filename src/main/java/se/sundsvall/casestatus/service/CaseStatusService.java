@@ -5,7 +5,6 @@ import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
-import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.toCaseStatusResponse;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
@@ -28,6 +27,7 @@ import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.OpenEMapper;
+import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 
 @Service
 public class CaseStatusService {
@@ -40,6 +40,7 @@ public class CaseStatusService {
 	private final SupportManagementService supportManagementService;
 
 	private final CaseManagementMapper caseManagementMapper;
+	private final SupportManagementMapper supportManagementMapper;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final OpenEIntegration openEIntegration,
@@ -47,7 +48,8 @@ public class CaseStatusService {
 		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
 		final PartyIntegration partyIntegration,
 		final SupportManagementService supportManagementService,
-		final CaseManagementMapper caseManagementMapper) {
+		final CaseManagementMapper caseManagementMapper,
+		final SupportManagementMapper supportManagementMapper) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.openEIntegration = openEIntegration;
 		this.caseRepository = caseRepository;
@@ -55,6 +57,7 @@ public class CaseStatusService {
 		this.partyIntegration = partyIntegration;
 		this.supportManagementService = supportManagementService;
 		this.caseManagementMapper = caseManagementMapper;
+		this.supportManagementMapper = supportManagementMapper;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
@@ -125,7 +128,7 @@ public class CaseStatusService {
 		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
 		supportManagementService.getSupportManagementCases(municipalityId, filterString)
 			.forEach((namespace, errands) -> errands.stream()
-				.map(errand -> toCaseStatusResponse(errand, namespace))
+				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace))
 				.forEach(statuses::add));
 
 		return statuses;

@@ -1,62 +1,63 @@
 [
 	{
 		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
-		"caseType": "OPEN-HOURS",
-		"errandNumber": "KC-23030013",
+		"caseType": "Empty errand",
+		"status": "Klart",
 		"firstSubmitted": "2023-03-14 11:21",
 		"lastStatusChange": "2023-03-14 13:27",
+		"system": "SUPPORT_MANAGEMENT",
 		"namespace": "MYNAMESPACE",
-		"status": "SOLVED",
-		"system": "SUPPORT_MANAGEMENT"
+		"errandNumber": "KC-23030013"
 	},
 	{
 		"caseId": "3447",
-		"caseType": "Kontakt med SC Lön och Pension - TEST DRAKEN",
 		"externalCaseId": "3447",
+		"caseType": "Kontakt med SC Lön och Pension - TEST DRAKEN",
+		"status": "Inskickat",
 		"firstSubmitted": "2024-11-19 10:38",
 		"lastStatusChange": "2024-11-19 10:38",
-		"status": "Inskickat",
-		"system": "OPEN_E_PLATFORM"
+		"system": "OPEN_E_PLATFORM",
+		"errandNumber": "3447"
 	},
 	{
 		"caseId": "KKLLMM112233",
-		"caseType": "Installation av bidé",
-		"errandNumber": "BYGG 2022-12345",
 		"externalCaseId": "12345",
+		"caseType": "Installation av bidé",
+		"status": "Avslutad",
 		"firstSubmitted": "Saknas",
 		"lastStatusChange": "2022-01-01 00:00",
-		"status": "Avslutad",
-		"system": "BYGGR"
+		"system": "BYGGR",
+		"errandNumber": "BYGG 2022-12345"
 	},
 	{
 		"caseId": "AABBCC112233",
-		"caseType": "Öl- och vinprovning",
-		"errandNumber": "ALK 2022-12348",
 		"externalCaseId": "12348",
+		"caseType": "Öl- och vinprovning",
+		"status": "Avböjd",
 		"firstSubmitted": "Saknas",
 		"lastStatusChange": "2022-01-01 00:00",
-		"status": "Avböjd",
-		"system": "ALKT"
+		"system": "ALKT",
+		"errandNumber": "ALK 2022-12348"
 	},
 	{
 		"caseId": "GGHHJJ112233",
-		"caseType": "Godkännande av ny te- och kaffemaskin",
-		"errandNumber": "ECOS 2022-12346",
 		"externalCaseId": "12346",
+		"caseType": "Godkännande av ny te- och kaffemaskin",
+		"status": "Pågående",
 		"firstSubmitted": "Saknas",
 		"lastStatusChange": "2022-01-01 00:00",
-		"status": "Pågående",
-		"system": "ECOS"
+		"system": "ECOS",
+		"errandNumber": "ECOS 2022-12346"
 	},
 	{
 		"caseId": "DDEEFF112233",
-		"caseType": "Parkering och reparation",
-		"errandNumber": "CD 2022-12347",
 		"externalCaseId": "12347",
+		"caseType": "Parkering och reparation",
+		"status": "Pågående",
 		"firstSubmitted": "Saknas",
 		"lastStatusChange": "2022-01-01 00:00",
+		"system": "CASE_DATA",
 		"namespace": "the-greatest-namespace",
-		"status": "Pågående",
-		"system": "CASE_DATA"
+		"errandNumber": "CD 2022-12347"
 	}
 ]

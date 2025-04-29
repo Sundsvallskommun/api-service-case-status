@@ -29,7 +29,7 @@ class OpenEMapperTest {
 		assertThat(response.getFirstSubmitted()).isEqualTo("firstSubmitted");
 		assertThat(response.getSystem()).isEqualTo("OPEN_E_PLATFORM");
 		assertThat(response.getExternalCaseId()).isEqualTo("flowInstanceId");
-		assertThat(response.getErrandNumber()).isNull();
+		assertThat(response.getErrandNumber()).isEqualTo("flowInstanceId");
 		assertThat(response.getNamespace()).isNull();
 	}
 
