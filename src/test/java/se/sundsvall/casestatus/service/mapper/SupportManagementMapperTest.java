@@ -121,4 +121,14 @@ class SupportManagementMapperTest {
 
 		assertThat(status).isNotNull().isEqualTo(genericStatus);
 	}
+
+	@Test
+	void getStatus_notFound() {
+		when(supportManagementStatusRepository.findBySystemStatus("someStatus")).thenReturn(Optional.empty());
+
+		var status = supportManagementMapper.getStatus("someStatus");
+
+		assertThat(status).isNotNull().isEqualTo("someStatus");
+	}
+
 }
