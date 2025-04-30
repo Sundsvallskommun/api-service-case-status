@@ -6,7 +6,8 @@
 		"status": "Inskickat",
 		"firstSubmitted": "2022-02-09 09:51",
 		"lastStatusChange": "2022-02-09 09:51",
-		"system": "OPEN_E_PLATFORM"
+		"system": "OPEN_E_PLATFORM",
+		"errandNumber": "3447"
 	},
 	{
 		"caseId": "89767",
@@ -15,6 +16,7 @@
 		"status": "Inskickat",
 		"firstSubmitted": "2022-02-09 09:51",
 		"lastStatusChange": "2022-02-09 09:51",
-		"system": "OPEN_E_PLATFORM"
+		"system": "OPEN_E_PLATFORM",
+		"errandNumber": "89767"
 	}
 ]

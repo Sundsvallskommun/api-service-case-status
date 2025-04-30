@@ -80,6 +80,7 @@ public final class TestDataFactory {
 			.externalTags(Set.of(new ExternalTag().key("familyId").value("familyId"), new ExternalTag().key("caseId").value("externalCaseId")))
 			.status("status")
 			.classification(new Classification().type("caseType").category("caseCategory"))
+			.title("title")
 			.channel("channel")
 			.errandNumber("errandNumber");
 	}

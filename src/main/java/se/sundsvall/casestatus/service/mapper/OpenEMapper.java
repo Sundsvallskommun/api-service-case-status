@@ -13,17 +13,18 @@ public final class OpenEMapper {
 	private OpenEMapper() {}
 
 	public static CaseStatusResponse toCaseStatusResponse(final CaseEntity caseEntity) {
-		return Optional.ofNullable(caseEntity).map(entity -> CaseStatusResponse.builder()
-			.withCaseId(caseEntity.getFlowInstanceId())
-			.withCaseType(caseEntity.getErrandType())
-			.withStatus(caseEntity.getStatus())
-			.withLastStatusChange(caseEntity.getLastStatusChange())
-			.withFirstSubmitted(caseEntity.getFirstSubmitted())
-			.withSystem(OPEN_E_PLATFORM)
-			.withExternalCaseId(caseEntity.getFlowInstanceId())
-			.withErrandNumber(null)
-			.withNamespace(null)
-			.build())
+		return Optional.ofNullable(caseEntity)
+			.map(entity -> CaseStatusResponse.builder()
+				.withCaseId(caseEntity.getFlowInstanceId())
+				.withCaseType(caseEntity.getErrandType())
+				.withStatus(caseEntity.getStatus())
+				.withLastStatusChange(caseEntity.getLastStatusChange())
+				.withFirstSubmitted(caseEntity.getFirstSubmitted())
+				.withSystem(OPEN_E_PLATFORM)
+				.withExternalCaseId(caseEntity.getFlowInstanceId())
+				.withErrandNumber(caseEntity.getFlowInstanceId())
+				.withNamespace(null)
+				.build())
 			.orElse(null);
 	}
 

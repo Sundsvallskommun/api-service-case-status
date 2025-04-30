@@ -39,6 +39,7 @@ import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneVie
 import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
+import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 
 @ExtendWith(MockitoExtension.class)
 class CaseStatusServiceTests {
@@ -48,20 +49,31 @@ class CaseStatusServiceTests {
 
 	@Mock
 	private PartyIntegration partyIntegrationMock;
+
 	@Mock
 	private CaseManagementIntegration caseManagementIntegrationMock;
+
 	@Mock
 	private OpenEIntegration openEIntegrationMock;
+
 	@Mock
 	private CaseRepository caseRepositoryMock;
+
 	@Mock
 	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
+
 	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
+
 	@Mock
 	private SupportManagementService supportManagementServiceMock;
+
 	@Mock
 	private CaseManagementMapper caseManagementMapperMock;
+
+	@Mock
+	private SupportManagementMapper supportManagementMapperMock;
+
 	@InjectMocks
 	private CaseStatusService caseStatusService;
 

@@ -27,6 +27,13 @@
         primary key (municipality_id)
     ) engine=InnoDB;
 
+    create table support_management_status (
+        id integer not null auto_increment,
+        generic_status varchar(255),
+        system_status varchar(255),
+        primary key (id)
+    ) engine=InnoDB;
+
     create table v_status_case_management_opene (
         case_management_id varchar(255) not null,
         opene_id varchar(255),
@@ -44,3 +51,6 @@
 
     create index idx_enum_value_municipality_id 
        on case_type (enum, municipality_id);
+
+    create index idx_system_status 
+       on support_management_status (system_status);
