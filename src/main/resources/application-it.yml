@@ -18,16 +18,8 @@ integration:
     base-url: http://localhost:${wiremock.server.port}/casemanagement
   eventlog:
     base-url: http://localhost:${wiremock.server.port}/eventlog
-  open-e:
-    base-url: http://localhost:${wiremock.server.port:}/opene
-    password: somePassword
-    username: someUsername
-    callback:
-      internal-base-url: http://localhost:${wiremock.server.port:}/callback/internal
-      external-base-url: http://localhost:${wiremock.server.port:}/callback/external
-      external-password: somePassword
-      internal-password: somePassword
-      username: someUsername
+  oep-integrator:
+    base-url: http://localhost:${wiremock.server.port}/oep-integrator
   party:
     base-url: http://localhost:${wiremock.server.port}/party
   support-management:
@@ -70,6 +62,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/token
           support-management:
             token-uri: http://localhost:${wiremock.server.port:}/token
+          oep-integrator:
+            token-uri: http://localhost:${wiremock.server.port:}/token
         registration:
           case-management:
             client-id: the-client-id
@@ -83,3 +77,6 @@ spring:
           support-management:
             client-id: the-client-id
             client-secret: the-client
+          oep-integrator:
+            client-id: the-client-id
+            client-secret: the-client-secret

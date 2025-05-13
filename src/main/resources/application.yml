@@ -5,12 +5,9 @@ integration:
   eventlog:
     connectTimeout: 5
     readTimeout: 30
-  open-e:
+  oep-integrator:
     connectTimeout: 5
     readTimeout: 30
-    callback:
-      connect-timeout: 5
-      read-timeout: 30
   party:
     connectTimeout: 5
     readTimeout: 30
@@ -45,6 +42,9 @@ spring:
           support-management:
             authorization-grant-type: client_credentials
             provider: support-management
+          oep-integrator:
+            authorization-grant-type: client_credentials
+            provider: oep-integrator
 #----------------------------------------
 # Circuit breakers
 #----------------------------------------

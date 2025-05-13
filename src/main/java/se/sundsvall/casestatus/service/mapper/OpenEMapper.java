@@ -1,8 +1,14 @@
 package se.sundsvall.casestatus.service.mapper;
 
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
 
+import generated.client.oep_integrator.CaseEnvelope;
+import generated.client.oep_integrator.CaseStatus;
+import java.io.IOException;
+import java.util.Base64;
 import java.util.Optional;
+import org.springframework.core.io.InputStreamResource;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
@@ -28,10 +34,10 @@ public final class OpenEMapper {
 			.orElse(null);
 	}
 
-	public static CasePdfResponse toCasePdfResponse(final String externalCaseId, final String pdf) {
+	public static CasePdfResponse toCasePdfResponse(final String externalCaseId, final InputStreamResource pdf) throws IOException {
 		return CasePdfResponse.builder()
 			.withExternalCaseId(externalCaseId)
-			.withBase64(pdf)
+			.withBase64(Base64.getEncoder().encodeToString(pdf.getInputStream().readAllBytes()))
 			.build();
 	}
 
@@ -42,4 +48,18 @@ public final class OpenEMapper {
 			.build();
 	}
 
+	public static CaseStatusResponse toCaseStatusResponse(final CaseEnvelope caseEnvelope, final CaseStatus caseStatus) {
+		return Optional.ofNullable(caseStatus)
+			.map(status -> CaseStatusResponse.builder()
+				.withCaseId(caseEnvelope.getFlowInstanceId())
+				.withStatus(status.getName())
+				.withLastStatusChange(formatDateTime(caseEnvelope.getStatusUpdated()))
+				.withFirstSubmitted(formatDateTime(caseEnvelope.getCreated()))
+				.withSystem(OPEN_E_PLATFORM)
+				.withExternalCaseId(caseEnvelope.getFlowInstanceId())
+				.withErrandNumber(caseEnvelope.getFlowInstanceId())
+				.withNamespace(null)
+				.build())
+			.orElse(null);
+	}
 }

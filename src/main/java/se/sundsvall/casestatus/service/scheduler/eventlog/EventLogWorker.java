@@ -1,18 +1,17 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
 import static org.slf4j.LoggerFactory.getLogger;
-import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.toSetStatus;
-import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
+import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
 
+import generated.client.oep_integrator.CaseStatusChangeRequest;
+import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
-import generated.se.sundsvall.opene.SetStatus;
-import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
-import se.sundsvall.casestatus.integration.opene.soap.OpenECallbackIntegration;
+import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
 import se.sundsvall.dept44.requestid.RequestId;
 
@@ -31,19 +30,19 @@ public class EventLogWorker {
 	private final Logger log = getLogger(EventLogWorker.class);
 	private final EventlogClient eventlogClient;
 	private final SupportManagementService supportManagementService;
-	private final OpenECallbackIntegration openECallbackIntegration;
+	private final OepIntegratorClient oepIntegratorClient;
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 	private final Duration clockSkew;
 
 	public EventLogWorker(
 		final EventlogClient eventlogClient,
 		final SupportManagementService supportManagementService,
-		final OpenECallbackIntegration openECallbackIntegration,
+		final OepIntegratorClient oepIntegratorClient,
 		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
 		@Value("${scheduler.eventlog.clock-skew:PT5S}") final Duration clockSkew) {
 		this.eventlogClient = eventlogClient;
 		this.supportManagementService = supportManagementService;
-		this.openECallbackIntegration = openECallbackIntegration;
+		this.oepIntegratorClient = oepIntegratorClient;
 		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
 		this.clockSkew = clockSkew;
 	}
@@ -63,11 +62,13 @@ public class EventLogWorker {
 			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), namespaces, id))
 			.toList();
 
-		sortByChannel(result).forEach(this::doOpenECallback);
-	}
+		result.forEach(
+			errand -> oepIntegratorClient.setStatus(executionInformation.getMunicipalityId(),
+				getInstanceType(Objects.requireNonNull(errand.getChannel())),
+				getExternalCaseId(errand).orElseThrow(),
 
-	private void doOpenECallback(final String channel, final List<SetStatus> caseEntities) {
-		caseEntities.forEach(caseEntity -> openECallbackIntegration.setStatus(channel, caseEntity));
+				new CaseStatusChangeRequest().name(caseManagementOpeneViewRepository.findByCaseManagementId(errand.getStatus()).orElseThrow().getOpenEId())));
+
 	}
 
 	private List<String> getEvents(final ExecutionInformationEntity executionInformation) {
@@ -85,15 +86,12 @@ public class EventLogWorker {
 		return logKeys;
 	}
 
-	private Map<String, List<SetStatus>> sortByChannel(final List<Errand> result) {
-		return result.stream()
-			.filter(errand -> errand.getChannel() != null && VALID_CHANNELS.contains(errand.getChannel()))
-			.collect(Collectors.groupingBy(
-				Errand::getChannel,
-				Collectors.mapping(errand -> caseManagementOpeneViewRepository.findByCaseManagementId(errand.getStatus())
-					.map(view -> toSetStatus(errand, view.getOpenEId()))
-					.orElse(null),
-					Collectors.filtering(Objects::nonNull, Collectors.toList()))));
+	private InstanceType getInstanceType(final String channel) {
+		return switch (channel) {
+			case INTERNAL_CHANNEL_E_SERVICE -> InstanceType.INTERNAL;
+			case EXTERNAL_CHANNEL_E_SERVICE -> InstanceType.EXTERNAL;
+			default -> throw new IllegalArgumentException("Invalid channel: " + channel);
+		};
 	}
 
 }

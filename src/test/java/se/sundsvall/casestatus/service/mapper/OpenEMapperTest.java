@@ -2,7 +2,11 @@ package se.sundsvall.casestatus.service.mapper;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.util.Base64;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.io.InputStreamResource;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 
 class OpenEMapperTest {
@@ -34,18 +38,21 @@ class OpenEMapperTest {
 	}
 
 	@Test
-	void toCasePdfResponse() {
+	void toCasePdfResponse() throws IOException {
 		// Arrange
 		final var externalCaseId = "externalCaseId";
 		final var pdfContent = "pdfContent";
 
+		// Mock the InputStreamResource to return the PDF content
+		final var pdfInputStream = new InputStreamResource(new ByteArrayInputStream(pdfContent.getBytes()));
+
 		// Act
-		final var response = OpenEMapper.toCasePdfResponse(externalCaseId, pdfContent);
+		final var response = OpenEMapper.toCasePdfResponse(externalCaseId, pdfInputStream);
 
 		// Assert
 		assertThat(response).isNotNull();
 		assertThat(response.getExternalCaseId()).isEqualTo(externalCaseId);
-		assertThat(response.getBase64()).isEqualTo(pdfContent);
+		assertThat(response.getBase64()).isEqualTo(Base64.getEncoder().encodeToString(pdfContent.getBytes()));
 	}
 
 	@Test

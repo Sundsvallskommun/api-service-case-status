@@ -14,10 +14,13 @@ import static se.sundsvall.TestDataFactory.createCaseEntity;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
 import static se.sundsvall.TestDataFactory.createErrand;
-import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
+import generated.client.oep_integrator.CaseEnvelope;
+import generated.client.oep_integrator.CaseStatus;
+import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.party.PartyType;
+import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +31,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
@@ -36,7 +41,7 @@ import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
-import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
+import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
@@ -46,6 +51,7 @@ class CaseStatusServiceTests {
 
 	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
 	private static final String MUNICIPALITY_ID = "2281";
+	private static final InstanceType INSTANCE_TYPE = InstanceType.EXTERNAL;
 
 	@Mock
 	private PartyIntegration partyIntegrationMock;
@@ -54,7 +60,7 @@ class CaseStatusServiceTests {
 	private CaseManagementIntegration caseManagementIntegrationMock;
 
 	@Mock
-	private OpenEIntegration openEIntegrationMock;
+	private OepIntegratorClient openEIntegrationMock;
 
 	@Mock
 	private CaseRepository caseRepositoryMock;
@@ -171,13 +177,17 @@ class CaseStatusServiceTests {
 
 	@Test
 	void getCasePdf() {
-		when(openEIntegrationMock.getPdf(any(String.class))).thenReturn(Optional.of("someBase64String"));
 
-		final var result = caseStatusService.getCasePdf("someExternalCaseID");
+		final var municipalityId = "someMunicipalityId";
+
+		when(openEIntegrationMock.getCasePdfByFlowInstanceId(any(), any(), any(String.class)))
+			.thenReturn(ResponseEntity.of(Optional.of(new InputStreamResource(new ByteArrayInputStream("lol".getBytes())))));
+
+		final var result = caseStatusService.getCasePdf(municipalityId, "someExternalCaseID");
 
 		assertThat(result).isNotNull();
 
-		verify(openEIntegrationMock).getPdf(any(String.class));
+		verify(openEIntegrationMock).getCasePdfByFlowInstanceId(any(), any(), any(String.class));
 		verifyNoMoreInteractions(openEIntegrationMock);
 	}
 
@@ -258,30 +268,34 @@ class CaseStatusServiceTests {
 	 * SupportManagement.
 	 */
 	@Test
-	void getPrivateCaseStatuses_1() {
-		var partyId = "somePartyId";
-		var legalId = "1234567890";
+	void getPrivateCaseStatuses() {
+		final var partyId = "somePartyId";
 
-		var caseStatus = createCaseStatusDTO(BYGGR);
-		var caseStatuses = List.of(caseStatus);
+		final var caseStatus = createCaseStatusDTO(BYGGR);
+		final var caseStatuses = List.of(caseStatus);
 
-		var caseEntity = createCaseEntity();
-		var caseEntities = List.of(caseEntity);
+		final var caseEntity = createCaseEntity();
 
-		var errand = createErrand();
-		var errands = List.of(errand);
-		var errandMap = Map.of(MUNICIPALITY_ID, errands);
+		final var errand = createErrand();
+		final var errands = List.of(errand);
+		final var errandMap = Map.of(MUNICIPALITY_ID, errands);
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(caseStatuses);
-		when(openEIntegrationMock.getCaseStatuses(MUNICIPALITY_ID, legalId)).thenReturn(caseEntities);
+
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().flowInstanceId("someFlowInstanceId")));
+		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(supportManagementServiceMock.getSupportManagementCases(MUNICIPALITY_ID, "stakeholders.externalId:'%s'".formatted(partyId))).thenReturn(errandMap);
 
-		var result = caseStatusService.getPrivateCaseStatuses(partyId, legalId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getPrivateCaseStatuses(partyId, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(3);
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
-		verify(openEIntegrationMock).getCaseStatuses(MUNICIPALITY_ID, legalId);
+
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
+		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "stakeholders.externalId:'%s'".formatted(partyId));
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock);
 	}
@@ -291,28 +305,24 @@ class CaseStatusServiceTests {
 	 */
 	@Test
 	void getEnterpriseCaseStatuses_1() {
-		var partyId = "somePartyId";
-		var legalId = "1234567890";
+		final var partyId = "somePartyId";
 
-		var caseStatus = createCaseStatusDTO(BYGGR);
-		var caseStatuses = List.of(caseStatus);
-
-		var caseEntity = createCaseEntity();
-		var caseEntities = List.of(caseEntity);
+		final var caseStatus = createCaseStatusDTO(BYGGR);
+		final var caseStatuses = List.of(caseStatus);
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(caseStatuses);
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
-		when(openEIntegrationMock.getCaseStatuses(MUNICIPALITY_ID, legalId)).thenReturn(caseEntities);
-		when(openEIntegrationMock.getCaseStatuses(MUNICIPALITY_ID, getFormattedOrganizationNumber(legalId))).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().flowInstanceId("someFlowInstanceId")));
+		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
 
-		var result = caseStatusService.getEnterpriseCaseStatuses(partyId, legalId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getEnterpriseCaseStatuses(partyId, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(2);
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
-		verify(openEIntegrationMock).getCaseStatuses(MUNICIPALITY_ID, legalId);
-		verify(openEIntegrationMock).getCaseStatuses(MUNICIPALITY_ID, getFormattedOrganizationNumber(legalId));
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
+		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -321,23 +331,19 @@ class CaseStatusServiceTests {
 	 */
 	@Test
 	void getEnterpriseCaseStatuses_2() {
-		var partyId = "somePartyId";
-		var legalId = "1234567890";
-
-		var caseEntity = createCaseEntity();
-		var caseEntities = List.of(caseEntity);
+		final var partyId = "somePartyId";
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
-		when(openEIntegrationMock.getCaseStatuses(MUNICIPALITY_ID, legalId)).thenReturn(emptyList());
-		when(openEIntegrationMock.getCaseStatuses(MUNICIPALITY_ID, getFormattedOrganizationNumber(legalId))).thenReturn(caseEntities);
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().flowInstanceId("someFlowInstanceId")));
+		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
 
-		var result = caseStatusService.getEnterpriseCaseStatuses(partyId, legalId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getEnterpriseCaseStatuses(partyId, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(1);
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
-		verify(openEIntegrationMock).getCaseStatuses(MUNICIPALITY_ID, legalId);
-		verify(openEIntegrationMock).getCaseStatuses(MUNICIPALITY_ID, getFormattedOrganizationNumber(legalId));
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
+		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -353,7 +359,7 @@ class CaseStatusServiceTests {
 		final var spy = Mockito.spy(caseStatusService);
 
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(partyResult);
-		when(spy.getEnterpriseCaseStatuses(partyId, legalId, MUNICIPALITY_ID)).thenReturn(caseResponses);
+		when(spy.getEnterpriseCaseStatuses(partyId, MUNICIPALITY_ID)).thenReturn(caseResponses);
 		when(spy.filterResponses(caseResponses)).thenReturn(caseResponses);
 
 		final var result = spy.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
@@ -361,7 +367,7 @@ class CaseStatusServiceTests {
 		assertThat(result).isNotNull().hasSize(1);
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
-		verify(spy).getEnterpriseCaseStatuses(partyId, legalId, MUNICIPALITY_ID);
+		verify(spy).getEnterpriseCaseStatuses(partyId, MUNICIPALITY_ID);
 		verify(spy).filterResponses(caseResponses);
 		verify(spy).getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
@@ -379,7 +385,7 @@ class CaseStatusServiceTests {
 		final var spy = Mockito.spy(caseStatusService);
 
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(partyResult);
-		when(spy.getPrivateCaseStatuses(partyId, legalId, MUNICIPALITY_ID)).thenReturn(caseResponses);
+		when(spy.getPrivateCaseStatuses(partyId, MUNICIPALITY_ID)).thenReturn(caseResponses);
 		when(spy.filterResponses(caseResponses)).thenReturn(caseResponses);
 
 		final var result = spy.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
@@ -387,7 +393,7 @@ class CaseStatusServiceTests {
 		assertThat(result).isNotNull().hasSize(1);
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
-		verify(spy).getPrivateCaseStatuses(partyId, legalId, MUNICIPALITY_ID);
+		verify(spy).getPrivateCaseStatuses(partyId, MUNICIPALITY_ID);
 		verify(spy).filterResponses(caseResponses);
 		verify(spy).getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
@@ -399,11 +405,11 @@ class CaseStatusServiceTests {
 	 */
 	@Test
 	void filterResponses_1() {
-		var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "externalCaseId");
-		var caseResponse2 = createCaseStatusResponse("BYGGR", "externalCaseId");
-		var responses = List.of(caseResponse1, caseResponse2);
+		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "externalCaseId");
+		final var caseResponse2 = createCaseStatusResponse("BYGGR", "externalCaseId");
+		final var responses = List.of(caseResponse1, caseResponse2);
 
-		var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse2);
 	}
@@ -414,11 +420,11 @@ class CaseStatusServiceTests {
 	 */
 	@Test
 	void filterResponses_2() {
-		var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
-		var caseResponse2 = createCaseStatusResponse("BYGGR", "54321");
-		var responses = List.of(caseResponse1, caseResponse2);
+		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
+		final var caseResponse2 = createCaseStatusResponse("BYGGR", "54321");
+		final var responses = List.of(caseResponse1, caseResponse2);
 
-		var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse1, caseResponse2);
 	}
@@ -429,11 +435,11 @@ class CaseStatusServiceTests {
 	 */
 	@Test
 	void filterResponses_3() {
-		var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", null);
-		var caseResponse2 = createCaseStatusResponse("BYGGR", null);
-		var responses = List.of(caseResponse1, caseResponse2);
+		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", null);
+		final var caseResponse2 = createCaseStatusResponse("BYGGR", null);
+		final var responses = List.of(caseResponse1, caseResponse2);
 
-		var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse1, caseResponse2);
 	}
@@ -445,12 +451,12 @@ class CaseStatusServiceTests {
 	 */
 	@Test
 	void filterResponses_4() {
-		var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
-		var caseResponse2 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
+		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
+		final var caseResponse2 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
 
-		var responses = List.of(caseResponse1, caseResponse2);
+		final var responses = List.of(caseResponse1, caseResponse2);
 
-		var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses);
 
 		assertThat(result).isNotNull().isEmpty();
 	}

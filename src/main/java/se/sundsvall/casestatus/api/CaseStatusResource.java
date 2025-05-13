@@ -77,7 +77,7 @@ class CaseStatusResource {
 	ResponseEntity<CasePdfResponse> getCasePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable("externalCaseId") final String externalCaseId) {
-		return ok(service.getCasePdf(externalCaseId));
+		return ok(service.getCasePdf(municipalityId, externalCaseId));
 	}
 
 	@Operation(summary = "Get organization statuses", responses = {

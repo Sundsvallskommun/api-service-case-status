@@ -4,7 +4,6 @@ import static se.sundsvall.casestatus.util.Constants.DATE_TIME_FORMAT;
 import static se.sundsvall.casestatus.util.Constants.MISSING;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
 
-import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.format.DateTimeFormatter;
@@ -23,6 +22,20 @@ public class SupportManagementMapper {
 
 	public SupportManagementMapper(final SupportManagementStatusRepository supportManagementStatusRepository) {
 		this.supportManagementStatusRepository = supportManagementStatusRepository;
+	}
+
+	public static Optional<String> getExternalCaseId(final Errand errand) {
+		final boolean familyIdExists = errand.getExternalTags().stream()
+			.anyMatch(tag -> "familyId".equalsIgnoreCase(tag.getKey()));
+
+		if (familyIdExists) {
+			return errand.getExternalTags().stream()
+				.filter(tag -> "caseId".equalsIgnoreCase(tag.getKey()))
+				.findFirst()
+				.map(ExternalTag::getValue);
+		}
+
+		return Optional.empty();
 	}
 
 	public CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace) {
@@ -53,27 +66,6 @@ public class SupportManagementMapper {
 		return supportManagementStatusRepository.findBySystemStatus(systemStatus)
 			.map(SupportManagementStatusEntity::getGenericStatus)
 			.orElse(systemStatus);
-	}
-
-	public static SetStatus toSetStatus(final Errand errand, final String status) {
-		return getExternalCaseId(errand).map(externalCaseId -> new SetStatus()
-			.withStatusAlias(status)
-			.withFlowInstanceID(Integer.parseInt(externalCaseId)))
-			.orElse(null);
-	}
-
-	static Optional<String> getExternalCaseId(final Errand errand) {
-		final boolean familyIdExists = errand.getExternalTags().stream()
-			.anyMatch(tag -> "familyId".equalsIgnoreCase(tag.getKey()));
-
-		if (familyIdExists) {
-			return errand.getExternalTags().stream()
-				.filter(tag -> "caseId".equalsIgnoreCase(tag.getKey()))
-				.findFirst()
-				.map(ExternalTag::getValue);
-		}
-
-		return Optional.empty();
 	}
 
 }

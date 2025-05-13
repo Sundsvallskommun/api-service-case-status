@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "GET",
-		"urlPattern": "/opene/api/instanceapi/getinstance/fel/pdf.*"
+		"urlPattern": "/oep-integrator/2281/EXTERNAL/cases/fel/pdf"
 	},
 	"response": {
 		"headers": {

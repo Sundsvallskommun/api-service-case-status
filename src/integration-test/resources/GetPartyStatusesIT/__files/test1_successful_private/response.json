@@ -10,16 +10,6 @@
 		"errandNumber": "KC-23030013"
 	},
 	{
-		"caseId": "3447",
-		"externalCaseId": "3447",
-		"caseType": "Kontakt med SC Lön och Pension - TEST DRAKEN",
-		"status": "Inskickat",
-		"firstSubmitted": "2024-11-19 10:38",
-		"lastStatusChange": "2024-11-19 10:38",
-		"system": "OPEN_E_PLATFORM",
-		"errandNumber": "3447"
-	},
-	{
 		"caseId": "KKLLMM112233",
 		"externalCaseId": "12345",
 		"caseType": "Installation av bidé",
@@ -38,6 +28,15 @@
 		"lastStatusChange": "2022-01-01 00:00",
 		"system": "ALKT",
 		"errandNumber": "ALK 2022-12348"
+	},
+	{
+		"caseId": "4999",
+		"externalCaseId": "4999",
+		"status": "Inskickat",
+		"firstSubmitted": "2025-02-27 11:16",
+		"lastStatusChange": "2025-03-06 09:10",
+		"system": "OPEN_E_PLATFORM",
+		"errandNumber": "4999"
 	},
 	{
 		"caseId": "GGHHJJ112233",
