@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.TestDataFactory.createCaseEntity;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
 import static se.sundsvall.TestDataFactory.createErrand;
@@ -273,8 +272,6 @@ class CaseStatusServiceTests {
 
 		final var caseStatus = createCaseStatusDTO(BYGGR);
 		final var caseStatuses = List.of(caseStatus);
-
-		final var caseEntity = createCaseEntity();
 
 		final var errand = createErrand();
 		final var errands = List.of(errand);
