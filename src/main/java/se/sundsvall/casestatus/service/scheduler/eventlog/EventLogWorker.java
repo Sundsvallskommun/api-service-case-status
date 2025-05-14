@@ -69,7 +69,7 @@ public class EventLogWorker {
 	}
 
 	private void setStatus(final ExecutionInformationEntity executionInformation, final Errand errand) {
-		if (VALID_CHANNELS.contains(errand.getChannel())) {
+		if (errand.getChannel() != null && VALID_CHANNELS.contains(errand.getChannel())) {
 
 			final var channel = Objects.requireNonNull(errand.getChannel());
 			final var instanceType = getInstanceType(channel);
