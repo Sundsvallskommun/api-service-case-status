@@ -4,10 +4,12 @@ import static org.slf4j.LoggerFactory.getLogger;
 import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
 import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
 
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
+import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,13 +64,34 @@ public class EventLogWorker {
 			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), namespaces, id))
 			.toList();
 
-		result.forEach(
-			errand -> oepIntegratorClient.setStatus(executionInformation.getMunicipalityId(),
-				getInstanceType(Objects.requireNonNull(errand.getChannel())),
-				getExternalCaseId(errand).orElseThrow(),
+		result.forEach(errand -> setStatus(executionInformation, errand));
 
-				new CaseStatusChangeRequest().name(caseManagementOpeneViewRepository.findByCaseManagementId(errand.getStatus()).orElseThrow().getOpenEId())));
+	}
 
+	private void setStatus(final ExecutionInformationEntity executionInformation, final Errand errand) {
+		if (VALID_CHANNELS.contains(errand.getChannel())) {
+
+			final var channel = Objects.requireNonNull(errand.getChannel());
+			final var instanceType = getInstanceType(channel);
+			final var externalCaseId = getExternalCaseId(errand);
+			if (externalCaseId.isEmpty()) {
+				log.warn("RequestID: {} - No external case ID found for errand {}", RequestId.get(), errand.getId());
+				return;
+			}
+
+			final var openEId = caseManagementOpeneViewRepository
+				.findByCaseManagementId(errand.getStatus())
+				.orElseThrow()
+				.getOpenEId();
+
+			final CaseStatusChangeRequest statusChangeRequest = new CaseStatusChangeRequest().name(openEId);
+
+			oepIntegratorClient.setStatus(
+				executionInformation.getMunicipalityId(),
+				instanceType,
+				externalCaseId.get(),
+				statusChangeRequest);
+		}
 	}
 
 	private List<String> getEvents(final ExecutionInformationEntity executionInformation) {
@@ -90,7 +113,7 @@ public class EventLogWorker {
 		return switch (channel) {
 			case INTERNAL_CHANNEL_E_SERVICE -> InstanceType.INTERNAL;
 			case EXTERNAL_CHANNEL_E_SERVICE -> InstanceType.EXTERNAL;
-			default -> throw new IllegalArgumentException("Invalid channel: " + channel);
+			default -> throw new IllegalStateException("Unexpected value: " + channel);
 		};
 	}
 
