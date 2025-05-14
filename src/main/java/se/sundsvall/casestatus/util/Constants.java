@@ -1,7 +1,5 @@
 package se.sundsvall.casestatus.util;
 
-import java.util.Set;
-
 public final class Constants {
 
 	public static final String EXTERNAL_CHANNEL_E_SERVICE = "ESERVICE";
@@ -12,7 +10,6 @@ public final class Constants {
 	public static final String SUPPORT_MANAGEMENT = "SUPPORT_MANAGEMENT";
 	public static final String OPEN_E_PLATFORM = "OPEN_E_PLATFORM";
 	public static final String CASE_NOT_FOUND = "Case with id %s not found";
-	public static final Set<String> VALID_CHANNELS = Set.of(EXTERNAL_CHANNEL_E_SERVICE, INTERNAL_CHANNEL_E_SERVICE);
 
 	private Constants() {
 		// Private constructor to prevent instantiation

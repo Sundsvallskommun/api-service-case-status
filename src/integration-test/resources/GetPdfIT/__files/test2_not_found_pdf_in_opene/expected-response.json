@@ -1,5 +1,5 @@
 {
 	"title": "Not Found",
 	"status": 404,
-	"detail": "Case with id fel not found"
+	"detail": "Could not find PDF for case with externalCaseId fel"
 }

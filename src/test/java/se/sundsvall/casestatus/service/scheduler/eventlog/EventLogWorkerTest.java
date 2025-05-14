@@ -12,8 +12,9 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 
+import generated.client.oep_integrator.CaseStatusChangeRequest;
+import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
-import generated.se.sundsvall.opene.SetStatus;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.Duration;
@@ -35,7 +36,7 @@ import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
-import se.sundsvall.casestatus.integration.opene.soap.OpenECallbackIntegration;
+import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
 
 @ActiveProfiles("junit")
@@ -43,19 +44,19 @@ import se.sundsvall.casestatus.service.SupportManagementService;
 class EventLogWorkerTest {
 
 	@MockitoBean
-	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
+	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
 
 	@MockitoBean
-	private EventlogClient eventlogClient;
+	private EventlogClient eventlogClientMock;
 
 	@MockitoBean
-	private SupportManagementService supportManagementService;
+	private SupportManagementService supportManagementServiceMock;
 
 	@MockitoBean
-	private OpenECallbackIntegration openECallbackIntegration;
+	private OepIntegratorClient oepIntegratorClientMock;
 
 	@Mock
-	private Page<Event> eventPage;
+	private Page<Event> eventPageMock;
 
 	@Captor
 	private ArgumentCaptor<String> filterArgumentCaptor;
@@ -83,21 +84,21 @@ class EventLogWorkerTest {
 			.build();
 		final var caseMapping = CaseManagementOpeneView.builder().withCaseManagementId(internalStatus).withOpenEId("someOpenEStatus").build();
 
-		when(eventPage.getContent()).thenReturn(List.of(new Event().logKey(logkey), new Event().logKey(logkey2)));
-		when(eventPage.hasNext()).thenReturn(false);
-		when(caseManagementOpeneViewRepository.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
+		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey), new Event().logKey(logkey2)));
+		when(eventPageMock.hasNext()).thenReturn(false);
+		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
 
-		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPage);
-		when(supportManagementService.getSupportManagementNamespaces()).thenReturn(namespaces);
-		when(supportManagementService.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPageMock);
+		when(supportManagementServiceMock.getSupportManagementNamespaces()).thenReturn(namespaces);
+		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 		// Act
 		eventLogWorker.updateStatus(executionInformationEntity);
 
 		// Assert
-		verify(eventlogClient).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementService, times(2)).getSupportManagementCaseById(eq(municipalityId), same(namespaces), anyString());
-		verify(openECallbackIntegration, times(2)).setStatus(anyString(), any(SetStatus.class));
-		verify(caseManagementOpeneViewRepository, times(2)).findByCaseManagementId(internalStatus);
+		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
+		verify(supportManagementServiceMock, times(2)).getSupportManagementCaseById(eq(municipalityId), same(namespaces), anyString());
+		verify(oepIntegratorClientMock, times(2)).setStatus(anyString(), eq(InstanceType.EXTERNAL), any(), any(CaseStatusChangeRequest.class));
+		verify(caseManagementOpeneViewRepositoryMock, times(2)).findByCaseManagementId(internalStatus);
 		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
 			"' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'");
 	}
@@ -111,16 +112,16 @@ class EventLogWorkerTest {
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
 
-		when(eventPage.getContent()).thenReturn(emptyList());
-		when(eventPage.hasNext()).thenReturn(false);
-		when(eventlogClient.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPage);
+		when(eventPageMock.getContent()).thenReturn(emptyList());
+		when(eventPageMock.hasNext()).thenReturn(false);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 
 		// Act
 		eventLogWorker.updateStatus(executionInformationEntity);
 
 		// Assert
-		verify(eventlogClient).getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture());
-		verifyNoInteractions(supportManagementService, openECallbackIntegration);
+		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture());
+		verifyNoInteractions(supportManagementServiceMock, oepIntegratorClientMock);
 		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
 			"' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'");
 	}

@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/oep-integrator/2281/EXTERNAL/cases/4999/status"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test2_successful_enterprise/responses/api-oep-integrator-get-case-status.json",
+		"status": 200
+	}
+}

@@ -99,7 +99,7 @@ class CaseStatusResourceTests {
 
 	@Test
 	void getCasePdf() {
-		when(mockCaseStatusService.getCasePdf(any(String.class))).thenReturn(CasePdfResponse.builder()
+		when(mockCaseStatusService.getCasePdf(any(), any(String.class))).thenReturn(CasePdfResponse.builder()
 			.withExternalCaseId("someExternalCaseId")
 			.withBase64("someBase64String")
 			.build());
@@ -115,7 +115,7 @@ class CaseStatusResourceTests {
 			.jsonPath("$.externalCaseId").isEqualTo("someExternalCaseId")
 			.jsonPath("$.base64").isEqualTo("someBase64String");
 
-		verify(mockCaseStatusService).getCasePdf(caseStatusServiceArgumentCaptor.capture());
+		verify(mockCaseStatusService).getCasePdf(any(), caseStatusServiceArgumentCaptor.capture());
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo("someExternalCaseId");

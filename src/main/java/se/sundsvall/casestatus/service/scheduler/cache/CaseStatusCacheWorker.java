@@ -1,18 +1,16 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
+import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.party.PartyType;
-import java.nio.charset.StandardCharsets;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
-import se.sundsvall.casestatus.integration.opene.rest.OpenEIntegration;
+import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
@@ -24,16 +22,16 @@ public class CaseStatusCacheWorker {
 	private static final Logger LOG = LoggerFactory.getLogger(CaseStatusCacheWorker.class);
 	private static final String PRIVATE = "private";
 	private static final String ORG = "org";
-	private final OpenEIntegration openEIntegration;
+	private final OepIntegratorClient oepIntegratorClient;
 	private final PartyIntegration partyIntegration;
 	private final CaseRepository caseRepository;
 	private final Dept44HealthUtility dept44HealthUtility;
 	@Value("${cache.scheduled.name}")
 	private String jobName;
 
-	public CaseStatusCacheWorker(final OpenEIntegration openEIntegration, final PartyIntegration partyIntegration,
+	public CaseStatusCacheWorker(final OepIntegratorClient oepIntegratorClient, final PartyIntegration partyIntegration,
 		final CaseRepository caseRepository, final Dept44HealthUtility dept44HealthUtility) {
-		this.openEIntegration = openEIntegration;
+		this.oepIntegratorClient = oepIntegratorClient;
 		this.partyIntegration = partyIntegration;
 		this.caseRepository = caseRepository;
 		this.dept44HealthUtility = dept44HealthUtility;
@@ -42,25 +40,27 @@ public class CaseStatusCacheWorker {
 	public void cacheStatusesForFamilyId(final FamilyId familyId) {
 
 		LOG.debug("Running for familyId: {}", familyId);
-		final var response = new String(openEIntegration.getErrandIds(familyId), StandardCharsets.ISO_8859_1);
+		final var response = oepIntegratorClient.getCases(familyId.getMunicipalityId(), InstanceType.EXTERNAL, familyId.getValue());
 
-		if (response.isEmpty()) {
+		if (response == null || response.isEmpty()) {
 			dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, "Unable to get errandIds for familyId: " + familyId);
 			return;
 		}
-		final var flowInstances = Xsoup.select(Jsoup.parse(response), "//FlowInstances/flowinstance").getElements();
 
-		if (!flowInstances.isEmpty()) {
-			flowInstances.forEach(flowInstance -> parseFlowInstance(flowInstance, familyId));
-		}
+		response.forEach(caseEnvelope -> parseFlowInstance(caseEnvelope.getFlowInstanceId(), familyId));
 	}
 
-	void parseFlowInstance(final Element flowInstance, final FamilyId familyId) {
-		final var flowInstanceID = Xsoup.select(flowInstance, "flowInstanceId/text()").get();
-		final var errandDocument = Jsoup.parse(new String(openEIntegration.getErrand(flowInstanceID), StandardCharsets.ISO_8859_1));
-		final var statusDocument = Jsoup.parse(new String(openEIntegration.getErrandStatus(flowInstanceID), StandardCharsets.ISO_8859_1));
+	void parseFlowInstance(final String flowInstanceID, final FamilyId familyId) {
+		final var oepCase = oepIntegratorClient.getCase(familyId.getMunicipalityId(), InstanceType.EXTERNAL, flowInstanceID);
 
-		final var privateOrOrganisation = parseOrganizationNumberOrPersonId(Xsoup.select(errandDocument, "//values").getElements(), familyId);
+		if (oepCase == null || oepCase.getPayload() == null) {
+			LOG.info("Unable to get errand with ID: {}, of family: {}", flowInstanceID, familyId);
+			return;
+		}
+
+		final var statusDocument = oepIntegratorClient.getCaseStatus(familyId.getMunicipalityId(), InstanceType.EXTERNAL, flowInstanceID);
+
+		final var privateOrOrganisation = parseOrganizationNumberOrPersonId(Xsoup.select(oepCase.getPayload(), "//values").getElements(), familyId);
 
 		switch (privateOrOrganisation.getKey()) {
 			case ORG -> {
@@ -69,7 +69,7 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get orgNumber, will cache errand with Id: {}, of family: {} as Organization", flowInstanceID, familyId);
-				caseRepository.save(Mapper.toCompanyCaseEntity(statusDocument, errandDocument, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
+				caseRepository.save(Mapper.toCompanyCaseEntity(statusDocument, oepCase, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
 			}
 			case PRIVATE -> {
 				final var personId = partyIntegration.getPartyIdByLegalId(familyId.getMunicipalityId(), privateOrOrganisation.getValue()).get(PartyType.PRIVATE);
@@ -78,11 +78,11 @@ public class CaseStatusCacheWorker {
 					return;
 				}
 				LOG.debug("Able to get personId, will cache errand with Id: {}, of family: {} as Private", flowInstanceID, familyId);
-				caseRepository.save(Mapper.toPrivateCaseEntity(statusDocument, errandDocument, personId, familyId.getMunicipalityId()));
+				caseRepository.save(Mapper.toPrivateCaseEntity(statusDocument, oepCase, personId, familyId.getMunicipalityId()));
 			}
 			default -> {
 				LOG.debug("Unable to get personId or OrgNumber, will cache errand with Id: {}, of family: {} as Unknown", flowInstanceID, familyId);
-				caseRepository.save(Mapper.toUnknownCaseEntity(statusDocument, errandDocument, familyId.getMunicipalityId()));
+				caseRepository.save(Mapper.toUnknownCaseEntity(statusDocument, oepCase, familyId.getMunicipalityId()));
 			}
 
 		}

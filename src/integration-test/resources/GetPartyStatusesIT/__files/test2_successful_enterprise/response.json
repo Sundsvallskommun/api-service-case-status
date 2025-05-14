@@ -1,13 +1,12 @@
 [
 	{
-		"caseId": "3447",
-		"caseType": "Kontakt med SC Lön och Pension - TEST DRAKEN",
-		"errandNumber": "3447",
-		"externalCaseId": "3447",
-		"firstSubmitted": "2024-11-19 10:38",
-		"lastStatusChange": "2024-11-19 10:38",
+		"caseId": "4999",
+		"externalCaseId": "4999",
 		"status": "Inskickat",
-		"system": "OPEN_E_PLATFORM"
+		"firstSubmitted": "2025-02-27 11:16",
+		"lastStatusChange": "2025-03-06 09:10",
+		"system": "OPEN_E_PLATFORM",
+		"errandNumber": "4999"
 	},
 	{
 		"caseId": "KKLLMM112233",

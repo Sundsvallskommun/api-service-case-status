@@ -18,20 +18,13 @@ integration:
     base-url: http://case-management.url
   eventlog:
     base-url: http://eventlog.url
-  open-e:
-    base-url: http://opene.url
-    password: somePassword
-    username: someUsername
-    callback:
-      internal-base-url: http://opene.url/callback/internal
-      external-base-url: http://opene.url/callback/external
-      external-password: somePassword
-      internal-password: somePassword
-      username: someUsername
+  oep-integrator:
+    base-url: http://oep-integrator.url
   party:
     base-url: http://party.url
   support-management:
     base-url: http://support-management.url
+
 
 spring:
   datasource:
@@ -68,6 +61,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           support-management:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          oep-integrator:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
         registration:
           case-management:
             client-id: the-client-id
@@ -81,3 +76,6 @@ spring:
           support-management:
             client-id: the-client-id
             client-secret: the-client
+          oep-integrator:
+            client-id: the-client-id
+            client-secret: the-client-secret
