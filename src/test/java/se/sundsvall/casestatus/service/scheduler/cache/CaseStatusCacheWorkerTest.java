@@ -1,6 +1,5 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
-import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -12,7 +11,6 @@ import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
 import generated.client.oep_integrator.ModelCase;
 import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -81,7 +79,7 @@ class CaseStatusCacheWorkerTest {
 		@Load(value = "/xml/getErrand_ROKKANALELDSTAD3.xml") final String getErrandXML3,
 		@Load(value = "/xml/getErrand_ROKKANALELDSTAD4.xml") final String getErrandXML4) {
 
-		final var familyId = FamilyId.ROKKANALELDSTAD;
+		final var familyId = FamilyId.TILLSTANDFORSALJNINGTOBAKSVAROR;
 		final var municipalityId = familyId.getMunicipalityId();
 		final var instanceType = InstanceType.EXTERNAL;
 
@@ -92,7 +90,7 @@ class CaseStatusCacheWorkerTest {
 		try (final var mockedContextUtil = Mockito.mockStatic(ContextUtil.class)) {
 			mockedContextUtil.when(() -> ContextUtil.getBean(CaseStatusCache.class)).thenReturn(caseStatusCacheMock);
 
-			when(oepIntegratorClientMock.getCases(municipalityId, instanceType, FamilyId.ROKKANALELDSTAD.getValue())).thenReturn(List.of(
+			when(oepIntegratorClientMock.getCases(municipalityId, instanceType, FamilyId.TILLSTANDFORSALJNINGTOBAKSVAROR.getValue())).thenReturn(List.of(
 				new CaseEnvelope().flowInstanceId("flowInstanceId1"),
 				new CaseEnvelope().flowInstanceId("flowInstanceId2"),
 				new CaseEnvelope().flowInstanceId("flowInstanceId3"),
@@ -106,7 +104,6 @@ class CaseStatusCacheWorkerTest {
 			when(oepIntegratorClientMock.getCase(municipalityId, instanceType, "flowInstanceId4")).thenReturn(new ModelCase().payload(getErrandXML4));
 
 			when(oepIntegratorClientMock.getCaseStatus(any(), any(), any())).thenReturn(new CaseStatus());
-			when(partyIntegrationMock.getPartyIdByLegalId(any(), any())).thenReturn(Map.of(PRIVATE, "somePersonId"));
 
 			caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
 

@@ -16,7 +16,7 @@ import se.sundsvall.casestatus.service.scheduler.cache.ContextUtil;
 @ExtendWith(MockitoExtension.class)
 class FamilyIdTest {
 
-	private final FamilyId familyId = FamilyId.ROKKANALELDSTAD;
+	private final FamilyId familyId = FamilyId.TILLSTANDFORSALJNINGTOBAKSVAROR;
 
 	@Mock
 	private CaseStatusCache caseStatusCache;
@@ -27,9 +27,9 @@ class FamilyIdTest {
 			utilities.when(() -> ContextUtil.getBean(any())).thenReturn(caseStatusCache);
 			when(caseStatusCache.isProduction()).thenReturn(true).thenReturn(false);
 			final int resultTrue = familyId.getValue();
-			assertThat(resultTrue).isEqualTo(437);
+			assertThat(resultTrue).isEqualTo(187);
 			final int resultFalse = familyId.getValue();
-			assertThat(resultFalse).isEqualTo(382);
+			assertThat(resultFalse).isEqualTo(380);
 		}
 	}
 }
