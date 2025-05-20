@@ -1,7 +1,6 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
 import generated.client.oep_integrator.InstanceType;
-import generated.se.sundsvall.party.PartyType;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.jsoup.select.Elements;
@@ -62,54 +61,27 @@ public class CaseStatusCacheWorker {
 
 		final var privateOrOrganisation = parseOrganizationNumberOrPersonId(Xsoup.select(oepCase.getPayload(), "//values").getElements(), familyId);
 
-		switch (privateOrOrganisation.getKey()) {
-			case ORG -> {
-				if ((privateOrOrganisation.getValue() == null) || privateOrOrganisation.getValue().isEmpty()) {
-					LOG.info("Unable to get organisation number will not cache errand with ID: {}, of family: {}", flowInstanceID, familyId);
-					return;
-				}
-				LOG.debug("Able to get orgNumber, will cache errand with Id: {}, of family: {} as Organization", flowInstanceID, familyId);
-				caseRepository.save(Mapper.toCompanyCaseEntity(statusDocument, oepCase, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
+		if (privateOrOrganisation.getKey().equals(ORG)) {
+			if ((privateOrOrganisation.getValue() == null) || privateOrOrganisation.getValue().isEmpty()) {
+				LOG.info("Unable to get organisation number will not cache errand with ID: {}, of family: {}", flowInstanceID, familyId);
+				return;
 			}
-			case PRIVATE -> {
-				final var personId = partyIntegration.getPartyIdByLegalId(familyId.getMunicipalityId(), privateOrOrganisation.getValue()).get(PartyType.PRIVATE);
-				if ((personId == null) || personId.isEmpty()) {
-					LOG.info("Unable to get personId, will not cache errand with Id: {}, of family: {}", flowInstanceID, familyId);
-					return;
-				}
-				LOG.debug("Able to get personId, will cache errand with Id: {}, of family: {} as Private", flowInstanceID, familyId);
-				caseRepository.save(Mapper.toPrivateCaseEntity(statusDocument, oepCase, personId, familyId.getMunicipalityId()));
-			}
-			default -> {
-				LOG.debug("Unable to get personId or OrgNumber, will cache errand with Id: {}, of family: {} as Unknown", flowInstanceID, familyId);
-				caseRepository.save(Mapper.toUnknownCaseEntity(statusDocument, oepCase, familyId.getMunicipalityId()));
-			}
-
+			LOG.debug("Able to get orgNumber, will cache errand with Id: {}, of family: {} as Organization", flowInstanceID, familyId);
+			caseRepository.save(Mapper.toCompanyCaseEntity(statusDocument, oepCase, privateOrOrganisation.getValue(), familyId.getMunicipalityId()));
+		} else {
+			LOG.debug("Unable to get personId or OrgNumber, will cache errand with Id: {}, of family: {} as Unknown", flowInstanceID, familyId);
+			caseRepository.save(Mapper.toUnknownCaseEntity(statusDocument, oepCase, familyId.getMunicipalityId()));
 		}
 	}
 
 	private Pair<String, String> parseOrganizationNumberOrPersonId(final Elements flowInstance, final FamilyId familyID) {
-		if (familyID.isApplicant() && !flowInstance.select("type").isEmpty()) {
-			return parseApplicantInfo(flowInstance);
-		}
+
 		return switch (familyID) {
 			case ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR, TILLSTANDFORSALJNINGTOBAKSVAROR,
-				ANMALANFORSELJNINGSERVERINGFOLKOL, FORSALJNINGECIGGARETTER -> new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()")
+				ANMALANFORSELJNINGSERVERINGFOLKOL -> new ImmutablePair<>(ORG, Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()")
 					.get() != null ? Xsoup.select(flowInstance.first(), "company/organisationsnummer/text()").get()
 						: Xsoup.select(flowInstance.first(), "chooseCompany/organizationNumber/text()").get());
-			default -> new ImmutablePair<>("", "");
 		};
-	}
-
-	private Pair<String, String> parseApplicantInfo(final Elements openEObj) {
-		if ("Privat".equals(Xsoup.select(openEObj.first(), "type/value/text()").get()) || "Privatperson".equals(Xsoup.select(openEObj.first(), "Values/type/Value/text()").get())) {
-			return new ImmutablePair<>(PRIVATE, Xsoup.select(openEObj.first(), "applicant/SocialSecurityNumber/text()").get().trim());
-
-		}
-		if (Xsoup.select(openEObj.first(), "applicant/applicantidentifier").get() != null) {
-			return new ImmutablePair<>(ORG, Xsoup.select(openEObj.first(), "applicant/applicantidentifier/text()").get());
-		}
-		return new ImmutablePair<>(ORG, "Saknas");
 	}
 
 }
