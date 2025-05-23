@@ -8,6 +8,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
@@ -34,6 +35,7 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
@@ -46,7 +48,7 @@ import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 
 @ExtendWith(MockitoExtension.class)
-class CaseStatusServiceTests {
+class CaseStatusServiceTest {
 
 	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
 	private static final String MUNICIPALITY_ID = "2281";
@@ -57,6 +59,9 @@ class CaseStatusServiceTests {
 
 	@Mock
 	private CaseManagementIntegration caseManagementIntegrationMock;
+
+	@Mock
+	private CaseDataIntegration caseDataIntegrationMock;
 
 	@Mock
 	private OepIntegratorClient openEIntegrationMock;
@@ -456,6 +461,58 @@ class CaseStatusServiceTests {
 		final var result = caseStatusService.filterResponses(responses);
 
 		assertThat(result).isNotNull().isEmpty();
+	}
+
+	@Test
+	void getErrandStatuses_noRequestParameters() {
+		assertThatThrownBy(() -> caseStatusService.getErrandStatuses(MUNICIPALITY_ID, null, null))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Bad Request: Either propertyDesignation or errandNumber must be provided");
+	}
+
+	@Test
+	void getErrandStatuses_bothRequestParameters() {
+		assertThatThrownBy(() -> caseStatusService.getErrandStatuses(MUNICIPALITY_ID, "Moon Street 1", "Case 123"))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Bad Request: Both propertyDesignation and errandNumber cannot be provided at the same time");
+	}
+
+	@Test
+	void getErrandStatuses_propertyDesignation() {
+		final var propertyDesignation = "Moon Street 1";
+
+		when(caseDataIntegrationMock.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, propertyDesignation))
+			.thenReturn(List.of(createCaseStatusResponse("CASE_DATA", "1234567890")));
+
+		final var result = caseStatusService.getErrandStatuses(MUNICIPALITY_ID, propertyDesignation, null);
+
+		assertThat(result).isNotNull().hasSize(1);
+
+		verify(caseDataIntegrationMock).getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, propertyDesignation);
+		verifyNoMoreInteractions(caseManagementIntegrationMock);
+		verifyNoInteractions(supportManagementServiceMock);
+	}
+
+	@Test
+	void getErrandStatuses_errandNumber() {
+		final var errandNumber = "Case 123";
+
+		final var supportManagementErrand = createErrand();
+		when(supportManagementServiceMock.getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber)))
+			.thenReturn(Map.of("namespace", List.of(supportManagementErrand)));
+		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, "namespace")).thenCallRealMethod();
+		when(caseDataIntegrationMock.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, errandNumber))
+			.thenReturn(List.of(createCaseStatusResponse("CASE_DATA", "1234567890")));
+
+		final var result = caseStatusService.getErrandStatuses(MUNICIPALITY_ID, null, errandNumber);
+
+		assertThat(result).isNotNull().hasSize(2);
+		assertThat(result.getFirst().getSystem()).isEqualTo("SUPPORT_MANAGEMENT");
+		assertThat(result.getLast().getSystem()).isEqualTo("CASE_DATA");
+
+		verify(caseDataIntegrationMock).getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, errandNumber);
+		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber));
+		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, "namespace");
 	}
 
 }

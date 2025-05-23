@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPattern": "/supportmanagement/2281/FIRST_NAMESPACE/errands.*"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_getErrandsByErrandNumber/responses/api-supportmanagement-get-errands-first-namespace.json",
+		"status": 200
+	}
+}

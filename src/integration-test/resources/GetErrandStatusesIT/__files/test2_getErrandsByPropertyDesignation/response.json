@@ -1,0 +1,12 @@
+[
+	{
+		"caseId": "1",
+		"caseType": "PARKING_PERMIT",
+		"status": "Ärende avslutat",
+		"firstSubmitted": "Saknas",
+		"lastStatusChange": "2022-12-02 15:15",
+		"system": "CASE_DATA",
+		"namespace": "SBK_PARKING_PERMIT",
+		"errandNumber": "PRH-2022-000001"
+	}
+]

@@ -1,5 +1,6 @@
 package se.sundsvall;
 
+import generated.se.sundsvall.casedata.Status;
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.supportmanagement.Classification;
 import generated.se.sundsvall.supportmanagement.Errand;
@@ -7,6 +8,7 @@ import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
+import java.util.List;
 import java.util.Set;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
@@ -83,5 +85,16 @@ public final class TestDataFactory {
 			.title("title")
 			.channel("channel")
 			.errandNumber("errandNumber");
+	}
+
+	public static generated.se.sundsvall.casedata.Errand createCaseDataErrand() {
+		var status = new Status().statusType("status").created(OffsetDateTime.now());
+		return new generated.se.sundsvall.casedata.Errand()
+			.id(123L)
+			.caseType("caseType")
+			.status(status)
+			.statuses(List.of(status))
+			.externalCaseId("externalCaseId")
+			.namespace("namespace");
 	}
 }
