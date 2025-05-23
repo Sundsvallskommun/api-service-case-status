@@ -1,0 +1,90 @@
+{
+	"content": [
+		{
+			"id": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+			"errandNumber": "KC-23030013",
+			"title": "Empty errand",
+			"priority": "MEDIUM",
+			"stakeholders": [
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "APPLICANT",
+					"firstName": "Kimoz",
+					"lastName": "kimsson",
+					"address": "NORRMALMSGATAN 4",
+					"careOf": "",
+					"zipCode": "851 85",
+					"country": "SWEDEN",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "a@example.com"
+						},
+						{
+							"type": "Email",
+							"value": "b@example.com"
+						},
+						{
+							"type": "Phone",
+							"value": "+46701740635"
+						}
+					],
+					"parameters": []
+				},
+				{
+					"externalId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+					"externalIdType": "CONTACT",
+					"firstName": "Tomas",
+					"lastName": "Svensson",
+					"address": "NORRMALMSGATAN 4",
+					"careOf": "",
+					"zipCode": "851 85",
+					"country": "Sweden",
+					"contactChannels": [
+						{
+							"type": "Email",
+							"value": "edwintestar@test.com"
+						}
+					],
+					"parameters": []
+				}
+			],
+			"externalTags": [
+				{
+					"key": "caseId",
+					"value": "20230314-784"
+				}
+			],
+			"parameters": [],
+			"classification": {
+				"category": "SUPPORT-CASE",
+				"type": "OPEN-HOURS"
+			},
+			"status": "SOLVED",
+			"reporterUserId": "kctest",
+			"assignedUserId": "kctest",
+			"suspension": {},
+			"labels": [],
+			"created": "2023-03-14T11:21:52.507+01:00",
+			"modified": "2023-03-14T13:27:31.017+01:00",
+			"touched": "2023-03-14T13:27:31+01:00"
+		}
+	],
+	"pageable": {
+		"pageNumber": 0,
+		"pageSize": 20,
+		"sort": [],
+		"offset": 0,
+		"paged": true,
+		"unpaged": false
+	},
+	"last": false,
+	"totalElements": 1,
+	"totalPages": 1,
+	"first": true,
+	"size": 20,
+	"number": 0,
+	"sort": [],
+	"numberOfElements": 1,
+	"empty": false
+}

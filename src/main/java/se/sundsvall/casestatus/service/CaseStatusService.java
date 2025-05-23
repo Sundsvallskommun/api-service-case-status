@@ -3,6 +3,7 @@ package se.sundsvall.casestatus.service;
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
+import static org.zalando.problem.Status.BAD_REQUEST;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
@@ -20,6 +21,7 @@ import org.zalando.problem.Status;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
+import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
@@ -41,6 +43,7 @@ public class CaseStatusService {
 	private final SupportManagementService supportManagementService;
 
 	private final CaseManagementMapper caseManagementMapper;
+	private final CaseDataIntegration caseDataIntegration;
 	private final SupportManagementMapper supportManagementMapper;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
@@ -50,6 +53,7 @@ public class CaseStatusService {
 		final PartyIntegration partyIntegration,
 		final SupportManagementService supportManagementService,
 		final CaseManagementMapper caseManagementMapper,
+		CaseDataIntegration caseDataIntegration,
 		final SupportManagementMapper supportManagementMapper) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.oepIntegratorClient = oepIntegratorClient;
@@ -58,6 +62,7 @@ public class CaseStatusService {
 		this.partyIntegration = partyIntegration;
 		this.supportManagementService = supportManagementService;
 		this.caseManagementMapper = caseManagementMapper;
+		this.caseDataIntegration = caseDataIntegration;
 		this.supportManagementMapper = supportManagementMapper;
 	}
 
@@ -196,4 +201,29 @@ public class CaseStatusService {
 			.toList();
 	}
 
+	public List<CaseStatusResponse> getErrandStatuses(final String municipalityId, final String propertyDesignation, final String errandNumber) {
+		if (propertyDesignation != null && errandNumber != null) {
+			throw Problem.valueOf(BAD_REQUEST, "Both propertyDesignation and errandNumber cannot be provided at the same time");
+		}
+		if (propertyDesignation == null && errandNumber == null) {
+			throw Problem.valueOf(BAD_REQUEST, "Either propertyDesignation or errandNumber must be provided");
+		}
+
+		if (propertyDesignation != null) {
+			return caseDataIntegration.getCaseDataCaseByPropertyDesignation(municipalityId, propertyDesignation);
+		}
+
+		final var filterString = "errandNumber:'%s'".formatted(errandNumber);
+		var supportManagementCases = supportManagementService.getSupportManagementCases(municipalityId, filterString);
+		var caseStatusResponses = supportManagementCases.entrySet().stream()
+			.flatMap(entry -> entry.getValue().stream()
+				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, entry.getKey())))
+			.toList();
+
+		var caseDataCases = caseDataIntegration.getCaseDataCaseByErrandNumber(municipalityId, errandNumber);
+
+		return Stream.of(caseStatusResponses, caseDataCases)
+			.flatMap(List::stream)
+			.toList();
+	}
 }

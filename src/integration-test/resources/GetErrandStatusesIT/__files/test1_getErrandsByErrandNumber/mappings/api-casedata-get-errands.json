@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPattern": "/case-data/2281/errands.*"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_getErrandsByErrandNumber/responses/api-casedata-get-errands.json",
+		"status": 200
+	}
+}

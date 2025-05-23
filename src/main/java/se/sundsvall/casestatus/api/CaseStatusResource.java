@@ -16,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
@@ -102,6 +103,15 @@ class CaseStatusResource {
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable("partyId") @ValidUuid final String partyId) {
 		return ok(service.getCaseStatusesForParty(partyId, municipalityId));
+	}
+
+	@GetMapping(path = "/errands/statuses", produces = APPLICATION_JSON_VALUE)
+	ResponseEntity<List<CaseStatusResponse>> getErrandStatuses(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@Parameter(name = "propertyDesignation", description = "Property designation to find cases for", example = "Körsbärsdalen 123") @RequestParam(value = "propertyDesignation", required = false) final String propertyDesignation,
+		@Parameter(name = "errandNumber", description = "Errand number to find cases for", example = "Number 123") @RequestParam(value = "errandNumber", required = false) final String errandNumber) {
+
+		return ok(service.getErrandStatuses(municipalityId, propertyDesignation, errandNumber));
 	}
 
 }
