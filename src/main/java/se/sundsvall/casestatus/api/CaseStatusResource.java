@@ -105,6 +105,9 @@ class CaseStatusResource {
 		return ok(service.getCaseStatusesForParty(partyId, municipalityId));
 	}
 
+	@Operation(summary = "Get errand statuses by errandNumber or propertyDesignation", responses = {
+		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	})
 	@GetMapping(path = "/errands/statuses", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<CaseStatusResponse>> getErrandStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,

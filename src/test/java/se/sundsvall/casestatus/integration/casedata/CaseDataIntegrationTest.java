@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.zalando.problem.Status.NOT_FOUND;
 import static se.sundsvall.TestDataFactory.createCaseDataErrand;
@@ -53,6 +54,8 @@ class CaseDataIntegrationTest {
 		assertThat(result).hasSize(1).allSatisfy(response -> {
 			assertThat(response).usingRecursiveAssertion().isEqualTo(CaseDataMapper.toCaseStatusResponse(caseDataErrand));
 		});
+
+		verifyNoMoreInteractions(clientMock);
 	}
 
 	@Test
@@ -67,6 +70,7 @@ class CaseDataIntegrationTest {
 		verify(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), filterCaptor.capture(), any(PageRequest.class));
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(PROPERTY_DESIGNATION_FILTER.formatted(propertyDesignation));
+		verifyNoMoreInteractions(clientMock);
 	}
 
 	@Test
@@ -84,6 +88,7 @@ class CaseDataIntegrationTest {
 		assertThat(result).hasSize(1).allSatisfy(response -> {
 			assertThat(response).usingRecursiveAssertion().isEqualTo(CaseDataMapper.toCaseStatusResponse(caseDataErrand));
 		});
+		verifyNoMoreInteractions(clientMock);
 	}
 
 	@Test
@@ -98,5 +103,6 @@ class CaseDataIntegrationTest {
 		verify(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), filterCaptor.capture(), any(PageRequest.class));
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(ERRAND_NUMBER_FILTER.formatted(errandNumber));
+		verifyNoMoreInteractions(clientMock);
 	}
 }

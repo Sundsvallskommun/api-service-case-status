@@ -468,6 +468,7 @@ class CaseStatusServiceTest {
 		assertThatThrownBy(() -> caseStatusService.getErrandStatuses(MUNICIPALITY_ID, null, null))
 			.isInstanceOf(Problem.class)
 			.hasMessage("Bad Request: Either propertyDesignation or errandNumber must be provided");
+		verifyNoInteractions(caseDataIntegrationMock, supportManagementServiceMock);
 	}
 
 	@Test
@@ -475,6 +476,7 @@ class CaseStatusServiceTest {
 		assertThatThrownBy(() -> caseStatusService.getErrandStatuses(MUNICIPALITY_ID, "Moon Street 1", "Case 123"))
 			.isInstanceOf(Problem.class)
 			.hasMessage("Bad Request: Both propertyDesignation and errandNumber cannot be provided at the same time");
+		verifyNoInteractions(caseDataIntegrationMock, supportManagementServiceMock);
 	}
 
 	@Test

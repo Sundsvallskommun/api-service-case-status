@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "4.1"
 servers:
-  - url: http://localhost:63727
+  - url: http://localhost:64838
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/statuses:
@@ -238,6 +238,7 @@ paths:
     get:
       tags:
         - Status Resources
+      summary: Get errand statuses by errandNumber or propertyDesignation
       operationId: getErrandStatuses
       parameters:
         - name: municipalityId
@@ -262,6 +263,14 @@ paths:
             type: string
           example: Number 123
       responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseStatusResponse"
         "400":
           description: Bad request
           content:
@@ -307,20 +316,20 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     ConstraintViolationProblem:
       type: object
       properties:
@@ -442,12 +451,12 @@ components:
           type: object
           additionalProperties:
             type: object
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:

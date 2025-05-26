@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -53,7 +54,7 @@ public class CaseStatusService {
 		final PartyIntegration partyIntegration,
 		final SupportManagementService supportManagementService,
 		final CaseManagementMapper caseManagementMapper,
-		CaseDataIntegration caseDataIntegration,
+		final CaseDataIntegration caseDataIntegration,
 		final SupportManagementMapper supportManagementMapper) {
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.oepIntegratorClient = oepIntegratorClient;
@@ -202,14 +203,14 @@ public class CaseStatusService {
 	}
 
 	public List<CaseStatusResponse> getErrandStatuses(final String municipalityId, final String propertyDesignation, final String errandNumber) {
-		if (propertyDesignation != null && errandNumber != null) {
+		if (StringUtils.isNotBlank(propertyDesignation) && StringUtils.isNotBlank(errandNumber)) {
 			throw Problem.valueOf(BAD_REQUEST, "Both propertyDesignation and errandNumber cannot be provided at the same time");
 		}
 		if (propertyDesignation == null && errandNumber == null) {
 			throw Problem.valueOf(BAD_REQUEST, "Either propertyDesignation or errandNumber must be provided");
 		}
 
-		if (propertyDesignation != null) {
+		if (StringUtils.isNotBlank(propertyDesignation)) {
 			return caseDataIntegration.getCaseDataCaseByPropertyDesignation(municipalityId, propertyDesignation);
 		}
 

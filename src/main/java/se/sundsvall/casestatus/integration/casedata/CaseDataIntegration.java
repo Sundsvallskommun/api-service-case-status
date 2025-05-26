@@ -30,8 +30,7 @@ public class CaseDataIntegration {
 			LOGGER.info("Successfully fetched {} errand(s) for municipalityId: {} and propertyDesignation: {}", errands.size(), municipalityId, propertyDesignation);
 			return CaseDataMapper.toCaseStatusResponses(errands);
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-			LOGGER.info("Error while fetching errands for municipalityId: {} and propertyDesignation: {}, returning empty list.", municipalityId, propertyDesignation);
+			LOGGER.error("Error while fetching errands for municipalityId: {} and propertyDesignation: {}, returning empty list.", municipalityId, propertyDesignation, e);
 			return List.of();
 		}
 	}
@@ -46,8 +45,7 @@ public class CaseDataIntegration {
 			LOGGER.info("Successfully fetched {} errand(s) for municipalityId: {} and errandNumber: {}", errands.size(), municipalityId, errandNumber);
 			return CaseDataMapper.toCaseStatusResponses(errands);
 		} catch (Exception e) {
-			LOGGER.error(e.getMessage(), e);
-			LOGGER.info("Error while fetching errands for municipalityId: {} and errandNumber: {}, returning empty list.", municipalityId, errandNumber);
+			LOGGER.error("Error while fetching errands for municipalityId: {} and errandNumber: {}, returning empty list.", municipalityId, errandNumber, e);
 			return List.of();
 		}
 	}
