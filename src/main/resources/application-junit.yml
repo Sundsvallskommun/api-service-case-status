@@ -24,6 +24,8 @@ integration:
     base-url: http://party.url
   support-management:
     base-url: http://support-management.url
+  case-data:
+    base-url: http://case-data.url
 
 
 spring:
@@ -63,6 +65,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           oep-integrator:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          case-data:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
         registration:
           case-management:
             client-id: the-client-id
@@ -77,5 +81,8 @@ spring:
             client-id: the-client-id
             client-secret: the-client
           oep-integrator:
+            client-id: the-client-id
+            client-secret: the-client-secret
+          case-data:
             client-id: the-client-id
             client-secret: the-client-secret

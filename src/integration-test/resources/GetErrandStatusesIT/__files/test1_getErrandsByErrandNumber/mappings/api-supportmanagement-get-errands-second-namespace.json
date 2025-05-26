@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPattern": "/supportmanagement/2281/SECOND_NAMESPACE/errands.*"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_getErrandsByErrandNumber/responses/api-supportmanagement-get-errands-second-namespace.json",
+		"status": 200
+	}
+}

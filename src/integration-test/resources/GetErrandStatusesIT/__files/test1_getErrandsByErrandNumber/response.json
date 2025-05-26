@@ -1,0 +1,32 @@
+[
+	{
+		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+		"caseType": "Empty errand",
+		"status": "Klart",
+		"firstSubmitted": "2023-03-14 11:21",
+		"lastStatusChange": "2023-03-14 13:27",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "SECOND_NAMESPACE",
+		"errandNumber": "KC-23030013"
+	},
+	{
+		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+		"caseType": "Empty errand",
+		"status": "Klart",
+		"firstSubmitted": "2023-03-14 11:21",
+		"lastStatusChange": "2023-03-14 13:27",
+		"system": "SUPPORT_MANAGEMENT",
+		"namespace": "FIRST_NAMESPACE",
+		"errandNumber": "KC-23030013"
+	},
+	{
+		"caseId": "1",
+		"caseType": "PARKING_PERMIT",
+		"status": "Ärende avslutat",
+		"firstSubmitted": "Saknas",
+		"lastStatusChange": "2022-12-02 15:15",
+		"system": "CASE_DATA",
+		"namespace": "SBK_PARKING_PERMIT",
+		"errandNumber": "PRH-2022-000001"
+	}
+]

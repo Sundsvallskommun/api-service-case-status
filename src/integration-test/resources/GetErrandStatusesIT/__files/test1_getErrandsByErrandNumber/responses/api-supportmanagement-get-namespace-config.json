@@ -1,0 +1,16 @@
+[
+	{
+		"namespace": "FIRST_NAMESPACE",
+		"municipalityId": "2281",
+		"displayName": "First Namespace",
+		"shortCode": "FN",
+		"created": "2024-06-10T14:24:36.86+02:00"
+	},
+	{
+		"namespace": "SECOND_NAMESPACE",
+		"municipalityId": "2281",
+		"displayName": "Second Namespace",
+		"shortCode": "SN",
+		"created": "2024-06-10T14:24:36.86+02:00"
+	}
+]

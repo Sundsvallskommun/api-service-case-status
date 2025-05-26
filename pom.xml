@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>se.sundsvall.casestatus</groupId>
 	<artifactId>api-service-casestatus</artifactId>
-	<version>4.0</version>
+	<version>4.1</version>
 	<name>api-service-casestatus</name>
 	<properties>
 		<jsoup.version>1.20.1</jsoup.version>
@@ -162,6 +162,31 @@
 								<dateLibrary>java8</dateLibrary>
 								<apiPackage>generated</apiPackage>
 								<modelPackage>generated.se.sundsvall.supportmanagement</modelPackage>
+								<openApiNullable>false</openApiNullable>
+								<generatePom>false</generatePom>
+								<useBeanValidation>true</useBeanValidation>
+								<useSwaggerAnnotations>true</useSwaggerAnnotations>
+								<interfaceOnly>true</interfaceOnly>
+							</configOptions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>case-data-api</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/integrations/case-data.yml</inputSpec>
+							<output>${generated-sources-path}</output>
+							<generatorName>spring</generatorName>
+							<generateApis>false</generateApis>
+							<generateSupportingFiles>false</generateSupportingFiles>
+							<configOptions>
+								<useSpringBoot3>true</useSpringBoot3>
+								<sourceFolder>${generated-sources-java-path}</sourceFolder>
+								<dateLibrary>java8</dateLibrary>
+								<apiPackage>generated</apiPackage>
+								<modelPackage>generated.se.sundsvall.casedata</modelPackage>
 								<openApiNullable>false</openApiNullable>
 								<generatePom>false</generatePom>
 								<useBeanValidation>true</useBeanValidation>
