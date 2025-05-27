@@ -15,7 +15,7 @@ public class CaseDataIntegration {
 	private final CaseDataClient client;
 	private final CaseDataProperties properties;
 
-	static final String PROPERTY_DESIGNATION_FILTER = "facilities.address.propertyDesignation:'%s'";
+	static final String PROPERTY_DESIGNATION_FILTER = "facilities.address.propertyDesignation~'%s'";
 	static final String ERRAND_NUMBER_FILTER = "errandNumber:'%s'";
 
 	public CaseDataIntegration(final CaseDataClient client, CaseDataProperties properties) {
