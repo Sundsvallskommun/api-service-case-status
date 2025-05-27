@@ -52,6 +52,8 @@ class CaseStatusServiceTest {
 
 	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
 	private static final String MUNICIPALITY_ID = "2281";
+	private static final String NAMESPACE_1 = "namespace1";
+	private static final String NAMESPACE_2 = "namespace2";
 	private static final InstanceType INSTANCE_TYPE = InstanceType.EXTERNAL;
 
 	@Mock
@@ -483,14 +485,18 @@ class CaseStatusServiceTest {
 	void getErrandStatuses_propertyDesignation() {
 		final var propertyDesignation = "Moon Street 1";
 
-		when(caseDataIntegrationMock.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, propertyDesignation))
+		when(caseDataIntegrationMock.getNamespaces()).thenReturn(List.of(NAMESPACE_1, NAMESPACE_2));
+		when(caseDataIntegrationMock.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, NAMESPACE_1, propertyDesignation))
 			.thenReturn(List.of(createCaseStatusResponse("CASE_DATA", "1234567890")));
+		when(caseDataIntegrationMock.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, NAMESPACE_2, propertyDesignation))
+			.thenReturn(List.of(createCaseStatusResponse("CASE_DATA", "0987654321")));
 
 		final var result = caseStatusService.getErrandStatuses(MUNICIPALITY_ID, propertyDesignation, null);
 
-		assertThat(result).isNotNull().hasSize(1);
+		assertThat(result).isNotNull().hasSize(2);
 
-		verify(caseDataIntegrationMock).getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, propertyDesignation);
+		verify(caseDataIntegrationMock).getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, NAMESPACE_1, propertyDesignation);
+		verify(caseDataIntegrationMock).getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, NAMESPACE_2, propertyDesignation);
 		verifyNoMoreInteractions(caseManagementIntegrationMock);
 		verifyNoInteractions(supportManagementServiceMock);
 	}
@@ -503,7 +509,8 @@ class CaseStatusServiceTest {
 		when(supportManagementServiceMock.getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber)))
 			.thenReturn(Map.of("namespace", List.of(supportManagementErrand)));
 		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, "namespace")).thenCallRealMethod();
-		when(caseDataIntegrationMock.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, errandNumber))
+		when(caseDataIntegrationMock.getNamespaces()).thenReturn(List.of(NAMESPACE_1));
+		when(caseDataIntegrationMock.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber))
 			.thenReturn(List.of(createCaseStatusResponse("CASE_DATA", "1234567890")));
 
 		final var result = caseStatusService.getErrandStatuses(MUNICIPALITY_ID, null, errandNumber);
@@ -512,7 +519,7 @@ class CaseStatusServiceTest {
 		assertThat(result.getFirst().getSystem()).isEqualTo("SUPPORT_MANAGEMENT");
 		assertThat(result.getLast().getSystem()).isEqualTo("CASE_DATA");
 
-		verify(caseDataIntegrationMock).getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, errandNumber);
+		verify(caseDataIntegrationMock).getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber);
 		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber));
 		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, "namespace");
 	}

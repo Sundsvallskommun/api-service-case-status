@@ -28,6 +28,7 @@ import org.zalando.problem.Problem;
 class CaseDataIntegrationTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
+	private static final String NAMESPACE = "VIVA_LA_NAMESPACE";
 
 	@Mock
 	private CaseDataClient clientMock;
@@ -43,11 +44,11 @@ class CaseDataIntegrationTest {
 		var propertyDesignation = "Körsbärsdalen 123";
 		var caseDataErrand = createCaseDataErrand();
 		var errandPage = new PageImpl<>(List.of(caseDataErrand));
-		when(clientMock.getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), any(String.class), any(PageRequest.class))).thenReturn(errandPage);
+		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(String.class), any(PageRequest.class))).thenReturn(errandPage);
 
-		var result = caseDataIntegration.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, propertyDesignation);
+		var result = caseDataIntegration.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, NAMESPACE, propertyDesignation);
 
-		verify(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), filterCaptor.capture(), any(PageRequest.class));
+		verify(clientMock).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), filterCaptor.capture(), any(PageRequest.class));
 
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(PROPERTY_DESIGNATION_FILTER.formatted(propertyDesignation));
@@ -62,12 +63,12 @@ class CaseDataIntegrationTest {
 	void getCaseDataCaseByPropertyDesignation_throws() {
 		var propertyDesignation = "Körsbärsdalen 123";
 
-		doThrow(Problem.valueOf(NOT_FOUND, "No errand was found")).when(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), any(String.class), any(PageRequest.class));
+		doThrow(Problem.valueOf(NOT_FOUND, "No errand was found")).when(clientMock).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(String.class), any(PageRequest.class));
 
-		var result = caseDataIntegration.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, propertyDesignation);
+		var result = caseDataIntegration.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, NAMESPACE, propertyDesignation);
 
 		assertThat(result).isEmpty();
-		verify(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), filterCaptor.capture(), any(PageRequest.class));
+		verify(clientMock).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), filterCaptor.capture(), any(PageRequest.class));
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(PROPERTY_DESIGNATION_FILTER.formatted(propertyDesignation));
 		verifyNoMoreInteractions(clientMock);
@@ -78,11 +79,11 @@ class CaseDataIntegrationTest {
 		var errandNumber = "Star Fighter 2000";
 		var caseDataErrand = createCaseDataErrand();
 		var errandPage = new PageImpl<>(List.of(caseDataErrand));
-		when(clientMock.getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), any(String.class), any(PageRequest.class))).thenReturn(errandPage);
+		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(String.class), any(PageRequest.class))).thenReturn(errandPage);
 
-		var result = caseDataIntegration.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, errandNumber);
+		var result = caseDataIntegration.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE, errandNumber);
 
-		verify(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), filterCaptor.capture(), any(PageRequest.class));
+		verify(clientMock).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), filterCaptor.capture(), any(PageRequest.class));
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(ERRAND_NUMBER_FILTER.formatted(errandNumber));
 		assertThat(result).hasSize(1).allSatisfy(response -> {
@@ -95,12 +96,12 @@ class CaseDataIntegrationTest {
 	void getCaseDataCaseByErrandNumber_throws() {
 		var errandNumber = "Star Fighter 2000";
 
-		doThrow(Problem.valueOf(NOT_FOUND, "No errand was found")).when(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), any(String.class), any(PageRequest.class));
+		doThrow(Problem.valueOf(NOT_FOUND, "No errand was found")).when(clientMock).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(String.class), any(PageRequest.class));
 
-		var result = caseDataIntegration.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, errandNumber);
+		var result = caseDataIntegration.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE, errandNumber);
 
 		assertThat(result).isEmpty();
-		verify(clientMock).getErrandsWithoutNamespace(eq(MUNICIPALITY_ID), filterCaptor.capture(), any(PageRequest.class));
+		verify(clientMock).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), filterCaptor.capture(), any(PageRequest.class));
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(ERRAND_NUMBER_FILTER.formatted(errandNumber));
 		verifyNoMoreInteractions(clientMock);

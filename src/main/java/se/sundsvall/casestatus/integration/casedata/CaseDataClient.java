@@ -16,9 +16,10 @@ import se.sundsvall.casestatus.integration.casedata.configuration.CaseDataConfig
 @CircuitBreaker(name = CLIENT_ID)
 public interface CaseDataClient {
 
-	@GetMapping(path = "/{municipalityId}/errands")
-	Page<Errand> getErrandsWithoutNamespace(
+	@GetMapping(path = "/{municipalityId}/{namespace}/errands")
+	Page<Errand> getErrands(
 		@PathVariable("municipalityId") final String municipalityId,
+		@PathVariable("namespace") final String namespace,
 		@RequestParam("filter") final String filter,
 		final PageRequest pageRequest);
 

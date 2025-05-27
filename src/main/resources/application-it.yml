@@ -26,6 +26,9 @@ integration:
     base-url: http://localhost:${wiremock.server.port}/supportmanagement
   case-data:
     base-url: http://localhost:${wiremock.server.port}/case-data
+    namespaces:
+      - NAMESPACE_1
+      - NAMESPACE_2
 
 spring:
   main:

@@ -2,11 +2,21 @@
 	{
 		"caseId": "1",
 		"caseType": "PARKING_PERMIT",
-		"status": "Ärende avslutat",
+		"errandNumber": "PRH-2022-000001",
 		"firstSubmitted": "Saknas",
 		"lastStatusChange": "2022-12-02 15:15",
-		"system": "CASE_DATA",
-		"namespace": "SBK_PARKING_PERMIT",
-		"errandNumber": "PRH-2022-000001"
+		"namespace": "NAMESPACE_1",
+		"status": "Ärende avslutat",
+		"system": "CASE_DATA"
+	},
+	{
+		"caseId": "1",
+		"caseType": "PARKING_PERMIT",
+		"errandNumber": "PRH-2022-000001",
+		"firstSubmitted": "Saknas",
+		"lastStatusChange": "2022-12-02 15:15",
+		"namespace": "NAMESPACE_2",
+		"status": "Ärende avslutat",
+		"system": "CASE_DATA"
 	}
 ]
