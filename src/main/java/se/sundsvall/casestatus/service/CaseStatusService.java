@@ -211,7 +211,9 @@ public class CaseStatusService {
 		}
 
 		if (StringUtils.isNotBlank(propertyDesignation)) {
-			return caseDataIntegration.getCaseDataCaseByPropertyDesignation(municipalityId, propertyDesignation);
+			return caseDataIntegration.getNamespaces().stream()
+				.flatMap(namespace -> caseDataIntegration.getCaseDataCaseByPropertyDesignation(municipalityId, namespace, propertyDesignation).stream())
+				.toList();
 		}
 
 		final var filterString = "errandNumber:'%s'".formatted(errandNumber);
@@ -221,7 +223,9 @@ public class CaseStatusService {
 				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, entry.getKey())))
 			.toList();
 
-		var caseDataCases = caseDataIntegration.getCaseDataCaseByErrandNumber(municipalityId, errandNumber);
+		var caseDataCases = caseDataIntegration.getNamespaces().stream()
+			.flatMap(namespace -> caseDataIntegration.getCaseDataCaseByErrandNumber(municipalityId, namespace, errandNumber).stream())
+			.toList();
 
 		return Stream.of(caseStatusResponses, caseDataCases)
 			.flatMap(List::stream)

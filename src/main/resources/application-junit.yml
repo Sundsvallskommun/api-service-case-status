@@ -26,6 +26,9 @@ integration:
     base-url: http://support-management.url
   case-data:
     base-url: http://case-data.url
+    namespaces:
+      - CASE_STATUS
+      - CASE_DATA
 
 
 spring:
