@@ -1,250 +1,146 @@
 {
-	"content": [
+	"id": 12345,
+	"version": 62,
+	"errandNumber": "MEX-2024-000152",
+	"municipalityId": "2281",
+	"namespace": "SBK_MEX",
+	"caseType": "MEX_SELL_LAND_TO_THE_MUNICIPALITY",
+	"priority": "MEDIUM",
+	"caseTitleAddition": "Sälja mark till kommunen",
+	"phase": "Beslut",
+	"status": {
+		"statusType": "Under beslut",
+		"description": "Ärendet beslutas",
+		"created": "2024-04-09T10:41:20.207041+02:00"
+	},
+	"statuses": [
 		{
-			"id": 1,
-			"version": 57,
-			"errandNumber": "PRH-2022-000001",
-			"municipalityId": "2281",
-			"namespace": "NAMESPACE_2",
-			"caseType": "PARKING_PERMIT",
-			"priority": "MEDIUM",
-			"description": "",
-			"caseTitleAddition": "Nytt parkeringstillstånd",
-			"diaryNumber": "",
-			"phase": "Beslut",
-			"status": {
-				"statusType": "Ärende avslutat",
-				"description": "Beslut verkställt",
-				"created": "2022-12-02T15:15:01.279331+01:00"
-			},
-			"statuses": [
-				{
-					"statusType": "Ärende avslutat",
-					"description": "Beslut verkställt",
-					"created": "2022-12-02T15:15:01.279331+01:00"
-				}
-			],
-			"processId": "896a44d8-724b-11ed-a840-0242ac110002",
-			"stakeholders": [
-				{
-					"id": 1,
-					"version": 0,
-					"municipalityId": "2281",
-					"namespace": "NAMESPACE_2",
-					"type": "PERSON",
-					"firstName": "John",
-					"lastName": "Doe",
-					"personId": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
-					"roles": [
-						"APPLICANT"
-					],
-					"addresses": [
-						{
-							"street": "NORRMALMSGATAN 4",
-							"postalCode": "851 85",
-							"city": "SUNDSVALL"
-						}
-					],
-					"contactInformation": [
-						{
-							"contactType": "PHONE",
-							"value": "070-111111111"
-						},
-						{
-							"contactType": "EMAIL",
-							"value": "a@example.com"
-						}
-					],
-					"extraParameters": {},
-					"created": "2022-12-02T15:13:45.371645+01:00",
-					"updated": "2022-12-02T15:13:45.371676+01:00"
-				},
-				{
-					"id": 2,
-					"version": 2,
-					"municipalityId": "2281",
-					"namespace": "NAMESPACE_2",
-					"type": "PERSON",
-					"firstName": "John",
-					"lastName": "John",
-					"adAccount": "KAMO",
-					"roles": [
-						"ADMINISTRATOR"
-					],
-					"addresses": [],
-					"contactInformation": [
-						{
-							"contactType": "EMAIL",
-							"value": "John.doe@sundsvall.se"
-						}
-					],
-					"extraParameters": {},
-					"created": "2022-12-02T15:13:53.754892+01:00",
-					"updated": "2025-02-10T15:57:39.546058+01:00"
-				}
-			],
-			"facilities": [],
-			"notifications": [],
-			"decisions": [
-				{
-					"id": 1,
-					"version": 0,
-					"municipalityId": "2281",
-					"namespace": "NAMESPACE_2",
-					"decisionType": "RECOMMENDED",
-					"decisionOutcome": "APPROVAL",
-					"description": "Personen är boende i Sundsvalls kommun. Nuvarande kontroll ger rekommenderat beslut att godkänna ansökan.",
-					"law": [],
-					"attachments": [],
-					"extraParameters": {},
-					"created": "2022-12-02T15:13:47.751136+01:00",
-					"updated": "2022-12-02T15:13:47.751168+01:00"
-				},
-				{
-					"id": 2,
-					"version": 1,
-					"municipalityId": "2281",
-					"namespace": "NAMESPACE_2",
-					"decisionType": "PROPOSED",
-					"decisionOutcome": "APPROVAL",
-					"description": "<p>Bifalles.</p>",
-					"law": [
-						{
-							"heading": "13 kap. 8§ Parkeringstillstånd för rörelsehindrade",
-							"sfs": "Trafikförordningen (1998:1276)",
-							"chapter": "13",
-							"article": "8"
-						}
-					],
-					"decidedAt": "2022-12-02T15:14:39.944+01:00",
-					"validFrom": "2022-12-02T15:14:39.943+01:00",
-					"validTo": "2022-12-02T15:14:39.944+01:00",
-					"attachments": [],
-					"extraParameters": {},
-					"created": "2022-12-02T15:14:39.998827+01:00",
-					"updated": "2022-12-02T15:14:40.038696+01:00"
-				},
-				{
-					"id": 3,
-					"version": 2,
-					"municipalityId": "2281",
-					"namespace": "NAMESPACE_2",
-					"decisionType": "FINAL",
-					"decisionOutcome": "APPROVAL",
-					"description": "<p>Bifalles.</p>",
-					"law": [
-						{
-							"heading": "13 kap. 8§ Parkeringstillstånd för rörelsehindrade",
-							"sfs": "Trafikförordningen (1998:1276)",
-							"chapter": "13",
-							"article": "8"
-						}
-					],
-					"decidedBy": {
-						"id": 3,
-						"version": 1,
-						"municipalityId": "2281",
-						"type": "PERSON",
-						"firstName": "John",
-						"lastName": "Doe",
-						"adAccount": "GUNNBE",
-						"roles": [
-							"ADMINISTRATOR"
-						],
-						"addresses": [],
-						"contactInformation": [
-							{
-								"contactType": "EMAIL"
-							}
-						],
-						"extraParameters": {},
-						"created": "2022-12-02T15:14:56.965666+01:00",
-						"updated": "2022-12-02T15:14:56.998931+01:00"
-					},
-					"decidedAt": "2022-12-02T15:14:56.886+01:00",
-					"validFrom": "2022-12-02T00:00:00+01:00",
-					"validTo": "2022-12-02T00:00:00+01:00",
-					"attachments": [],
-					"extraParameters": {},
-					"created": "2022-12-02T15:14:52.096581+01:00",
-					"updated": "2022-12-02T15:14:56.970166+01:00"
-				}
-			],
-			"notes": [
-				{
-					"id": 171,
-					"version": 1,
-					"municipalityId": "2281",
-					"namespace": "NAMESPACE_2",
-					"title": "Motivering till bifall",
-					"text": "Den sökande har rätt till parkeringstillstånd eftersom alla kriterier uppfylls.",
-					"createdBy": "UNKNOWN",
-					"updatedBy": "UNKNOWN",
-					"noteType": "INTERNAL",
-					"extraParameters": {
-						"additionalProp3": "string",
-						"additionalProp2": "string",
-						"additionalProp1": "string"
-					},
-					"created": "2024-02-21T13:33:19.392794+01:00",
-					"updated": "2024-02-21T13:33:19.396912+01:00"
-				},
-				{
-					"id": 179,
-					"version": 1,
-					"municipalityId": "2281",
-					"namespace": "NAMESPACE_1",
-					"title": "test",
-					"text": "test",
-					"createdBy": "UNKNOWN",
-					"updatedBy": "UNKNOWN",
-					"extraParameters": {},
-					"created": "2024-02-26T09:34:29.697563+01:00",
-					"updated": "2024-02-26T09:34:29.702035+01:00"
-				}
-			],
-			"labels": [],
-			"relatesTo": [],
-			"createdByClient": "WSO2_CaseManagementUI",
-			"updatedByClient": "jak23mel",
-			"createdBy": "GUNNBE",
-			"updatedBy": "UNKNOWN",
-			"suspension": {},
-			"extraParameters": [
-				{
-					"key": "additionalProp1",
-					"values": [
-						"test",
-						"test",
-						"test"
-					]
-				},
-				{
-					"key": "additionalProp2",
-					"values": [
-						"test"
-					]
-				}
-			],
-			"created": "2022-12-02T15:13:45.363499+01:00",
-			"updated": "2025-04-11T11:02:02.010659+02:00"
+			"statusType": "Under beslut",
+			"description": "Ärendet beslutas",
+			"created": "2024-04-09T10:41:20.207041+02:00"
 		}
 	],
-	"pageable": {
-		"pageNumber": 0,
-		"pageSize": 1,
-		"sort": [],
-		"offset": 0,
-		"paged": true,
-		"unpaged": false
-	},
-	"last": false,
-	"totalPages": 601,
-	"totalElements": 601,
-	"first": true,
-	"size": 1,
-	"number": 0,
-	"sort": [],
-	"numberOfElements": 1,
-	"empty": false
+	"processId": "d08f658e-f64c-11ee-a758-0242c0a82063",
+	"stakeholders": [
+		{
+			"id": 123,
+			"version": 5,
+			"municipalityId": "2281",
+			"namespace": "SBK_MEX",
+			"type": "PERSON",
+			"firstName": "John",
+			"lastName": "Doe",
+			"adAccount": "abc123abc",
+			"roles": [
+				"ADMINISTRATOR"
+			],
+			"addresses": [],
+			"contactInformation": [],
+			"extraParameters": {},
+			"created": "2024-04-09T10:40:41.261775+02:00",
+			"updated": "2024-04-09T10:41:14.81849+02:00"
+		},
+		{
+			"id": 1234,
+			"version": 1,
+			"municipalityId": "2281",
+			"namespace": "SBK_MEX",
+			"type": "PERSON",
+			"firstName": "John",
+			"lastName": "Doe",
+			"adAccount": "abc123abc",
+			"roles": [
+				"ADMINISTRATOR"
+			],
+			"addresses": [],
+			"contactInformation": [],
+			"extraParameters": {},
+			"created": "2025-02-27T09:55:48.652748+01:00",
+			"updated": "2025-02-27T09:55:48.70003+01:00"
+		}
+	],
+	"facilities": [
+		{
+			"id": 123,
+			"version": 0,
+			"municipalityId": "2281",
+			"namespace": "SBK_MEX",
+			"address": {
+				"propertyDesignation": "BALDER 1"
+			},
+			"mainFacility": false,
+			"created": "2025-04-16T15:05:05.682121+02:00",
+			"updated": "2025-04-16T15:05:05.682136+02:00",
+			"extraParameters": {}
+		},
+		{
+			"id": 1234,
+			"version": 0,
+			"municipalityId": "2281",
+			"namespace": "SBK_MEX",
+			"address": {
+				"propertyDesignation": "BALDER 2"
+			},
+			"mainFacility": false,
+			"created": "2025-04-16T15:05:05.682121+02:00",
+			"updated": "2025-04-16T15:05:05.682136+02:00",
+			"extraParameters": {}
+		}
+	],
+	"notifications": [],
+	"decisions": [],
+	"notes": [],
+	"labels": [],
+	"relatesTo": [],
+	"createdByClient": "abc123abc",
+	"updatedByClient": "abc123abc",
+	"createdBy": "abc123abc",
+	"updatedBy": "abc123abc",
+	"suspension": {},
+	"extraParameters": [
+		{
+			"key": "process.phaseAction",
+			"values": [
+				"UNKNOWN"
+			]
+		},
+		{
+			"key": "process.displayPhase",
+			"values": [
+				"Beslut"
+			]
+		},
+		{
+			"key": "contractId",
+			"values": [
+				"2025-10003"
+			]
+		},
+		{
+			"key": "process.phaseStatus",
+			"values": [
+				"WAITING"
+			]
+		},
+		{
+			"key": "caseMeaning",
+			"values": [
+				"Ärendemening test"
+			]
+		},
+		{
+			"key": "otherInformation",
+			"values": [
+				"s"
+			]
+		},
+		{
+			"key": "reason",
+			"values": [
+				""
+			]
+		}
+	],
+	"created": "2024-04-09T10:40:27.136005+02:00",
+	"updated": "2025-04-30T08:06:55.824613+02:00"
 }

@@ -59,6 +59,7 @@ public class SupportManagementMapper {
 			.withSystem(SUPPORT_MANAGEMENT)
 			.withErrandNumber(errand.getErrandNumber())
 			.withNamespace(namespace)
+			.withPropertyDesignations(null)
 			.build();
 	}
 

@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "4.1"
 servers:
-  - url: http://localhost:64838
+  - url: http://localhost:49827
     description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/statuses:
@@ -318,18 +318,18 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     ConstraintViolationProblem:
       type: object
       properties:
@@ -453,9 +453,9 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
         suppressed:
           type: array
@@ -536,6 +536,10 @@ components:
           type: string
           description: Human readable identifier for the case
           example: BYGGR-2024-123456
+        propertyDesignations:
+          type: array
+          items:
+            type: string
       description: Case status response
     CasePdfResponse:
       type: object

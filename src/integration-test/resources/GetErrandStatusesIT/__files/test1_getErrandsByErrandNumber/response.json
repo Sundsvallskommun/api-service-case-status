@@ -20,23 +20,31 @@
 		"system": "SUPPORT_MANAGEMENT"
 	},
 	{
-		"caseId": "1",
-		"caseType": "PARKING_PERMIT",
-		"errandNumber": "PRH-2022-000001",
+		"caseId": "766",
+		"caseType": "MEX_SELL_LAND_TO_THE_MUNICIPALITY",
+		"errandNumber": "MEX-2024-000152",
 		"firstSubmitted": "Saknas",
-		"lastStatusChange": "2022-12-02 15:15",
-		"namespace": "NAMESPACE_1",
-		"status": "Ärende avslutat",
+		"lastStatusChange": "2024-04-09 10:41",
+		"namespace": "SBK_MEX",
+		"propertyDesignations": [
+			"BALDER 1"
+		],
+		"status": "Under beslut",
 		"system": "CASE_DATA"
 	},
 	{
-		"caseId": "1",
-		"caseType": "PARKING_PERMIT",
-		"errandNumber": "PRH-2022-000001",
+		"caseId": "774",
+		"caseType": "MEX_SELL_LAND_TO_THE_MUNICIPALITY",
+		"errandNumber": "MEX-2024-000160",
+		"externalCaseId": "4065",
 		"firstSubmitted": "Saknas",
-		"lastStatusChange": "2022-12-02 15:15",
-		"namespace": "NAMESPACE_2",
-		"status": "Ärende avslutat",
+		"lastStatusChange": "2024-04-10 10:13",
+		"namespace": "SBK_MEX",
+		"propertyDesignations": [
+			"BALDER 2",
+			"BALDER 3"
+		],
+		"status": "Ärende inkommit",
 		"system": "CASE_DATA"
 	}
 ]

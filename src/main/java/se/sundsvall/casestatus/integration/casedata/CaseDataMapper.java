@@ -4,13 +4,16 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static se.sundsvall.casestatus.util.Constants.MISSING;
 
+import generated.se.sundsvall.casedata.Address;
 import generated.se.sundsvall.casedata.Errand;
+import generated.se.sundsvall.casedata.Facility;
 import generated.se.sundsvall.casedata.Status;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 
@@ -48,6 +51,11 @@ public final class CaseDataMapper {
 			.withExternalCaseId(errand.getExternalCaseId())
 			.withErrandNumber(errand.getErrandNumber())
 			.withNamespace(errand.getNamespace())
+			.withPropertyDesignations(Optional.ofNullable(errand.getFacilities()).orElse(emptyList()).stream()
+				.map(Facility::getAddress)
+				.filter(Objects::nonNull)
+				.map(Address::getPropertyDesignation)
+				.toList())
 			.build();
 	}
 

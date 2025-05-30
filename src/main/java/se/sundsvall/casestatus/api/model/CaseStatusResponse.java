@@ -1,6 +1,8 @@
 package se.sundsvall.casestatus.api.model;
 
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -40,5 +42,8 @@ public class CaseStatusResponse {
 
 	@Schema(description = "Human readable identifier for the case", example = "BYGGR-2024-123456")
 	private String errandNumber;
+
+	@ArraySchema(schema = @Schema(implementation = String.class, description = "List of property designations", example = "Residential"))
+	private List<String> propertyDesignations;
 
 }
