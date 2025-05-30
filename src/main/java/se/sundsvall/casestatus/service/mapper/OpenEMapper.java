@@ -59,6 +59,7 @@ public final class OpenEMapper {
 				.withExternalCaseId(caseEnvelope.getFlowInstanceId())
 				.withErrandNumber(caseEnvelope.getFlowInstanceId())
 				.withNamespace(null)
+				.withPropertyDesignations(null)
 				.build())
 			.orElse(null);
 	}
