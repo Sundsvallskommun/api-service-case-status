@@ -40,6 +40,7 @@ public final class CaseManagementMapper {
 			.withExternalCaseId(caseStatus.getExternalCaseId())
 			.withErrandNumber(caseStatus.getErrandNumber())
 			.withNamespace(caseStatus.getNamespace())
+			.withPropertyDesignations(null)
 			.build();
 	}
 
