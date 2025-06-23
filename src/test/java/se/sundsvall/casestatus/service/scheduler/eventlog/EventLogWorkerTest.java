@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
@@ -64,6 +65,9 @@ class EventLogWorkerTest {
 	@Autowired
 	private EventLogWorker eventLogWorker;
 
+	@Mock
+	private Consumer<String> consumerMock;
+
 	@Test
 	void testUpdateStatus() {
 		// Arrange
@@ -92,7 +96,7 @@ class EventLogWorkerTest {
 		when(supportManagementServiceMock.getSupportManagementNamespaces()).thenReturn(namespaces);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 		// Act
-		eventLogWorker.updateStatus(executionInformationEntity);
+		eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
 
 		// Assert
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
@@ -117,7 +121,7 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 
 		// Act
-		eventLogWorker.updateStatus(executionInformationEntity);
+		eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
 
 		// Assert
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture());
