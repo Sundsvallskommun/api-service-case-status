@@ -1,11 +1,13 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.OffsetDateTime;
 import java.util.Optional;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -27,6 +29,9 @@ class EventLogSchedulerTest {
 	@InjectMocks
 	private EventLogScheduler eventLogScheduler;
 
+	@Mock
+	private Consumer<String> consumerMock;
+
 	@Test
 	void testUpdateStatus() {
 		// Arrange
@@ -41,7 +46,7 @@ class EventLogSchedulerTest {
 		// Act
 		eventLogScheduler.updateStatus();
 		// Assert
-		verify(eventLogWorker).updateStatus(executionInformationEntity);
+		verify(eventLogWorker).updateStatus(eq(executionInformationEntity), any());
 		verify(executionInformationRepository).save(executionInformationEntity);
 	}
 }

@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
-import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 import us.codecraft.xsoup.Xsoup;
@@ -19,19 +18,16 @@ import us.codecraft.xsoup.Xsoup;
 public class CaseStatusCacheWorker {
 
 	private static final Logger LOG = LoggerFactory.getLogger(CaseStatusCacheWorker.class);
-	private static final String PRIVATE = "private";
 	private static final String ORG = "org";
 	private final OepIntegratorClient oepIntegratorClient;
-	private final PartyIntegration partyIntegration;
 	private final CaseRepository caseRepository;
 	private final Dept44HealthUtility dept44HealthUtility;
 	@Value("${cache.scheduled.name}")
 	private String jobName;
 
-	public CaseStatusCacheWorker(final OepIntegratorClient oepIntegratorClient, final PartyIntegration partyIntegration,
+	public CaseStatusCacheWorker(final OepIntegratorClient oepIntegratorClient,
 		final CaseRepository caseRepository, final Dept44HealthUtility dept44HealthUtility) {
 		this.oepIntegratorClient = oepIntegratorClient;
-		this.partyIntegration = partyIntegration;
 		this.caseRepository = caseRepository;
 		this.dept44HealthUtility = dept44HealthUtility;
 	}

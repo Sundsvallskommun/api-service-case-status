@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -49,7 +50,7 @@ public class EventLogWorker {
 		this.clockSkew = clockSkew;
 	}
 
-	void updateStatus(final ExecutionInformationEntity executionInformation) {
+	void updateStatus(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
 
 		final var logKeys = getEvents(executionInformation).stream().distinct().toList();
 
@@ -64,11 +65,11 @@ public class EventLogWorker {
 			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), namespaces, id))
 			.toList();
 
-		result.forEach(errand -> setStatus(executionInformation, errand));
+		result.forEach(errand -> setStatus(executionInformation, errand, setUnHealthyConsumer));
 
 	}
 
-	private void setStatus(final ExecutionInformationEntity executionInformation, final Errand errand) {
+	private void setStatus(final ExecutionInformationEntity executionInformation, final Errand errand, final Consumer<String> setUnHealthyConsumer) {
 		if (errand.getChannel() != null && VALID_CHANNELS.contains(errand.getChannel())) {
 
 			final var channel = Objects.requireNonNull(errand.getChannel());
@@ -86,11 +87,17 @@ public class EventLogWorker {
 
 			final CaseStatusChangeRequest statusChangeRequest = new CaseStatusChangeRequest().name(openEId);
 
-			oepIntegratorClient.setStatus(
-				executionInformation.getMunicipalityId(),
-				instanceType,
-				externalCaseId.get(),
-				statusChangeRequest);
+			try {
+				oepIntegratorClient.setStatus(
+					executionInformation.getMunicipalityId(),
+					instanceType,
+					externalCaseId.get(),
+					statusChangeRequest);
+			} catch (final Exception e) {
+				setUnHealthyConsumer.accept("Failed to update openE status for errand " + errand.getId());
+				log.error("RequestID: {} - Failed to set status for errand {} with external case ID {}: {}", RequestId.get(), errand.getId(), externalCaseId.get(), e.getMessage());
+
+			}
 		}
 	}
 
