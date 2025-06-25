@@ -72,11 +72,13 @@ public class EventLogWorker {
 	private void setStatus(final ExecutionInformationEntity executionInformation, final Errand errand, final Consumer<String> setUnHealthyConsumer) {
 		if (errand.getChannel() != null && VALID_CHANNELS.contains(errand.getChannel())) {
 
+			log.info("RequestID: {} - setStatus on errand with ID: {}", RequestId.get(), errand.getId());
+
 			final var channel = Objects.requireNonNull(errand.getChannel());
 			final var instanceType = getInstanceType(channel);
 			final var externalCaseId = getExternalCaseId(errand);
 			if (externalCaseId.isEmpty()) {
-				log.warn("RequestID: {} - No external case ID found for errand {}", RequestId.get(), errand.getId());
+				log.warn("RequestID: {} - No external case ID found for errand: {}", RequestId.get(), errand.getId());
 				return;
 			}
 
@@ -84,6 +86,8 @@ public class EventLogWorker {
 				.findByCaseManagementId(errand.getStatus())
 				.orElseThrow()
 				.getOpenEId();
+
+			log.info("RequestID: {} - found mapped OpenEId: {} for errand: {}", RequestId.get(), openEId, errand.getId());
 
 			final CaseStatusChangeRequest statusChangeRequest = new CaseStatusChangeRequest().name(openEId);
 
@@ -96,7 +100,6 @@ public class EventLogWorker {
 			} catch (final Exception e) {
 				setUnHealthyConsumer.accept("Failed to update openE status for errand " + errand.getId());
 				log.error("RequestID: {} - Failed to set status for errand {} with external case ID {}: {}", RequestId.get(), errand.getId(), externalCaseId.get(), e.getMessage());
-
 			}
 		}
 	}

@@ -17,7 +17,9 @@ integration:
   case-data:
     connect-timeout: 5
     read-timeout: 30
-
+logging:
+  level:
+    root: INFO
 openapi:
   name: ${spring.application.name}
   title: ${spring.application.name}
