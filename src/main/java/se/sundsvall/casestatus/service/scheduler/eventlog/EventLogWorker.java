@@ -65,7 +65,14 @@ public class EventLogWorker {
 			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), namespaces, id))
 			.toList();
 
-		result.forEach(errand -> setStatus(executionInformation, errand, setUnHealthyConsumer));
+		result.forEach(errand -> {
+			try {
+				setStatus(executionInformation, errand, setUnHealthyConsumer);
+			} catch (final Exception e) {
+				log.error("RequestID: {} - Error setting status for errand {}: {}", RequestId.get(), errand.getId(), e.getMessage());
+				setUnHealthyConsumer.accept("Error setting status for errand " + errand.getId());
+			}
+		});
 
 	}
 
@@ -82,10 +89,17 @@ public class EventLogWorker {
 				return;
 			}
 
-			final var openEId = caseManagementOpeneViewRepository
-				.findByCaseManagementId(errand.getStatus())
-				.orElseThrow()
-				.getOpenEId();
+			final String openEId;
+			try {
+				openEId = caseManagementOpeneViewRepository
+					.findByCaseManagementId(errand.getStatus())
+					.orElseThrow()
+					.getOpenEId();
+			} catch (final Exception e) {
+				setUnHealthyConsumer.accept("Mismatch for status " + errand.getStatus() + "was not found in OpenEId mapping");
+				log.error("RequestID: {} - Failed to find OpenEId for errand {}: {}", RequestId.get(), errand.getId(), e.getMessage());
+				return;
+			}
 
 			log.info("RequestID: {} - found mapped OpenEId: {} for errand: {}", RequestId.get(), openEId, errand.getId());
 
