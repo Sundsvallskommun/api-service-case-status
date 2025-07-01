@@ -1,6 +1,5 @@
 package se.sundsvall.casestatus.service;
 
-import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -18,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.http.ResponseEntity;
 import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,20 +72,16 @@ class SupportManagementServiceTest {
 	void getSupportManagementCaseById() {
 		// Arrange
 		final var municipalityId = "municipalityId";
-		final var namespace1 = "namespace-1";
-		final var namespace2 = "namespace-2";
+		final var namespace = "namespace";
 		final var errand = new Errand().id("errandId");
-		final var errandsPage = new PageImpl<>(List.of(errand, errand));
-		when(supportManagementClient.findErrands(any(), eq(namespace1), any(), any())).thenReturn(new PageImpl<>(emptyList()));
-		when(supportManagementClient.findErrands(any(), eq(namespace2), any(), any())).thenReturn(errandsPage);
+		when(supportManagementClient.findErrandById(any(), eq(namespace), any())).thenReturn(ResponseEntity.ok(errand));
 
 		// Act
-		final var result = supportManagementService.getSupportManagementCaseById(municipalityId, List.of(namespace1, namespace2), errand.getId());
+		final var result = supportManagementService.getSupportManagementCaseById(municipalityId, namespace, errand.getId());
 
 		// Verify
 		assertThat(result).isSameAs(errand);
-		verify(supportManagementClient).findErrands(municipalityId, namespace1, "id:'" + errand.getId() + "'", PageRequest.of(0, 20));
-		verify(supportManagementClient).findErrands(municipalityId, namespace2, "id:'" + errand.getId() + "'", PageRequest.of(0, 20));
+		verify(supportManagementClient).findErrandById(municipalityId, namespace, errand.getId());
 		verifyNoMoreInteractions(supportManagementClient);
 
 	}

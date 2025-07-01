@@ -15,6 +15,7 @@ import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
+import generated.se.sundsvall.eventlog.Metadata;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.Duration;
@@ -75,7 +76,7 @@ class EventLogWorkerTest {
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
 		final var logkey2 = "2";
-		final var namespaces = List.of("namespace");
+		final var namespace = "namespace";
 		final var errand = new Errand()
 			.status(internalStatus)
 			.channel(EXTERNAL_CHANNEL_E_SERVICE)
@@ -88,19 +89,18 @@ class EventLogWorkerTest {
 			.build();
 		final var caseMapping = CaseManagementOpeneView.builder().withCaseManagementId(internalStatus).withOpenEId("someOpenEStatus").build();
 
-		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey), new Event().logKey(logkey2)));
+		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey).metadata(List.of(new Metadata().key("Namespace").value(namespace))), new Event().logKey(logkey2).metadata(List.of(new Metadata().key("Namespace").value(namespace)))));
 		when(eventPageMock.hasNext()).thenReturn(false);
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
 
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPageMock);
-		when(supportManagementServiceMock.getSupportManagementNamespaces()).thenReturn(namespaces);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 		// Act
 		eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
 
 		// Assert
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementServiceMock, times(2)).getSupportManagementCaseById(eq(municipalityId), same(namespaces), anyString());
+		verify(supportManagementServiceMock, times(2)).getSupportManagementCaseById(eq(municipalityId), same(namespace), anyString());
 		verify(oepIntegratorClientMock, times(2)).setStatus(anyString(), eq(InstanceType.EXTERNAL), any(), any(CaseStatusChangeRequest.class));
 		verify(caseManagementOpeneViewRepositoryMock, times(2)).findByCaseManagementId(internalStatus);
 		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
@@ -136,7 +136,7 @@ class EventLogWorkerTest {
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
-		final var namespaces = List.of("namespace");
+		final var namespace = "namespace";
 		final var errand = new Errand()
 			.status(internalStatus)
 			.channel(EXTERNAL_CHANNEL_E_SERVICE)
@@ -147,10 +147,9 @@ class EventLogWorkerTest {
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
 
-		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey)));
+		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey).metadata(List.of(new generated.se.sundsvall.eventlog.Metadata().key("Namespace").value(namespace)))));
 		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
-		when(supportManagementServiceMock.getSupportManagementNamespaces()).thenReturn(namespaces);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 
 		// Act
@@ -158,7 +157,7 @@ class EventLogWorkerTest {
 
 		// Assert
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementServiceMock, times(1)).getSupportManagementCaseById(eq(municipalityId), same(namespaces), anyString());
+		verify(supportManagementServiceMock, times(1)).getSupportManagementCaseById(eq(municipalityId), same(namespace), anyString());
 		verifyNoInteractions(oepIntegratorClientMock);
 	}
 
@@ -169,7 +168,7 @@ class EventLogWorkerTest {
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
-		final var namespaces = List.of("namespace");
+		final var namespace = "namespace";
 		final var errand = new Errand()
 			.status(internalStatus)
 			.channel(EXTERNAL_CHANNEL_E_SERVICE)
@@ -181,10 +180,9 @@ class EventLogWorkerTest {
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
 
-		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey)));
+		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey).metadata(List.of(new Metadata().key("Namespace").value(namespace)))));
 		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
-		when(supportManagementServiceMock.getSupportManagementNamespaces()).thenReturn(namespaces);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(internalStatus)).thenReturn(Optional.empty());
 
@@ -193,7 +191,7 @@ class EventLogWorkerTest {
 
 		// Assert
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementServiceMock, times(1)).getSupportManagementCaseById(eq(municipalityId), same(namespaces), anyString());
+		verify(supportManagementServiceMock, times(1)).getSupportManagementCaseById(eq(municipalityId), eq(namespace), anyString());
 		verifyNoInteractions(oepIntegratorClientMock);
 		verify(consumerMock).accept(anyString());
 	}
