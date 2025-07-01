@@ -9,10 +9,9 @@ import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
+import generated.se.sundsvall.eventlog.Metadata;
 import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
@@ -52,17 +51,16 @@ public class EventLogWorker {
 
 	void updateStatus(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
 
-		final var logKeys = getEvents(executionInformation).stream().distinct().toList();
+		final var events = getEvents(executionInformation).getContent().stream().distinct().toList();
 
-		if (logKeys.isEmpty()) {
+		if (events.isEmpty()) {
 			log.info("RequestID: {} - No events found for municipality {}", RequestId.get(), executionInformation.getMunicipalityId());
 			return;
 		}
 
-		final var namespaces = supportManagementService.getSupportManagementNamespaces();
-
-		final var result = logKeys.stream()
-			.map(id -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), namespaces, id))
+		final var result = events.stream()
+			.map(event -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), getNamespace(event), event.getLogKey()))
+			.filter(Objects::nonNull)
 			.toList();
 
 		result.forEach(errand -> {
@@ -118,19 +116,16 @@ public class EventLogWorker {
 		}
 	}
 
-	private List<String> getEvents(final ExecutionInformationEntity executionInformation) {
+	private Page<Event> getEvents(final ExecutionInformationEntity executionInformation) {
 		int pageNumber = 0;
 		Page<Event> response;
-		final var logKeys = new ArrayList<String>();
-
 		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'"
 			.formatted(executionInformation.getLastSuccessfulExecution().minus(clockSkew));
 		do {
 			response = eventlogClient.getEvents(executionInformation.getMunicipalityId(), PageRequest.of(pageNumber, 100), filterString);
-			logKeys.addAll(response.getContent().stream().map(Event::getLogKey).toList());
 			pageNumber++;
 		} while (response.hasNext());
-		return logKeys;
+		return response;
 	}
 
 	private InstanceType getInstanceType(final String channel) {
@@ -139,6 +134,14 @@ public class EventLogWorker {
 			case EXTERNAL_CHANNEL_E_SERVICE -> InstanceType.EXTERNAL;
 			default -> throw new IllegalStateException("Unexpected value: " + channel);
 		};
+	}
+
+	private String getNamespace(final Event event) {
+		return event.getMetadata().stream()
+			.filter(key -> "Namespace".equals(key.getKey()))
+			.map(Metadata::getValue)
+			.findFirst()
+			.orElse(null);
 	}
 
 }
