@@ -12,6 +12,8 @@ import generated.se.sundsvall.eventlog.Event;
 import generated.se.sundsvall.eventlog.Metadata;
 import generated.se.sundsvall.supportmanagement.Errand;
 import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
@@ -51,7 +53,7 @@ public class EventLogWorker {
 
 	void updateStatus(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
 
-		final var events = getEvents(executionInformation).getContent().stream().distinct().toList();
+		final var events = getEvents(executionInformation).stream().distinct().toList();
 
 		if (events.isEmpty()) {
 			log.info("RequestID: {} - No events found for municipality {}", RequestId.get(), executionInformation.getMunicipalityId());
@@ -116,16 +118,18 @@ public class EventLogWorker {
 		}
 	}
 
-	private Page<Event> getEvents(final ExecutionInformationEntity executionInformation) {
+	private List<Event> getEvents(final ExecutionInformationEntity executionInformation) {
 		int pageNumber = 0;
 		Page<Event> response;
+		final var allEvents = new ArrayList<Event>();
 		final var filterString = "message:'Ärendet har uppdaterats.' and created > '%s' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'"
 			.formatted(executionInformation.getLastSuccessfulExecution().minus(clockSkew));
 		do {
 			response = eventlogClient.getEvents(executionInformation.getMunicipalityId(), PageRequest.of(pageNumber, 100), filterString);
+			allEvents.addAll(response.getContent());
 			pageNumber++;
 		} while (response.hasNext());
-		return response;
+		return allEvents;
 	}
 
 	private InstanceType getInstanceType(final String channel) {
