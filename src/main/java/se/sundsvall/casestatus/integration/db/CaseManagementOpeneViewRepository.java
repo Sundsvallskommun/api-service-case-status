@@ -9,5 +9,4 @@ import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneVie
 public interface CaseManagementOpeneViewRepository extends JpaRepository<CaseManagementOpeneView, String> {
 
 	Optional<CaseManagementOpeneView> findByCaseManagementId(String id);
-
 }
