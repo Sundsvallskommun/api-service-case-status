@@ -8,6 +8,7 @@ import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfRespon
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 import generated.client.oep_integrator.InstanceType;
 import java.io.IOException;
@@ -106,11 +107,11 @@ public class CaseStatusService {
 	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {
 		final List<CaseStatusResponse> statuses = new ArrayList<>();
 
-		caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
+		caseManagementIntegration.getCaseStatusForOrganizationNumber(sanitizeForLogging(organizationNumber), municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
 			.forEach(statuses::add);
 
-		caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
+		caseRepository.findByOrganisationNumberAndMunicipalityId(sanitizeForLogging(organizationNumber), municipalityId).stream()
 			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 

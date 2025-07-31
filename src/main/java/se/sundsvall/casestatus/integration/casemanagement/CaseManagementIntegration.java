@@ -1,5 +1,9 @@
 package se.sundsvall.casestatus.integration.casemanagement;
 
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
+
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.util.List;
 import java.util.Optional;
@@ -22,8 +26,8 @@ public class CaseManagementIntegration {
 		try {
 			return Optional.of(client.getCaseStatusForExternalCaseId(municipalityId, externalCaseId));
 		} catch (final Exception e) {
-			LOG.info("Unable to get case status for external id {}", externalCaseId, e);
-			return Optional.empty();
+			LOG.info("Unable to get case status for external id {}", sanitizeForLogging(externalCaseId), e);
+			return empty();
 		}
 	}
 
@@ -31,8 +35,8 @@ public class CaseManagementIntegration {
 		try {
 			return client.getCaseStatusForOrganizationNumber(municipalityId, organizationNumber);
 		} catch (final Exception e) {
-			LOG.info("Unable to get case status for organizationNumber{}", organizationNumber, e);
-			return List.of();
+			LOG.info("Unable to get case status for organizationNumber{}", sanitizeForLogging(organizationNumber), e);
+			return emptyList();
 		}
 	}
 
@@ -41,7 +45,7 @@ public class CaseManagementIntegration {
 			return client.getCaseStatusForPartyId(municipalityId, partyId);
 		} catch (final Exception e) {
 			LOG.info("Unable to get case status for partyId{}", partyId, e);
-			return List.of();
+			return emptyList();
 		}
 	}
 }
