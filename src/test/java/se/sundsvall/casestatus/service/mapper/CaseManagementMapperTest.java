@@ -172,7 +172,7 @@ class CaseManagementMapperTest {
 
 		final var result = caseManagementMapper.getServiceName(null, caseType, municipalityId);
 
-		assertThat(result).isNull();
+		assertThat(result).isEqualTo(caseType);
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
 		verifyNoInteractions(caseManagementOpeneViewRepositoryMock);

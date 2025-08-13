@@ -68,19 +68,19 @@ public final class CaseManagementMapper {
 
 	/**
 	 * Returns the service name if it is present, otherwise it tries to get a description from the database. If no
-	 * description can be found in the database, it returns null.
+	 * description can be found in the database, it returns the case type.
 	 *
 	 * @param  serviceName    The service name returned from CaseManagement.
 	 * @param  caseType       The case type, used to look up the description in the database.
 	 * @param  municipalityId The municipality id, used to look up the description in the database.
 	 * @return                The service name if it is present, otherwise a description from the database. If no
-	 *                        description is found, it returns null.
+	 *                        description is found, it returns the case type.
 	 */
 	String getServiceName(final String serviceName, final String caseType, final String municipalityId) {
 		return ofNullable(serviceName)
 			.orElse(caseTypeRepository.findByEnumValueAndMunicipalityId(caseType, municipalityId)
 				.map(CaseTypeEntity::getDescription)
-				.orElse(null));
+				.orElse(caseType));
 	}
 
 }
