@@ -3,6 +3,7 @@ package se.sundsvall.casestatus.service.mapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import generated.se.sundsvall.supportmanagement.Classification;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.OffsetDateTime;
@@ -33,6 +34,7 @@ class SupportManagementMapperTest {
 		final var errand = new Errand()
 			.id("errandId")
 			.title("title")
+			.classification(new Classification().type("type"))
 			.status("someStatus")
 			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
 			.modified(OffsetDateTime.parse("2023-01-02T10:00:00Z"))
@@ -48,7 +50,7 @@ class SupportManagementMapperTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
-		assertThat(response.getCaseType()).isEqualTo("title");
+		assertThat(response.getCaseType()).isEqualTo("type");
 		assertThat(response.getStatus()).isEqualTo(genericStatus);
 		assertThat(response.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
@@ -62,6 +64,7 @@ class SupportManagementMapperTest {
 		final var errand = new Errand()
 			.id("errandId")
 			.title("title")
+			.classification(new Classification().type("type"))
 			.status("someStatus")
 			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
 			.modified(OffsetDateTime.parse("2023-01-02T10:00:00Z"))
@@ -76,7 +79,7 @@ class SupportManagementMapperTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isNull();
-		assertThat(response.getCaseType()).isEqualTo("title");
+		assertThat(response.getCaseType()).isEqualTo("type");
 		assertThat(response.getStatus()).isEqualTo(genericStatus);
 		assertThat(response.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
@@ -90,6 +93,7 @@ class SupportManagementMapperTest {
 		final var errand = new Errand()
 			.id("errandId")
 			.title("title")
+			.classification(new Classification().type("type"))
 			.status("someStatus")
 			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
 			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
@@ -104,7 +108,7 @@ class SupportManagementMapperTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
-		assertThat(response.getCaseType()).isEqualTo("title");
+		assertThat(response.getCaseType()).isEqualTo("type");
 		assertThat(response.getStatus()).isEqualTo(genericStatus);
 		assertThat(response.getLastStatusChange()).isNull();
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");

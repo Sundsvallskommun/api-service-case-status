@@ -3,6 +3,7 @@ package se.sundsvall.casestatus.service.mapper;
 import static se.sundsvall.casestatus.util.Constants.DATE_TIME_FORMAT;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
 
+import generated.se.sundsvall.supportmanagement.Classification;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.format.DateTimeFormatter;
@@ -51,7 +52,7 @@ public class SupportManagementMapper {
 		return CaseStatusResponse.builder()
 			.withCaseId(errand.getId())
 			.withExternalCaseId(externalCaseId.orElse(null))
-			.withCaseType(errand.getTitle())
+			.withCaseType(Optional.ofNullable(errand.getClassification()).map(Classification::getType).orElse(null))
 			.withStatus(getStatus(errand.getStatus()))
 			.withLastStatusChange(modified)
 			.withFirstSubmitted(firstSubmitted)

@@ -164,7 +164,7 @@ public class CaseStatusService {
 	}
 
 	private void getOepStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
-		// Fetching cached statuses for the given organization number.
+		// Fetching cached statuses for the given partyId.
 		oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
 			.map(caseEnvelope -> {
 				final var casestatus = oepIntegratorClient.getCaseStatus(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId());
