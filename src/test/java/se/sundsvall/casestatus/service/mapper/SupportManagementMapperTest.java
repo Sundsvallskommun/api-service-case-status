@@ -106,18 +106,18 @@ class SupportManagementMapperTest {
 		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
 		assertThat(response.getCaseType()).isEqualTo("title");
 		assertThat(response.getStatus()).isEqualTo(genericStatus);
-		assertThat(response.getLastStatusChange()).isEqualTo("Saknas");
+		assertThat(response.getLastStatusChange()).isNull();
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
 	}
 
 	@Test
 	void getStatus() {
-		var statusEntity = new SupportManagementStatusEntity();
-		var genericStatus = "genericStatus";
+		final var statusEntity = new SupportManagementStatusEntity();
+		final var genericStatus = "genericStatus";
 		statusEntity.setGenericStatus(genericStatus);
 		when(supportManagementStatusRepository.findBySystemStatus("someStatus")).thenReturn(Optional.of(statusEntity));
 
-		var status = supportManagementMapper.getStatus("someStatus");
+		final var status = supportManagementMapper.getStatus("someStatus");
 
 		assertThat(status).isNotNull().isEqualTo(genericStatus);
 	}
@@ -126,7 +126,7 @@ class SupportManagementMapperTest {
 	void getStatus_notFound() {
 		when(supportManagementStatusRepository.findBySystemStatus("someStatus")).thenReturn(Optional.empty());
 
-		var status = supportManagementMapper.getStatus("someStatus");
+		final var status = supportManagementMapper.getStatus("someStatus");
 
 		assertThat(status).isNotNull().isEqualTo("someStatus");
 	}

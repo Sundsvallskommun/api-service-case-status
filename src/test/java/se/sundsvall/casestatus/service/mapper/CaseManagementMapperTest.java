@@ -39,14 +39,14 @@ class CaseManagementMapperTest {
 	@ParameterizedTest
 	@EnumSource(CaseStatusDTO.SystemEnum.class)
 	void toCaseStatusResponse(final CaseStatusDTO.SystemEnum system) {
-		var caseStatus = createCaseStatusDTO(system);
-		var municipalityId = "2281";
-		var spy = Mockito.spy(caseManagementMapper);
+		final var caseStatus = createCaseStatusDTO(system);
+		final var municipalityId = "2281";
+		final var spy = Mockito.spy(caseManagementMapper);
 		when(spy.getStatus(caseStatus.getStatus())).thenReturn("status");
 		when(spy.getTimestamp(caseStatus.getTimestamp())).thenReturn("2025-04-01 12:30");
 		when(spy.getServiceName(caseStatus.getServiceName(), caseStatus.getCaseType(), municipalityId)).thenReturn("serviceName");
 
-		var result = spy.toCaseStatusResponse(caseStatus, municipalityId);
+		final var result = spy.toCaseStatusResponse(caseStatus, municipalityId);
 
 		assertThat(result).isNotNull().satisfies(response -> {
 			assertThat(response.getSystem()).isEqualTo(system.getValue());
@@ -55,7 +55,7 @@ class CaseManagementMapperTest {
 			assertThat(response.getCaseType()).isEqualTo("serviceName");
 			assertThat(response.getStatus()).isEqualTo("status");
 			assertThat(response.getLastStatusChange()).isEqualTo("2025-04-01 12:30");
-			assertThat(response.getFirstSubmitted()).isEqualTo("Saknas");
+			assertThat(response.getFirstSubmitted()).isEqualTo("2025-04-01 12:30");
 			assertThat(response.getErrandNumber()).isEqualTo("errandNumber");
 			assertThat(response.getNamespace()).isEqualTo("namespace");
 		});
@@ -66,11 +66,11 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getStatus_1() {
-		var originalStatus = "originalStatus";
+		final var originalStatus = "originalStatus";
 
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(originalStatus)).thenReturn(Optional.empty());
 
-		var result = caseManagementMapper.getStatus(originalStatus);
+		final var result = caseManagementMapper.getStatus(originalStatus);
 
 		assertThat(result).isEqualTo(originalStatus);
 		verify(caseManagementOpeneViewRepositoryMock).findByCaseManagementId(originalStatus);
@@ -84,13 +84,13 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getStatus_2() {
-		var originalStatus = "originalStatus";
-		var view = new CaseManagementOpeneView();
+		final var originalStatus = "originalStatus";
+		final var view = new CaseManagementOpeneView();
 		view.setOpenEId("openEId");
 
 		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(originalStatus)).thenReturn(Optional.of(view));
 
-		var result = caseManagementMapper.getStatus(originalStatus);
+		final var result = caseManagementMapper.getStatus(originalStatus);
 
 		assertThat(result).isEqualTo("openEId");
 		verify(caseManagementOpeneViewRepositoryMock).findByCaseManagementId(originalStatus);
@@ -104,9 +104,9 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getTimestamp_1() {
-		var timestamp = LocalDateTime.of(2025, Month.APRIL, 1, 12, 30, 45, 555);
+		final var timestamp = LocalDateTime.of(2025, Month.APRIL, 1, 12, 30, 45, 555);
 
-		var result = caseManagementMapper.getTimestamp(timestamp);
+		final var result = caseManagementMapper.getTimestamp(timestamp);
 
 		assertThat(result).isEqualTo("2025-04-01 12:30");
 	}
@@ -116,9 +116,9 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getTimestamp_2() {
-		var result = caseManagementMapper.getTimestamp(null);
+		final var result = caseManagementMapper.getTimestamp(null);
 
-		assertThat(result).isEqualTo("Saknas");
+		assertThat(result).isNull();
 	}
 
 	/**
@@ -126,13 +126,13 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getServiceName_1() {
-		var serviceName = "serviceName";
-		var caseType = "caseType";
-		var municipalityId = "2281";
+		final var serviceName = "serviceName";
+		final var caseType = "caseType";
+		final var municipalityId = "2281";
 
 		when(caseTypeRepositoryMock.findByEnumValueAndMunicipalityId(caseType, municipalityId)).thenReturn(Optional.empty());
 
-		var result = caseManagementMapper.getServiceName(serviceName, caseType, municipalityId);
+		final var result = caseManagementMapper.getServiceName(serviceName, caseType, municipalityId);
 
 		assertThat(result).isEqualTo("serviceName");
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
@@ -145,14 +145,14 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getServiceName_2() {
-		var caseType = "caseType";
-		var municipalityId = "2281";
-		var caseTypeEntity = new CaseTypeEntity();
+		final var caseType = "caseType";
+		final var municipalityId = "2281";
+		final var caseTypeEntity = new CaseTypeEntity();
 		caseTypeEntity.setDescription("description");
 
 		when(caseTypeRepositoryMock.findByEnumValueAndMunicipalityId(caseType, municipalityId)).thenReturn(Optional.of(caseTypeEntity));
 
-		var result = caseManagementMapper.getServiceName(null, caseType, municipalityId);
+		final var result = caseManagementMapper.getServiceName(null, caseType, municipalityId);
 
 		assertThat(result).isEqualTo("description");
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
@@ -165,14 +165,14 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getServiceName_3() {
-		var caseType = "caseType";
-		var municipalityId = "2281";
+		final var caseType = "caseType";
+		final var municipalityId = "2281";
 
 		when(caseTypeRepositoryMock.findByEnumValueAndMunicipalityId(caseType, municipalityId)).thenReturn(Optional.empty());
 
-		var result = caseManagementMapper.getServiceName(null, caseType, municipalityId);
+		final var result = caseManagementMapper.getServiceName(null, caseType, municipalityId);
 
-		assertThat(result).isEqualTo("Saknas");
+		assertThat(result).isNull();
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
 		verifyNoInteractions(caseManagementOpeneViewRepositoryMock);
