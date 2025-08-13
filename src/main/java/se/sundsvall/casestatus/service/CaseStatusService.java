@@ -134,16 +134,8 @@ public class CaseStatusService {
 	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final String municipalityId) {
 		final List<CaseStatusResponse> statuses = new ArrayList<>();
 
-		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
-			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.forEach(statuses::add);
-
-		oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
-			.map(caseEnvelope -> {
-				final var casestatus = oepIntegratorClient.getCaseStatus(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId());
-				return OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
-			})
-			.forEach(statuses::add);
+		getCaseManagementStatuses(partyId, municipalityId, statuses);
+		getOepStatuses(partyId, municipalityId, statuses);
 
 		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
 		supportManagementService.getSupportManagementCases(municipalityId, filterString)
@@ -158,10 +150,20 @@ public class CaseStatusService {
 		final List<CaseStatusResponse> statuses = new ArrayList<>();
 
 		// Fetching statuses from CaseManagement.
+		getCaseManagementStatuses(partyId, municipalityId, statuses);
+		getOepStatuses(partyId, municipalityId, statuses);
+
+		return statuses;
+	}
+
+	private void getCaseManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
 		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
 			.forEach(statuses::add);
 
+	}
+
+	private void getOepStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
 		// Fetching cached statuses for the given organization number.
 		oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
 			.map(caseEnvelope -> {
@@ -169,14 +171,12 @@ public class CaseStatusService {
 				return OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
 			})
 			.forEach(statuses::add);
-
-		return statuses;
 	}
 
 	/**
-	 * CaseStatusResponses are processed and if there are duplicate externalCaseId's some filtering is done. Responses with
-	 * null externalCaseId's are not filtered. If there are multiple responses with the same externalCaseId, the ones with
-	 * system
+	 * CaseStatusResponses are processed, and if there are duplicate externalCaseId's, some filtering is done. Responses
+	 * with null externalCaseId's are not filtered. If there are multiple responses with the same externalCaseId, the ones
+	 * with system
 	 * OPEN_E_PLATFORM are removed.
 	 *
 	 * @param  responses List of CaseStatusResponses
@@ -218,13 +218,13 @@ public class CaseStatusService {
 		}
 
 		final var filterString = "errandNumber:'%s'".formatted(errandNumber);
-		var supportManagementCases = supportManagementService.getSupportManagementCases(municipalityId, filterString);
-		var caseStatusResponses = supportManagementCases.entrySet().stream()
+		final var supportManagementCases = supportManagementService.getSupportManagementCases(municipalityId, filterString);
+		final var caseStatusResponses = supportManagementCases.entrySet().stream()
 			.flatMap(entry -> entry.getValue().stream()
 				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, entry.getKey())))
 			.toList();
 
-		var caseDataCases = caseDataIntegration.getNamespaces().stream()
+		final var caseDataCases = caseDataIntegration.getNamespaces().stream()
 			.flatMap(namespace -> caseDataIntegration.getCaseDataCaseByErrandNumber(municipalityId, namespace, errandNumber).stream())
 			.toList();
 

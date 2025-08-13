@@ -1,5 +1,25 @@
 [
 	{
+		"caseId": "KKLLMM112233",
+		"externalCaseId": "12345",
+		"caseType": "Installation av bidé",
+		"status": "Avslutad",
+		"firstSubmitted": "2022-01-01 00:00",
+		"lastStatusChange": "2022-01-01 00:00",
+		"system": "BYGGR",
+		"errandNumber": "BYGG 2022-12345"
+	},
+	{
+		"caseId": "AABBCC112233",
+		"externalCaseId": "12348",
+		"caseType": "Öl- och vinprovning",
+		"status": "Avböjd",
+		"firstSubmitted": "2022-01-01 00:00",
+		"lastStatusChange": "2022-01-01 00:00",
+		"system": "ALKT",
+		"errandNumber": "ALK 2022-12348"
+	},
+	{
 		"caseId": "4999",
 		"externalCaseId": "4999",
 		"status": "Inskickat",
@@ -9,44 +29,24 @@
 		"errandNumber": "4999"
 	},
 	{
-		"caseId": "KKLLMM112233",
-		"caseType": "Installation av bidé",
-		"errandNumber": "BYGG 2022-12345",
-		"externalCaseId": "12345",
-		"firstSubmitted": "Saknas",
-		"lastStatusChange": "2022-01-01 00:00",
-		"status": "Avslutad",
-		"system": "BYGGR"
-	},
-	{
-		"caseId": "AABBCC112233",
-		"caseType": "Öl- och vinprovning",
-		"errandNumber": "ALK 2022-12348",
-		"externalCaseId": "12348",
-		"firstSubmitted": "Saknas",
-		"lastStatusChange": "2022-01-01 00:00",
-		"status": "Avböjd",
-		"system": "ALKT"
-	},
-	{
 		"caseId": "GGHHJJ112233",
-		"caseType": "Godkännande av ny te- och kaffemaskin",
-		"errandNumber": "ECOS 2022-12346",
 		"externalCaseId": "12346",
-		"firstSubmitted": "Saknas",
-		"lastStatusChange": "2022-01-01 00:00",
+		"caseType": "Godkännande av ny te- och kaffemaskin",
 		"status": "Pågående",
-		"system": "ECOS"
+		"firstSubmitted": "2022-01-01 00:00",
+		"lastStatusChange": "2022-01-01 00:00",
+		"system": "ECOS",
+		"errandNumber": "ECOS 2022-12346"
 	},
 	{
 		"caseId": "DDEEFF112233",
-		"caseType": "Parkering och reparation",
-		"errandNumber": "CD 2022-12347",
 		"externalCaseId": "12347",
-		"firstSubmitted": "Saknas",
-		"lastStatusChange": "2022-01-01 00:00",
-		"namespace": "the-greatest-namespace",
+		"caseType": "Parkering och reparation",
 		"status": "Pågående",
-		"system": "CASE_DATA"
+		"firstSubmitted": "2022-01-01 00:00",
+		"lastStatusChange": "2022-01-01 00:00",
+		"system": "CASE_DATA",
+		"namespace": "the-greatest-namespace",
+		"errandNumber": "CD 2022-12347"
 	}
 ]

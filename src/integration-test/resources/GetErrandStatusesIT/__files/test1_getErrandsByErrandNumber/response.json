@@ -2,49 +2,49 @@
 	{
 		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
 		"caseType": "Empty errand",
-		"errandNumber": "KC-23030013",
+		"status": "Klart",
 		"firstSubmitted": "2023-03-14 11:21",
 		"lastStatusChange": "2023-03-14 13:27",
+		"system": "SUPPORT_MANAGEMENT",
 		"namespace": "SECOND_NAMESPACE",
-		"status": "Klart",
-		"system": "SUPPORT_MANAGEMENT"
+		"errandNumber": "KC-23030013"
 	},
 	{
 		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
 		"caseType": "Empty errand",
-		"errandNumber": "KC-23030013",
+		"status": "Klart",
 		"firstSubmitted": "2023-03-14 11:21",
 		"lastStatusChange": "2023-03-14 13:27",
+		"system": "SUPPORT_MANAGEMENT",
 		"namespace": "FIRST_NAMESPACE",
-		"status": "Klart",
-		"system": "SUPPORT_MANAGEMENT"
+		"errandNumber": "KC-23030013"
 	},
 	{
 		"caseId": "766",
 		"caseType": "MEX_SELL_LAND_TO_THE_MUNICIPALITY",
-		"errandNumber": "MEX-2024-000152",
-		"firstSubmitted": "Saknas",
+		"status": "Under beslut",
+		"firstSubmitted": "2024-04-09 10:40",
 		"lastStatusChange": "2024-04-09 10:41",
+		"system": "CASE_DATA",
 		"namespace": "SBK_MEX",
+		"errandNumber": "MEX-2024-000152",
 		"propertyDesignations": [
 			"BALDER 1"
-		],
-		"status": "Under beslut",
-		"system": "CASE_DATA"
+		]
 	},
 	{
 		"caseId": "774",
-		"caseType": "MEX_SELL_LAND_TO_THE_MUNICIPALITY",
-		"errandNumber": "MEX-2024-000160",
 		"externalCaseId": "4065",
-		"firstSubmitted": "Saknas",
+		"caseType": "MEX_SELL_LAND_TO_THE_MUNICIPALITY",
+		"status": "Ärende inkommit",
+		"firstSubmitted": "2024-04-10 10:13",
 		"lastStatusChange": "2024-04-10 10:13",
+		"system": "CASE_DATA",
 		"namespace": "SBK_MEX",
+		"errandNumber": "MEX-2024-000160",
 		"propertyDesignations": [
 			"BALDER 2",
 			"BALDER 3"
-		],
-		"status": "Ärende inkommit",
-		"system": "CASE_DATA"
+		]
 	}
 ]

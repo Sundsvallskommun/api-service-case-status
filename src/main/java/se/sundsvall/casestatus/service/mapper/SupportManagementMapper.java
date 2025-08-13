@@ -1,7 +1,6 @@
 package se.sundsvall.casestatus.service.mapper;
 
 import static se.sundsvall.casestatus.util.Constants.DATE_TIME_FORMAT;
-import static se.sundsvall.casestatus.util.Constants.MISSING;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
 
 import generated.se.sundsvall.supportmanagement.Errand;
@@ -43,11 +42,11 @@ public class SupportManagementMapper {
 
 		final var modified = Optional.ofNullable(errand.getModified())
 			.map(modifiedDate -> modifiedDate.format(DATE_TIME_FORMATTER))
-			.orElse(MISSING);
+			.orElse(null);
 
 		final var firstSubmitted = Optional.ofNullable(errand.getCreated())
 			.map(createdDate -> createdDate.format(DATE_TIME_FORMATTER))
-			.orElse(MISSING);
+			.orElse(null);
 
 		return CaseStatusResponse.builder()
 			.withCaseId(errand.getId())

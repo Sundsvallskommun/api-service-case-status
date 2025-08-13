@@ -14,7 +14,7 @@
 		"externalCaseId": "12345",
 		"caseType": "Installation av bidé",
 		"status": "Avslutad",
-		"firstSubmitted": "Saknas",
+		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"system": "BYGGR",
 		"errandNumber": "BYGG 2022-12345"
@@ -24,7 +24,7 @@
 		"externalCaseId": "12348",
 		"caseType": "Öl- och vinprovning",
 		"status": "Avböjd",
-		"firstSubmitted": "Saknas",
+		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"system": "ALKT",
 		"errandNumber": "ALK 2022-12348"
@@ -43,7 +43,7 @@
 		"externalCaseId": "12346",
 		"caseType": "Godkännande av ny te- och kaffemaskin",
 		"status": "Pågående",
-		"firstSubmitted": "Saknas",
+		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"system": "ECOS",
 		"errandNumber": "ECOS 2022-12346"
@@ -53,7 +53,7 @@
 		"externalCaseId": "12347",
 		"caseType": "Parkering och reparation",
 		"status": "Pågående",
-		"firstSubmitted": "Saknas",
+		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"system": "CASE_DATA",
 		"namespace": "the-greatest-namespace",

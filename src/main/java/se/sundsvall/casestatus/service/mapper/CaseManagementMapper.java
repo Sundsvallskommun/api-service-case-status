@@ -1,7 +1,6 @@
 package se.sundsvall.casestatus.service.mapper;
 
 import static java.util.Optional.ofNullable;
-import static se.sundsvall.casestatus.util.Constants.MISSING;
 import static se.sundsvall.casestatus.util.Constants.UNKNOWN;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
@@ -17,10 +16,9 @@ import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneVie
 @Component
 public final class CaseManagementMapper {
 
+	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 	private final CaseTypeRepository caseTypeRepository;
-
-	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
 	public CaseManagementMapper(
 		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
@@ -35,7 +33,7 @@ public final class CaseManagementMapper {
 			.withCaseType(getServiceName(caseStatus.getServiceName(), caseStatus.getCaseType(), municipalityId))
 			.withStatus(getStatus(caseStatus.getStatus()))
 			.withLastStatusChange(getTimestamp(caseStatus.getTimestamp()))
-			.withFirstSubmitted(MISSING)
+			.withFirstSubmitted(getTimestamp(caseStatus.getTimestamp()))
 			.withSystem(ofNullable(caseStatus.getSystem()).map(CaseStatusDTO.SystemEnum::toString).orElse(UNKNOWN))
 			.withExternalCaseId(caseStatus.getExternalCaseId())
 			.withErrandNumber(caseStatus.getErrandNumber())
@@ -65,24 +63,24 @@ public final class CaseManagementMapper {
 	String getTimestamp(final LocalDateTime originalTimestamp) {
 		return ofNullable(originalTimestamp)
 			.map(DATE_TIME_FORMATTER::format)
-			.orElse(MISSING);
+			.orElse(null);
 	}
 
 	/**
 	 * Returns the service name if it is present, otherwise it tries to get a description from the database. If no
-	 * description is can be found in the database, it returns 'Saknas'.
+	 * description can be found in the database, it returns null.
 	 *
-	 * @param  serviceName    The service name, returned from CaseManagement.
+	 * @param  serviceName    The service name returned from CaseManagement.
 	 * @param  caseType       The case type, used to look up the description in the database.
 	 * @param  municipalityId The municipality id, used to look up the description in the database.
 	 * @return                The service name if it is present, otherwise a description from the database. If no
-	 *                        description is found, it returns 'Saknas'.
+	 *                        description is found, it returns null.
 	 */
 	String getServiceName(final String serviceName, final String caseType, final String municipalityId) {
 		return ofNullable(serviceName)
 			.orElse(caseTypeRepository.findByEnumValueAndMunicipalityId(caseType, municipalityId)
 				.map(CaseTypeEntity::getDescription)
-				.orElse(MISSING));
+				.orElse(null));
 	}
 
 }
