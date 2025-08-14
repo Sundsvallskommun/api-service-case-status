@@ -18,6 +18,7 @@ import static se.sundsvall.TestDataFactory.createErrand;
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
+import generated.client.oep_integrator.ModelCase;
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.party.PartyType;
 import java.io.ByteArrayInputStream;
@@ -288,6 +289,7 @@ class CaseStatusServiceTest {
 
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().flowInstanceId("someFlowInstanceId")));
 		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+		when(openEIntegrationMock.getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new ModelCase().title("someTitle"));
 
 		when(supportManagementMapperMock.toCaseStatusResponse(errand, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(supportManagementServiceMock.getSupportManagementCases(MUNICIPALITY_ID, "stakeholders.externalId:'%s'".formatted(partyId))).thenReturn(errandMap);
@@ -300,12 +302,13 @@ class CaseStatusServiceTest {
 
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
 		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
+		verify(openEIntegrationMock).getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "stakeholders.externalId:'%s'".formatted(partyId));
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock);
 	}
 
 	/**
-	 * Test scenario where one case is found in CaseManagement and one case is found in OpenE with given legalId.
+	 * Test scenario where one case is found in CaseManagement and one case is found in OpenE with a given legalId.
 	 */
 	@Test
 	void getEnterpriseCaseStatuses_1() {
@@ -313,11 +316,13 @@ class CaseStatusServiceTest {
 
 		final var caseStatus = createCaseStatusDTO(BYGGR);
 		final var caseStatuses = List.of(caseStatus);
+		final var title = "someTitle";
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(caseStatuses);
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().flowInstanceId("someFlowInstanceId")));
 		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+		when(openEIntegrationMock.getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new ModelCase().title(title));
 
 		final var result = caseStatusService.getEnterpriseCaseStatuses(partyId, MUNICIPALITY_ID);
 
@@ -327,6 +332,7 @@ class CaseStatusServiceTest {
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
 		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
+		verify(openEIntegrationMock).getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -340,6 +346,7 @@ class CaseStatusServiceTest {
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().flowInstanceId("someFlowInstanceId")));
 		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+		when(openEIntegrationMock.getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new ModelCase().title("someTitle"));
 
 		final var result = caseStatusService.getEnterpriseCaseStatuses(partyId, MUNICIPALITY_ID);
 
@@ -348,6 +355,7 @@ class CaseStatusServiceTest {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
 		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
+		verify(openEIntegrationMock).getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -434,7 +442,7 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Test scenario where two CaseStatusResponses are filtered. Both have 'null' 'externalCaseId'. Expects that no
+	 * Test scenario where two CaseStatusResponses are filtered. Both have 'null' and 'externalCaseId'. Expects that no
 	 * filtering is done.
 	 */
 	@Test
