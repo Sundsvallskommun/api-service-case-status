@@ -167,9 +167,8 @@ public class CaseStatusService {
 		// Fetching cached statuses for the given partyId.
 		oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
 			.map(caseEnvelope -> {
-				final var title = oepIntegratorClient.getCase(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId()).getTitle();
 				final var casestatus = oepIntegratorClient.getCaseStatus(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId());
-				return OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus, title);
+				return OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
 			})
 			.forEach(statuses::add);
 	}
