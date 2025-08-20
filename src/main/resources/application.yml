@@ -68,3 +68,16 @@ logbook:
     x-path:
       - key: '//EncodedData[string-length(text()) > 0]'
         value: '[base64]'
+
+#----------------------------------------
+# Search role properties
+#----------------------------------------
+sm-status-search:
+  roles:
+    2281:
+      CONTACTCENTER: PRIMARY
+      CONTACTSUNDSVALL: PRIMARY
+      SALARYANDPENSION: PRIMARY
+      INTERNALSERVICE: PRIMARY
+      MSVA: PRIMARY
+      ROB: PRIMARY

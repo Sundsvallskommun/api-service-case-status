@@ -292,7 +292,7 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new ModelCase().title("someTitle"));
 
 		when(supportManagementMapperMock.toCaseStatusResponse(errand, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
-		when(supportManagementServiceMock.getSupportManagementCases(MUNICIPALITY_ID, "stakeholders.externalId:'%s'".formatted(partyId))).thenReturn(errandMap);
+		when(supportManagementServiceMock.getSupportManagementCasesByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(errandMap);
 
 		final var result = caseStatusService.getPrivateCaseStatuses(partyId, MUNICIPALITY_ID);
 
@@ -303,7 +303,7 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
 		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verify(openEIntegrationMock).getCase(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
-		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "stakeholders.externalId:'%s'".formatted(partyId));
+		verify(supportManagementServiceMock).getSupportManagementCasesByPartyId(MUNICIPALITY_ID, partyId);
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock);
 	}
 
