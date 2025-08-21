@@ -48,11 +48,11 @@ public final class OpenEMapper {
 			.build();
 	}
 
-	public static CaseStatusResponse toCaseStatusResponse(final CaseEnvelope caseEnvelope, final CaseStatus caseStatus, final String title) {
+	public static CaseStatusResponse toCaseStatusResponse(final CaseEnvelope caseEnvelope, final CaseStatus caseStatus) {
 		return Optional.ofNullable(caseStatus)
 			.map(status -> CaseStatusResponse.builder()
 				.withCaseId(caseEnvelope.getFlowInstanceId())
-				.withCaseType(title)
+				.withCaseType(caseEnvelope.getDisplayName())
 				.withStatus(status.getName())
 				.withLastStatusChange(formatDateTime(caseEnvelope.getStatusUpdated()))
 				.withFirstSubmitted(formatDateTime(caseEnvelope.getCreated()))

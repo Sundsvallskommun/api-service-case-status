@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.1"
+  version: "1.2"
 servers:
-  - url: http://localhost:60041
+  - url: http://localhost:58939
     description: Generated server url
 tags:
   - name: Instances
@@ -668,7 +668,7 @@ paths:
           example: INTERNAL
         - name: flowInstanceId
           in: path
-          description: Flow instance id
+          description: MetadataFlow instance id
           required: true
           schema:
             type: string
@@ -1145,6 +1145,12 @@ components:
     Problem:
       type: object
       properties:
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -1155,12 +1161,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        title:
-          type: string
-        detail:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
     StatusType:
       type: object
       properties:
@@ -1246,6 +1246,8 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -1253,8 +1255,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        detail:
-          type: string
         suppressed:
           type: array
           items:
@@ -1317,6 +1317,12 @@ components:
                 type: boolean
         message:
           type: string
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -1327,12 +1333,6 @@ components:
           type: object
           additionalProperties:
             type: object
-        title:
-          type: string
-        detail:
-          type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         suppressed:
           type: array
           items:
@@ -1431,6 +1431,9 @@ components:
             $ref: "#/components/schemas/ExternalReference"
       description: Webmessage request model
     ConfirmDeliveryRequest:
+      required:
+        - caseId
+        - system
       type: object
       properties:
         caseId:
@@ -1664,5 +1667,9 @@ components:
           type: string
           description: The case status change date
           format: date-time
+        displayName:
+          type: string
+          description: The display name for the family the case belongs to
+          example: Kompiskortet
       description: Case envelope model
   securitySchemes: { }
