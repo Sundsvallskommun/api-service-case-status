@@ -89,3 +89,12 @@ spring:
           case-data:
             client-id: the-client-id
             client-secret: the-client-secret
+
+#----------------------------------------
+# Search role properties
+#----------------------------------------
+sm-status-search:
+  roles:
+    2281:
+      MY_NAMESPACE: MY_ROLE
+      MY_NAMESPACE2: MY_ROLE2

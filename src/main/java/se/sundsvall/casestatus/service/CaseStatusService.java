@@ -137,8 +137,7 @@ public class CaseStatusService {
 		getCaseManagementStatuses(partyId, municipalityId, statuses);
 		getOepStatuses(partyId, municipalityId, statuses);
 
-		final var filterString = "stakeholders.externalId:'%s'".formatted(partyId);
-		supportManagementService.getSupportManagementCases(municipalityId, filterString)
+		supportManagementService.getSupportManagementCasesByPartyId(municipalityId, partyId)
 			.forEach((namespace, errands) -> errands.stream()
 				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace))
 				.forEach(statuses::add));
