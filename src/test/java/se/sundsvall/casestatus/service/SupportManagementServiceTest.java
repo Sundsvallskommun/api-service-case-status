@@ -10,6 +10,7 @@ import static org.mockito.Mockito.when;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,12 +20,16 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
+import se.sundsvall.casestatus.util.RoleSearchProperties;
 
 @ExtendWith(MockitoExtension.class)
 class SupportManagementServiceTest {
 
 	@Mock
 	private SupportManagementClient supportManagementClient;
+
+	@Mock
+	private RoleSearchProperties roleSearchProperties;
 
 	@InjectMocks
 	private SupportManagementService supportManagementService;
@@ -42,6 +47,26 @@ class SupportManagementServiceTest {
 
 		// Act
 		final var result = supportManagementService.getSupportManagementCases(municipalityId, filter);
+
+		// Assert
+		assertThat(result.get(namespace)).isNotNull().hasSize(1);
+		assertThat(result.get(namespace).getFirst().getId()).isEqualTo("errandId");
+	}
+
+	@Test
+	void getSupportManagementCasesByPartyId() {
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var namespace = "namespace";
+		final var role = "role";
+		final var errand = new Errand().id("errandId");
+		final var errandsPage = new PageImpl<>(List.of(errand));
+		when(supportManagementClient.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementClient.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
+		when(roleSearchProperties.getRoles()).thenReturn(Map.of(municipalityId, Map.of(namespace, role)));
+
+		// Act
+		final var result = supportManagementService.getSupportManagementCasesByPartyId(municipalityId, namespace);
 
 		// Assert
 		assertThat(result.get(namespace)).isNotNull().hasSize(1);
