@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
 import static se.sundsvall.TestDataFactory.createErrand;
+import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
 
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.CaseStatus;
@@ -199,6 +200,8 @@ class CaseStatusServiceTest {
 
 	@Test
 	void getCaseStatuses() {
+
+		final var errand = createErrand();
 		when(caseManagementIntegrationMock.getCaseStatusForOrganizationNumber(any(String.class), any(String.class)))
 			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"), new CaseStatusDTO().status("someOtherStatus")));
 
@@ -208,14 +211,21 @@ class CaseStatusServiceTest {
 		when(caseRepositoryMock.findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class)))
 			.thenReturn(List.of(CaseEntity.builder().build()));
 
+		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId"))
+			.thenReturn(Map.of(NAMESPACE_1, List.of(errand)));
+
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
+
 		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
 
-		assertThat(result).isNotNull().hasSize(3);
+		assertThat(result).isNotNull().hasSize(4);
 
 		verify(caseManagementIntegrationMock).getCaseStatusForOrganizationNumber(any(String.class), any(String.class));
 		verify(caseManagementMapperMock, times(2)).toCaseStatusResponse(any(CaseStatusDTO.class), eq(MUNICIPALITY_ID));
 		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
-		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock);
+		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId");
+
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock);
 	}
 
 	@Test
@@ -266,7 +276,8 @@ class CaseStatusServiceTest {
 		verify(caseManagementIntegrationMock).getCaseStatusForOrganizationNumber(any(String.class), any(String.class));
 		verify(caseManagementMapperMock).toCaseStatusResponse(any(CaseStatusDTO.class), eq(MUNICIPALITY_ID));
 		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
-		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock);
+		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId");
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock);
 	}
 
 	/**

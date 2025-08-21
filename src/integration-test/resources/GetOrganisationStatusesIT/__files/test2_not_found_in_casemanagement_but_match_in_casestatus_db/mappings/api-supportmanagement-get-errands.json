@@ -1,0 +1,18 @@
+{
+	"request": {
+		"method": "GET",
+		"queryParameters": {
+			"filter": {
+				"equalTo": "stakeholders.externalId:'123456-1233' and stakeholders.role:'PRIMARY'"
+			}
+		},
+		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test2_not_found_in_casemanagement_but_match_in_casestatus_db/responses/api-supportmanagement-get-errands.json",
+		"status": 200
+	}
+}
