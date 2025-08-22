@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "8.2"
+  version: "8.3"
 servers:
-  - url: http://localhost:52583
+  - url: http://localhost:52274
     description: Generated server url
 tags:
   - name: Status
@@ -428,10 +428,10 @@ components:
     AddressDTO:
       required:
         - addressCategories
-        - propertyDesignation
       type: object
       properties:
         addressCategories:
+          minItems: 1
           type: array
           description: "An address can have one or more address categories. For example,\
             \ it can be the same address that is to be used for mail and invoices."
@@ -498,6 +498,7 @@ components:
           description: The attachment category
           example: DOCUMENT
         name:
+          minLength: 1
           type: string
           description: The attachment name
           example: Attachment name
@@ -506,14 +507,17 @@ components:
           description: A note on an attachment
           example: A note on an attachment.
         extension:
+          minLength: 1
           type: string
           description: The file extension
           example: .pdf
         mimeType:
+          minLength: 1
           type: string
           description: the mime type of the attachment
           example: application/pdf
         file:
+          minLength: 1
           type: string
           description: Base64-encoded file (plain text)
           format: byte
@@ -561,6 +565,7 @@ components:
       type: object
       properties:
         externalCaseId:
+          minLength: 1
           type: string
           description: Case ID from the client.
           example: caa230c6-abb4-4592-ad9a-34e263c2787b
@@ -578,11 +583,13 @@ components:
             \ cases of CaseType: NYBYGGNAD_ANSOKAN_OM_BYGGLOV."
           example: "Eldstad/rökkanal, Skylt"
         stakeholders:
+          minItems: 1
           type: array
           description: The stakeholders in the case
           items:
             $ref: "#/components/schemas/StakeholderDTO"
         attachments:
+          minItems: 1
           type: array
           description: The attachments in the case
           items:
@@ -672,8 +679,6 @@ components:
               items:
                 $ref: "#/components/schemas/FacilityDTO"
     FacilityDTO:
-      required:
-        - address
       type: object
       properties:
         facilityType:
@@ -713,10 +718,12 @@ components:
         - type: object
           properties:
             organizationName:
+              minLength: 1
               type: string
               description: Organization name
               example: Sundsvalls testfabrik
             organizationNumber:
+              minLength: 1
               type: string
               description: Organization number with 10 or 12 digits.
               example: 20220622-2396
@@ -746,7 +753,6 @@ components:
       required:
         - firstName
         - lastName
-        - personId
         - type
       type: object
       description: Person model
@@ -755,10 +761,12 @@ components:
         - type: object
           properties:
             firstName:
+              minLength: 1
               type: string
               description: The person's first name
               example: Test
             lastName:
+              minLength: 1
               type: string
               description: The person's last name
               example: Testorsson
