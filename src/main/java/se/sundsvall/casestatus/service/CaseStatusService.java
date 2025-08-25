@@ -8,6 +8,7 @@ import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfRespon
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 import generated.client.oep_integrator.InstanceType;
@@ -115,6 +116,8 @@ public class CaseStatusService {
 			.map(OpenEMapper::toCaseStatusResponse)
 			.forEach(statuses::add);
 
+		getSupportManagementStatuses(getFormattedOrganizationNumber(organizationNumber), municipalityId, statuses);
+
 		return statuses;
 	}
 
@@ -126,8 +129,10 @@ public class CaseStatusService {
 			return filterResponses(statuses);
 		} else if (partyResult.containsKey(ENTERPRISE)) {
 			final var statuses = getEnterpriseCaseStatuses(partyId, municipalityId);
+			getSupportManagementStatuses(getFormattedOrganizationNumber(partyResult.get(ENTERPRISE)), municipalityId, statuses);
 			return filterResponses(statuses);
 		}
+
 		return emptyList();
 	}
 
@@ -137,11 +142,7 @@ public class CaseStatusService {
 		getCaseManagementStatuses(partyId, municipalityId, statuses);
 		getOepStatuses(partyId, municipalityId, statuses);
 
-		supportManagementService.getSupportManagementCasesByPartyId(municipalityId, partyId)
-			.forEach((namespace, errands) -> errands.stream()
-				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace))
-				.forEach(statuses::add));
-
+		getSupportManagementStatuses(partyId, municipalityId, statuses);
 		return statuses;
 	}
 
@@ -153,6 +154,13 @@ public class CaseStatusService {
 		getOepStatuses(partyId, municipalityId, statuses);
 
 		return statuses;
+	}
+
+	private void getSupportManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
+		supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)
+			.forEach((namespace, errands) -> errands.stream()
+				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace))
+				.forEach(statuses::add));
 	}
 
 	private void getCaseManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {

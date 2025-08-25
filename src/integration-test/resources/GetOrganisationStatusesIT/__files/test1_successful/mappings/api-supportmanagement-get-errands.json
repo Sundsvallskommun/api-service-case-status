@@ -1,0 +1,18 @@
+{
+	"request": {
+		"method": "GET",
+		"queryParameters": {
+			"filter": {
+				"equalTo": "stakeholders.externalId:'123456-1235' and stakeholders.role:'PRIMARY'"
+			}
+		},
+		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_successful/responses/api-supportmanagement-get-errands.json",
+		"status": 200
+	}
+}

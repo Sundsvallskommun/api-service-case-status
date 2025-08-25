@@ -1,5 +1,15 @@
 [
 	{
+		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+		"caseType": "OPEN-HOURS",
+		"errandNumber": "KC-23030013",
+		"firstSubmitted": "2023-03-14 11:21",
+		"lastStatusChange": "2023-03-14 13:27",
+		"namespace": "MYNAMESPACE",
+		"status": "Klart",
+		"system": "SUPPORT_MANAGEMENT"
+	},
+	{
 		"caseId": "KKLLMM112233",
 		"caseType": "Installation av bidé",
 		"errandNumber": "BYGG 2022-12345",

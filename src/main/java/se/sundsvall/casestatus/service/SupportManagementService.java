@@ -14,9 +14,9 @@ import se.sundsvall.casestatus.util.RoleSearchProperties;
 @Service
 public class SupportManagementService {
 
+	private static final String ROLE_PRIMARY = "PRIMARY";
 	private final SupportManagementClient supportManagementClient;
 	private final RoleSearchProperties searchRoleProperties;
-	private static final String ROLE_PRIMARY = "PRIMARY";
 
 	public SupportManagementService(final SupportManagementClient supportManagementClient, final RoleSearchProperties searchRoleProperties) {
 
@@ -45,7 +45,7 @@ public class SupportManagementService {
 		return errandMap;
 	}
 
-	public Map<String, List<Errand>> getSupportManagementCasesByPartyId(final String municipalityId, final String partyId) {
+	public Map<String, List<Errand>> getSupportManagementCasesByExternalId(final String municipalityId, final String externalId) {
 
 		final var errandMap = new HashMap<String, List<Errand>>();
 
@@ -58,7 +58,7 @@ public class SupportManagementService {
 
 			do {
 				response = supportManagementClient.findErrands(municipalityId, config.getNamespace(),
-					filter.formatted(partyId, getSearchRole(municipalityId, config.getNamespace())), PageRequest.of(pageNumber, 100));
+					filter.formatted(externalId, getSearchRole(municipalityId, config.getNamespace())), PageRequest.of(pageNumber, 100));
 				allErrands.addAll(response.getContent());
 				pageNumber++;
 			} while (response.hasNext());
@@ -81,7 +81,7 @@ public class SupportManagementService {
 	private String getSearchRole(final String municipalityId, final String namespace) {
 		final var roles = searchRoleProperties.getRoles();
 		final var municipalityRoles = roles.get(municipalityId);
-		String role = municipalityRoles != null ? municipalityRoles.get(namespace) : null;
+		final String role = municipalityRoles != null ? municipalityRoles.get(namespace) : null;
 		return role != null ? role : ROLE_PRIMARY;
 	}
 
