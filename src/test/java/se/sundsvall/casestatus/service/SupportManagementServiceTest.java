@@ -66,7 +66,7 @@ class SupportManagementServiceTest {
 		when(roleSearchProperties.getRoles()).thenReturn(Map.of(municipalityId, Map.of(namespace, role)));
 
 		// Act
-		final var result = supportManagementService.getSupportManagementCasesByPartyId(municipalityId, namespace);
+		final var result = supportManagementService.getSupportManagementCasesByExternalId(municipalityId, namespace);
 
 		// Assert
 		assertThat(result.get(namespace)).isNotNull().hasSize(1);

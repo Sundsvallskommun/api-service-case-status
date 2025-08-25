@@ -137,7 +137,7 @@ public class CaseStatusService {
 		getCaseManagementStatuses(partyId, municipalityId, statuses);
 		getOepStatuses(partyId, municipalityId, statuses);
 
-		supportManagementService.getSupportManagementCasesByPartyId(municipalityId, partyId)
+		supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)
 			.forEach((namespace, errands) -> errands.stream()
 				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace))
 				.forEach(statuses::add));
