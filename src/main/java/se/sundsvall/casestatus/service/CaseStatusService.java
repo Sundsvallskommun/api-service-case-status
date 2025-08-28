@@ -15,6 +15,7 @@ import generated.client.oep_integrator.InstanceType;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
@@ -124,36 +125,25 @@ public class CaseStatusService {
 	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId) {
 		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
+		final var cmFuture = getCaseManagementStatusesAsync(partyId, municipalityId);
+		final var oepFuture = getOepStatusesAsync(partyId, municipalityId);
+
+		// Support Management depends on the party type (PRIVATE -> partyId, ENTERPRISE -> formatted org no)
+		final CompletableFuture<List<CaseStatusResponse>> supportFuture;
 		if (partyResult.containsKey(PRIVATE)) {
-			final var statuses = getPrivateCaseStatuses(partyId, municipalityId);
-			return filterResponses(statuses);
+			supportFuture = getSupportManagementStatusesAsync(partyId, municipalityId);
 		} else if (partyResult.containsKey(ENTERPRISE)) {
-			final var statuses = getEnterpriseCaseStatuses(partyId, municipalityId);
-			getSupportManagementStatuses(getFormattedOrganizationNumber(partyResult.get(ENTERPRISE)), municipalityId, statuses);
-			return filterResponses(statuses);
+			supportFuture = getSupportManagementStatusesAsync(getFormattedOrganizationNumber(partyResult.get(ENTERPRISE)), municipalityId);
+		} else {
+			return emptyList();
 		}
 
-		return emptyList();
-	}
+		final var statuses = Stream.of(cmFuture, oepFuture, supportFuture)
+			.map(CompletableFuture::join)
+			.flatMap(List::stream)
+			.toList();
 
-	List<CaseStatusResponse> getPrivateCaseStatuses(final String partyId, final String municipalityId) {
-		final List<CaseStatusResponse> statuses = new ArrayList<>();
-
-		getCaseManagementStatuses(partyId, municipalityId, statuses);
-		getOepStatuses(partyId, municipalityId, statuses);
-
-		getSupportManagementStatuses(partyId, municipalityId, statuses);
-		return statuses;
-	}
-
-	List<CaseStatusResponse> getEnterpriseCaseStatuses(final String partyId, final String municipalityId) {
-		final List<CaseStatusResponse> statuses = new ArrayList<>();
-
-		// Fetching statuses from CaseManagement.
-		getCaseManagementStatuses(partyId, municipalityId, statuses);
-		getOepStatuses(partyId, municipalityId, statuses);
-
-		return statuses;
+		return filterResponses(statuses);
 	}
 
 	private void getSupportManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
@@ -161,23 +151,6 @@ public class CaseStatusService {
 			.forEach((namespace, errands) -> errands.stream()
 				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace))
 				.forEach(statuses::add));
-	}
-
-	private void getCaseManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
-		caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
-			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.forEach(statuses::add);
-
-	}
-
-	private void getOepStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
-		// Fetching cached statuses for the given partyId.
-		oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
-			.map(caseEnvelope -> {
-				final var casestatus = oepIntegratorClient.getCaseStatus(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId());
-				return OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
-			})
-			.forEach(statuses::add);
 	}
 
 	/**
@@ -190,6 +163,10 @@ public class CaseStatusService {
 	 * @return           Filtered list of CaseStatusResponses
 	 */
 	List<CaseStatusResponse> filterResponses(final List<CaseStatusResponse> responses) {
+
+		if (responses == null) {
+			return emptyList();
+		}
 		final var nullExternalCaseIdStream = responses.stream()
 			.filter(response -> response.getExternalCaseId() == null);
 
@@ -238,5 +215,27 @@ public class CaseStatusService {
 		return Stream.of(caseStatusResponses, caseDataCases)
 			.flatMap(List::stream)
 			.toList();
+	}
+
+	private CompletableFuture<List<CaseStatusResponse>> getCaseManagementStatusesAsync(final String partyId, final String municipalityId) {
+		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
+			.toList());
+	}
+
+	private CompletableFuture<List<CaseStatusResponse>> getOepStatusesAsync(final String partyId, final String municipalityId) {
+		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
+			.map(caseEnvelope -> {
+				final var casestatus = oepIntegratorClient.getCaseStatus(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId());
+				return OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
+			})
+			.toList());
+	}
+
+	private CompletableFuture<List<CaseStatusResponse>> getSupportManagementStatusesAsync(final String externalIdOrOrgNo, final String municipalityId) {
+		return CompletableFuture.supplyAsync(() -> supportManagementService.getSupportManagementCasesByExternalId(municipalityId, externalIdOrOrgNo).entrySet().stream()
+			.flatMap(entry -> entry.getValue().stream()
+				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, entry.getKey())))
+			.toList());
 	}
 }
