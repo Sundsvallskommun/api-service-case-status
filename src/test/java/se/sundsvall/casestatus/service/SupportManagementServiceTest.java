@@ -19,14 +19,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
+import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementIntegration;
 import se.sundsvall.casestatus.util.RoleSearchProperties;
 
 @ExtendWith(MockitoExtension.class)
 class SupportManagementServiceTest {
 
 	@Mock
-	private SupportManagementClient supportManagementClient;
+	private SupportManagementIntegration supportManagementIntegrationMock;
 
 	@Mock
 	private RoleSearchProperties roleSearchProperties;
@@ -42,8 +42,8 @@ class SupportManagementServiceTest {
 		final var namespace = "namespace";
 		final var errand = new Errand().id("errandId");
 		final var errandsPage = new PageImpl<>(List.of(errand));
-		when(supportManagementClient.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
-		when(supportManagementClient.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
+		when(supportManagementIntegrationMock.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementIntegrationMock.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
 
 		// Act
 		final var result = supportManagementService.getSupportManagementCases(municipalityId, filter);
@@ -61,8 +61,8 @@ class SupportManagementServiceTest {
 		final var role = "role";
 		final var errand = new Errand().id("errandId");
 		final var errandsPage = new PageImpl<>(List.of(errand));
-		when(supportManagementClient.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
-		when(supportManagementClient.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
+		when(supportManagementIntegrationMock.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementIntegrationMock.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
 		when(roleSearchProperties.getRoles()).thenReturn(Map.of(municipalityId, Map.of(namespace, role)));
 
 		// Act
@@ -82,8 +82,8 @@ class SupportManagementServiceTest {
 		final var namespace = "namespace";
 		final var errand = new Errand().id("errandId");
 		final var errandsPage = new PageImpl<>(List.of(errand, errand));
-		when(supportManagementClient.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
-		when(supportManagementClient.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
+		when(supportManagementIntegrationMock.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementIntegrationMock.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
 
 		// Act
 		final var result = supportManagementService.getSupportManagementCases(municipalityId, filter);
@@ -99,15 +99,14 @@ class SupportManagementServiceTest {
 		final var municipalityId = "municipalityId";
 		final var namespace = "namespace";
 		final var errand = new Errand().id("errandId");
-		when(supportManagementClient.findErrandById(any(), eq(namespace), any())).thenReturn(ResponseEntity.ok(errand));
+		when(supportManagementIntegrationMock.findErrandById(any(), eq(namespace), any())).thenReturn(ResponseEntity.ok(errand));
 
 		// Act
 		final var result = supportManagementService.getSupportManagementCaseById(municipalityId, namespace, errand.getId());
 
 		// Verify
 		assertThat(result).isSameAs(errand);
-		verify(supportManagementClient).findErrandById(municipalityId, namespace, errand.getId());
-		verifyNoMoreInteractions(supportManagementClient);
-
+		verify(supportManagementIntegrationMock).findErrandById(municipalityId, namespace, errand.getId());
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
 	}
 }
