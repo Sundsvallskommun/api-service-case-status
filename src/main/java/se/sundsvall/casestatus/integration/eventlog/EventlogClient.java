@@ -27,8 +27,8 @@ public interface EventlogClient {
 	 */
 	@GetMapping(path = "/{municipalityId}", produces = APPLICATION_JSON_VALUE)
 	Page<Event> getEvents(
-		@PathVariable("municipalityId") String municipalityId,
+		@PathVariable String municipalityId,
 		@QueryMap Pageable pageable,
-		@RequestParam("filter") String filter);
+		@RequestParam String filter);
 
 }

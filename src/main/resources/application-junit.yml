@@ -37,6 +37,8 @@ spring:
     url: jdbc:tc:mariadb:10.6.4:///
   flyway:
     enabled: true
+  cache:
+    type: none
   jpa:
     properties:
       hibernate:

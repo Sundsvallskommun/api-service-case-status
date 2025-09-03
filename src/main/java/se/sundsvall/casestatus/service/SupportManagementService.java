@@ -8,19 +8,19 @@ import java.util.Map;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementClient;
+import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementIntegration;
 import se.sundsvall.casestatus.util.RoleSearchProperties;
 
 @Service
 public class SupportManagementService {
 
 	private static final String ROLE_PRIMARY = "PRIMARY";
-	private final SupportManagementClient supportManagementClient;
+	private final SupportManagementIntegration supportManagementIntegration;
 	private final RoleSearchProperties searchRoleProperties;
 
-	public SupportManagementService(final SupportManagementClient supportManagementClient, final RoleSearchProperties searchRoleProperties) {
+	public SupportManagementService(final SupportManagementIntegration supportManagementIntegration, final RoleSearchProperties searchRoleProperties) {
 
-		this.supportManagementClient = supportManagementClient;
+		this.supportManagementIntegration = supportManagementIntegration;
 		this.searchRoleProperties = searchRoleProperties;
 	}
 
@@ -28,13 +28,13 @@ public class SupportManagementService {
 
 		final var errandMap = new HashMap<String, List<Errand>>();
 
-		supportManagementClient.readAllNamespaceConfigs().forEach(config -> {
+		supportManagementIntegration.readAllNamespaceConfigs().forEach(config -> {
 			int pageNumber = 0;
 			Page<Errand> response;
 			final List<Errand> allErrands = new ArrayList<>();
 
 			do {
-				response = supportManagementClient.findErrands(municipalityId, config.getNamespace(), filter, PageRequest.of(pageNumber, 100));
+				response = supportManagementIntegration.findErrands(municipalityId, config.getNamespace(), filter, PageRequest.of(pageNumber, 100));
 				allErrands.addAll(response.getContent());
 				pageNumber++;
 			} while (response.hasNext());
@@ -51,13 +51,13 @@ public class SupportManagementService {
 
 		final var filter = "stakeholders.externalId:'%s' and stakeholders.role:'%s'";
 
-		supportManagementClient.readAllNamespaceConfigs().forEach(config -> {
+		supportManagementIntegration.readAllNamespaceConfigs().forEach(config -> {
 			int pageNumber = 0;
 			Page<Errand> response;
 			final List<Errand> allErrands = new ArrayList<>();
 
 			do {
-				response = supportManagementClient.findErrands(municipalityId, config.getNamespace(),
+				response = supportManagementIntegration.findErrands(municipalityId, config.getNamespace(),
 					filter.formatted(externalId, getSearchRole(municipalityId, config.getNamespace())), PageRequest.of(pageNumber, 100));
 				allErrands.addAll(response.getContent());
 				pageNumber++;
@@ -70,7 +70,7 @@ public class SupportManagementService {
 	}
 
 	public Errand getSupportManagementCaseById(final String municipalityId, final String namespace, final String errandId) {
-		final var result = supportManagementClient.findErrandById(municipalityId, namespace, errandId);
+		final var result = supportManagementIntegration.findErrandById(municipalityId, namespace, errandId);
 		if (result.getStatusCode().is2xxSuccessful()) {
 			return result.getBody();
 		} else {
@@ -84,5 +84,4 @@ public class SupportManagementService {
 		final String role = municipalityRoles != null ? municipalityRoles.get(namespace) : null;
 		return role != null ? role : ROLE_PRIMARY;
 	}
-
 }

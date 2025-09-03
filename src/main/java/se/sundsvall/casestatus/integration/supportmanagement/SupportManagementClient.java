@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.integration.supportmanagement;
 
 import static se.sundsvall.casestatus.integration.supportmanagement.configuration.SupportManagementConfiguration.CLIENT_ID;
 
+import generated.se.sundsvall.supportmanagement.Category;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -17,21 +18,26 @@ import se.sundsvall.casestatus.integration.supportmanagement.configuration.Suppo
 
 @FeignClient(name = CLIENT_ID, url = "${integration.support-management.base-url}", configuration = SupportManagementConfiguration.class)
 @CircuitBreaker(name = CLIENT_ID)
-public interface SupportManagementClient {
+interface SupportManagementClient {
 
 	@GetMapping(path = "/namespace-configs")
 	List<NamespaceConfig> readAllNamespaceConfigs();
 
+	@GetMapping(path = "/{municipalityId}/{namespace}/metadata/categories")
+	List<Category> findCategoriesForNamespace(
+		@PathVariable String municipalityId,
+		@PathVariable String namespace);
+
 	@GetMapping(path = "/{municipalityId}/{namespace}/errands")
 	Page<Errand> findErrands(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("namespace") final String namespace,
-		@RequestParam("filter") final String filter,
+		@PathVariable String municipalityId,
+		@PathVariable String namespace,
+		@RequestParam String filter,
 		PageRequest pageRequest);
 
 	@GetMapping(path = "/{municipalityId}/{namespace}/errands/{errandId}")
 	ResponseEntity<Errand> findErrandById(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("namespace") final String namespace,
-		@PathVariable("errandId") final String errandId);
+		@PathVariable String municipalityId,
+		@PathVariable String namespace,
+		@PathVariable String errandId);
 }

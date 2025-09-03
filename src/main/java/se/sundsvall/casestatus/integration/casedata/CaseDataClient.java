@@ -18,9 +18,8 @@ public interface CaseDataClient {
 
 	@GetMapping(path = "/{municipalityId}/{namespace}/errands")
 	Page<Errand> getErrands(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("namespace") final String namespace,
-		@RequestParam("filter") final String filter,
-		final PageRequest pageRequest);
-
+		@PathVariable String municipalityId,
+		@PathVariable String namespace,
+		@RequestParam String filter,
+		PageRequest pageRequest);
 }

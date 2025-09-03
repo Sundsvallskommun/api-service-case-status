@@ -28,46 +28,45 @@ public interface OepIntegratorClient {
 
 	@PostMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/delivery", consumes = APPLICATION_JSON_VALUE, produces = ALL_VALUE)
 	ResponseEntity<Void> confirmDelivery(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("instanceType") final InstanceType instanceType,
-		@PathVariable("flowInstanceId") final String flowInstanceId,
+		@PathVariable String municipalityId,
+		@PathVariable InstanceType instanceType,
+		@PathVariable String flowInstanceId,
 		@RequestBody final ConfirmDeliveryRequest confirmDeliveryRequest);
 
 	@PutMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/status", consumes = APPLICATION_JSON_VALUE, produces = ALL_VALUE)
 	ResponseEntity<Void> setStatus(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("instanceType") final InstanceType instanceType,
-		@PathVariable("flowInstanceId") final String flowInstanceId,
-		@RequestBody final CaseStatusChangeRequest setStatusRequest);
+		@PathVariable String municipalityId,
+		@PathVariable InstanceType instanceType,
+		@PathVariable String flowInstanceId,
+		@RequestBody CaseStatusChangeRequest setStatusRequest);
 
 	@GetMapping(value = "{municipalityId}/{instanceType}/cases/families/{familyId}", produces = APPLICATION_JSON_VALUE)
 	List<CaseEnvelope> getCases(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("instanceType") final InstanceType instanceType,
-		@PathVariable("familyId") final int familyId);
+		@PathVariable String municipalityId,
+		@PathVariable InstanceType instanceType,
+		@PathVariable int familyId);
 
 	@GetMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}", produces = APPLICATION_JSON_VALUE)
 	ModelCase getCase(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("instanceType") final InstanceType instanceType,
-		@PathVariable("flowInstanceId") final String flowInstanceId);
+		@PathVariable final String municipalityId,
+		@PathVariable final InstanceType instanceType,
+		@PathVariable final String flowInstanceId);
 
 	@GetMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/status", produces = APPLICATION_JSON_VALUE)
 	CaseStatus getCaseStatus(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("instanceType") final InstanceType instanceType,
-		@PathVariable("flowInstanceId") final String flowInstanceId);
+		@PathVariable String municipalityId,
+		@PathVariable InstanceType instanceType,
+		@PathVariable String flowInstanceId);
 
 	@GetMapping(path = "{municipalityId}/{instanceType}/cases/parties/{partyId}", produces = APPLICATION_JSON_VALUE)
 	List<CaseEnvelope> getCasesByPartyId(
-		@PathVariable final String municipalityId,
-		@PathVariable final InstanceType instanceType,
-		@PathVariable final String partyId);
+		@PathVariable String municipalityId,
+		@PathVariable InstanceType instanceType,
+		@PathVariable String partyId);
 
 	@GetMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/pdf", produces = ALL_VALUE)
 	ResponseEntity<InputStreamResource> getCasePdfByFlowInstanceId(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("instanceType") final InstanceType instanceType,
-		@PathVariable("flowInstanceId") final String flowInstanceId);
-
+		@PathVariable String municipalityId,
+		@PathVariable InstanceType instanceType,
+		@PathVariable String flowInstanceId);
 }

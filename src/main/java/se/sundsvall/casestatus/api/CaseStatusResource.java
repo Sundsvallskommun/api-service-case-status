@@ -45,63 +45,54 @@ class CaseStatusResource {
 
 	@Operation(summary = "Get status in openE Platform format", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
-
+		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping("/{externalCaseId}/oepstatus")
+	@GetMapping(path = "/{externalCaseId}/oepstatus", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<OepStatusResponse> getOepStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@PathVariable("externalCaseId") final String externalCaseId) {
+		@PathVariable final String externalCaseId) {
 		return ok(service.getOepStatus(externalCaseId, municipalityId));
 	}
 
 	@Operation(summary = "Get case status", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(path = "/{externalCaseId}/status", produces = {
-		APPLICATION_JSON_VALUE
-	})
+	@GetMapping(path = "/{externalCaseId}/status", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<CaseStatusResponse> getCaseStatus(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@PathVariable("externalCaseId") final String externalCaseId) {
+		@PathVariable final String externalCaseId) {
 		return ok(service.getCaseStatus(externalCaseId, municipalityId));
 	}
 
 	@Operation(summary = "Get case PDF", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+		@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 	})
-	@GetMapping(path = "/{externalCaseId}/pdf", produces = {
-		APPLICATION_JSON_VALUE
-	})
+	@GetMapping(path = "/{externalCaseId}/pdf", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<CasePdfResponse> getCasePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@PathVariable("externalCaseId") final String externalCaseId) {
+		@PathVariable final String externalCaseId) {
 		return ok(service.getCasePdf(municipalityId, externalCaseId));
 	}
 
 	@Operation(summary = "Get organization statuses", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	})
-	@GetMapping(path = "/{organizationNumber}/statuses", produces = {
-		APPLICATION_JSON_VALUE
-	})
+	@GetMapping(path = "/{organizationNumber}/statuses", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<CaseStatusResponse>> getOrganisationStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@PathVariable("organizationNumber") final String organizationNumber) {
+		@PathVariable final String organizationNumber) {
 		return ok(service.getCaseStatuses(organizationNumber, municipalityId));
 	}
 
 	@Operation(summary = "Get all statuses connected to a partyId", responses = {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	})
-	@GetMapping(path = "/party/{partyId}/statuses", produces = {
-		APPLICATION_JSON_VALUE
-	})
+	@GetMapping(path = "/party/{partyId}/statuses", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<CaseStatusResponse>> getPartyStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable("partyId") @ValidUuid final String partyId) {
+		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable @ValidUuid final String partyId) {
 		return ok(service.getCaseStatusesForParty(partyId, municipalityId));
 	}
 
@@ -111,10 +102,9 @@ class CaseStatusResource {
 	@GetMapping(path = "/errands/statuses", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<CaseStatusResponse>> getErrandStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(name = "propertyDesignation", description = "Property designation to find cases for", example = "Körsbärsdalen 123") @RequestParam(value = "propertyDesignation", required = false) final String propertyDesignation,
-		@Parameter(name = "errandNumber", description = "Errand number to find cases for", example = "Number 123") @RequestParam(value = "errandNumber", required = false) final String errandNumber) {
+		@Parameter(name = "propertyDesignation", description = "Property designation to find cases for", example = "Körsbärsdalen 123") @RequestParam(required = false) final String propertyDesignation,
+		@Parameter(name = "errandNumber", description = "Errand number to find cases for", example = "Number 123") @RequestParam(required = false) final String errandNumber) {
 
 		return ok(service.getErrandStatuses(municipalityId, propertyDesignation, errandNumber));
 	}
-
 }

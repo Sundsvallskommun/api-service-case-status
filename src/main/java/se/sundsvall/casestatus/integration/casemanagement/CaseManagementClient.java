@@ -19,16 +19,16 @@ public interface CaseManagementClient {
 
 	@GetMapping("/{municipalityId}/cases/{externalCaseId}/status")
 	CaseStatusDTO getCaseStatusForExternalCaseId(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("externalCaseId") final String externalCaseId);
+		@PathVariable String municipalityId,
+		@PathVariable String externalCaseId);
 
 	@GetMapping("/{municipalityId}/organization/{organizationNumber}/cases/status")
 	List<CaseStatusDTO> getCaseStatusForOrganizationNumber(
-		@PathVariable("municipalityId") final String municipalityId,
-		@PathVariable("organizationNumber") final String organizationNumber);
+		@PathVariable String municipalityId,
+		@PathVariable String organizationNumber);
 
 	@GetMapping("/{municipalityId}/{partyId}/statuses")
 	List<CaseStatusDTO> getCaseStatusForPartyId(
-		@PathVariable("municipalityId") String municipalityId,
-		@PathVariable("partyId") String partyId);
+		@PathVariable String municipalityId,
+		@PathVariable String partyId);
 }

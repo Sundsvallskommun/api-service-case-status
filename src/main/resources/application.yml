@@ -31,6 +31,10 @@ spring:
     driver-class-name: org.mariadb.jdbc.Driver
   flyway:
     enabled: false
+  cache:
+    cache-names: supportmanagement-namespace-configs, supportmanagement-categories
+    caffeine:
+      spec: maximumSize=1000,expireAfterWrite=86400s
   security:
     oauth2:
       client:

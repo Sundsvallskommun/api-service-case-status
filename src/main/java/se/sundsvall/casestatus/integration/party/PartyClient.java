@@ -19,14 +19,14 @@ public interface PartyClient {
 
 	@GetMapping("/{municipalityId}/{type}/{partyId}/legalId")
 	Optional<String> getLegalIdByPartyId(
-		@PathVariable("municipalityId") String municipalityId,
-		@PathVariable("type") PartyType type,
-		@PathVariable("partyId") String partyId);
+		@PathVariable String municipalityId,
+		@PathVariable PartyType type,
+		@PathVariable String partyId);
 
 	@GetMapping("/{municipalityId}/{type}/{legalId}/partyId")
 	Optional<String> getPartyIdByLegalId(
-		@PathVariable("municipalityId") String municipalityId,
-		@PathVariable("type") PartyType type,
-		@PathVariable("legalId") String legalId);
+		@PathVariable String municipalityId,
+		@PathVariable PartyType type,
+		@PathVariable String legalId);
 
 }
