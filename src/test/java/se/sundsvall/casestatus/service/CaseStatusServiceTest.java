@@ -214,7 +214,7 @@ class CaseStatusServiceTest {
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId"))
 			.thenReturn(Map.of(NAMESPACE_1, List.of(errand)));
 
-		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
 
 		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
 
@@ -293,7 +293,7 @@ class CaseStatusServiceTest {
 
 		final var errand = createErrand();
 		final var errands = List.of(errand);
-		final var errandMap = Map.of(MUNICIPALITY_ID, errands);
+		final var errandMap = Map.of("namespace", errands);
 
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.PRIVATE, partyId));
 
@@ -303,7 +303,7 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName("someTitle").flowInstanceId("someFlowInstanceId")));
 		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
 
-		when(supportManagementMapperMock.toCaseStatusResponse(errand, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, "namespace", MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId)).thenReturn(errandMap);
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
@@ -406,7 +406,6 @@ class CaseStatusServiceTest {
 		final var title = "someTitle";
 
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(partyResult);
-
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName(title).flowInstanceId("someFlowInstanceId")));
 		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
 
@@ -524,7 +523,7 @@ class CaseStatusServiceTest {
 		final var supportManagementErrand = createErrand();
 		when(supportManagementServiceMock.getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber)))
 			.thenReturn(Map.of("namespace", List.of(supportManagementErrand)));
-		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, "namespace")).thenCallRealMethod();
+		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, "namespace", MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("SUPPORT_MANAGEMENT", "1234567890"));
 		when(caseDataIntegrationMock.getNamespaces()).thenReturn(List.of(NAMESPACE_1));
 		when(caseDataIntegrationMock.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber))
 			.thenReturn(List.of(createCaseStatusResponse("CASE_DATA", "1234567890")));
@@ -537,7 +536,6 @@ class CaseStatusServiceTest {
 
 		verify(caseDataIntegrationMock).getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber);
 		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber));
-		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, "namespace");
+		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, "namespace", MUNICIPALITY_ID);
 	}
-
 }

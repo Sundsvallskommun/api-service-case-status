@@ -59,6 +59,7 @@ public class CaseStatusService {
 		final CaseManagementMapper caseManagementMapper,
 		final CaseDataIntegration caseDataIntegration,
 		final SupportManagementMapper supportManagementMapper) {
+
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.oepIntegratorClient = oepIntegratorClient;
 		this.caseRepository = caseRepository;
@@ -149,7 +150,7 @@ public class CaseStatusService {
 	private void getSupportManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
 		supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)
 			.forEach((namespace, errands) -> errands.stream()
-				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace))
+				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId))
 				.forEach(statuses::add));
 	}
 
@@ -204,8 +205,11 @@ public class CaseStatusService {
 		final var filterString = "errandNumber:'%s'".formatted(errandNumber);
 		final var supportManagementCases = supportManagementService.getSupportManagementCases(municipalityId, filterString);
 		final var caseStatusResponses = supportManagementCases.entrySet().stream()
-			.flatMap(entry -> entry.getValue().stream()
-				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, entry.getKey())))
+			.flatMap(entry -> {
+				var namespace = entry.getKey();
+				return entry.getValue().stream()
+					.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId));
+			})
 			.toList();
 
 		final var caseDataCases = caseDataIntegration.getNamespaces().stream()
@@ -233,9 +237,15 @@ public class CaseStatusService {
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> getSupportManagementStatusesAsync(final String externalIdOrOrgNo, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> supportManagementService.getSupportManagementCasesByExternalId(municipalityId, externalIdOrOrgNo).entrySet().stream()
-			.flatMap(entry -> entry.getValue().stream()
-				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, entry.getKey())))
+		return CompletableFuture.supplyAsync(() -> supportManagementService
+			.getSupportManagementCasesByExternalId(municipalityId, externalIdOrOrgNo)
+			.entrySet()
+			.stream()
+			.flatMap(entry -> {
+				var namespace = entry.getKey();
+				return entry.getValue().stream()
+					.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId));
+			})
 			.toList());
 	}
 }

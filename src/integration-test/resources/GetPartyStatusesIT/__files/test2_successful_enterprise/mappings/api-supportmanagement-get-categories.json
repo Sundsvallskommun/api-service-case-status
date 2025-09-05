@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/supportmanagement/2281/MYNAMESPACE/metadata/categories"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test2_successful_enterprise/responses/api-supportmanagement-get-categories.json",
+		"status": 200
+	}
+}

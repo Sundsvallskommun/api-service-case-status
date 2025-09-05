@@ -82,5 +82,4 @@ public final class CaseManagementMapper {
 				.map(CaseTypeEntity::getDescription)
 				.orElse(caseType));
 	}
-
 }

@@ -1,9 +1,9 @@
 package se.sundsvall.casestatus.service.mapper;
 
+import static java.util.Optional.empty;
 import static se.sundsvall.casestatus.util.Constants.DATE_TIME_FORMAT;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
 
-import generated.se.sundsvall.supportmanagement.Classification;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
 import java.time.format.DateTimeFormatter;
@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.db.SupportManagementStatusRepository;
 import se.sundsvall.casestatus.integration.db.model.SupportManagementStatusEntity;
+import se.sundsvall.casestatus.service.SupportManagementService;
 
 @Component
 public class SupportManagementMapper {
@@ -19,9 +20,14 @@ public class SupportManagementMapper {
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
 	private final SupportManagementStatusRepository supportManagementStatusRepository;
+	private final SupportManagementService supportManagementService;
 
-	public SupportManagementMapper(final SupportManagementStatusRepository supportManagementStatusRepository) {
+	public SupportManagementMapper(
+		final SupportManagementStatusRepository supportManagementStatusRepository,
+		final SupportManagementService supportManagementService) {
+
 		this.supportManagementStatusRepository = supportManagementStatusRepository;
+		this.supportManagementService = supportManagementService;
 	}
 
 	public static Optional<String> getExternalCaseId(final Errand errand) {
@@ -35,10 +41,10 @@ public class SupportManagementMapper {
 				.map(ExternalTag::getValue);
 		}
 
-		return Optional.empty();
+		return empty();
 	}
 
-	public CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace) {
+	public CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace, final String municipalityId) {
 		final var externalCaseId = getExternalCaseId(errand);
 
 		final var modified = Optional.ofNullable(errand.getModified())
@@ -49,10 +55,12 @@ public class SupportManagementMapper {
 			.map(createdDate -> createdDate.format(DATE_TIME_FORMATTER))
 			.orElse(null);
 
+		final var caseType = supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand);
+
 		return CaseStatusResponse.builder()
 			.withCaseId(errand.getId())
 			.withExternalCaseId(externalCaseId.orElse(null))
-			.withCaseType(Optional.ofNullable(errand.getClassification()).map(Classification::getType).orElse(null))
+			.withCaseType(caseType)
 			.withStatus(getStatus(errand.getStatus()))
 			.withLastStatusChange(modified)
 			.withFirstSubmitted(firstSubmitted)
@@ -68,5 +76,4 @@ public class SupportManagementMapper {
 			.map(SupportManagementStatusEntity::getGenericStatus)
 			.orElse(systemStatus);
 	}
-
 }
