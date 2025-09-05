@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/supportmanagement/2281/SECOND_NAMESPACE/metadata/categories"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_getErrandsByErrandNumber/responses/api-supportmanagement-get-categories-second-namespace.json",
+		"status": 200
+	}
+}

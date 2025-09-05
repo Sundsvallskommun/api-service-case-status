@@ -28,5 +28,4 @@ public interface PartyClient {
 		@PathVariable String municipalityId,
 		@PathVariable PartyType type,
 		@PathVariable String legalId);
-
 }

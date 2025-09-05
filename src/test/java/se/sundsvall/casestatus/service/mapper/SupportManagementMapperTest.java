@@ -16,12 +16,16 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.db.SupportManagementStatusRepository;
 import se.sundsvall.casestatus.integration.db.model.SupportManagementStatusEntity;
+import se.sundsvall.casestatus.service.SupportManagementService;
 
 @ExtendWith(MockitoExtension.class)
 class SupportManagementMapperTest {
 
 	@Mock
-	private SupportManagementStatusRepository supportManagementStatusRepository;
+	private SupportManagementStatusRepository supportManagementStatusRepositoryMock;
+
+	@Mock
+	private SupportManagementService supportManagementServiceMock;
 
 	@InjectMocks
 	private SupportManagementMapper supportManagementMapper;
@@ -30,7 +34,9 @@ class SupportManagementMapperTest {
 	void toCaseStatusResponse_withExternalCaseId() {
 		// Arrange
 		final var namespace = "namespace";
+		final var municipalityId = "municipalityId";
 		final var genericStatus = "genericStatus";
+		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
 			.title("title")
@@ -42,15 +48,16 @@ class SupportManagementMapperTest {
 			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
 		final var spy = Mockito.spy(supportManagementMapper);
 		when(spy.getStatus(errand.getStatus())).thenReturn(genericStatus);
+		when(supportManagementServiceMock.getClassificationDisplayName(municipalityId, namespace, errand)).thenReturn(classificationDisplayName);
 
 		// Act
-		final var response = spy.toCaseStatusResponse(errand, namespace);
+		final var response = spy.toCaseStatusResponse(errand, namespace, municipalityId);
 
 		// Assert
 		assertThat(response).isNotNull();
 		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
-		assertThat(response.getCaseType()).isEqualTo("type");
+		assertThat(response.getCaseType()).isEqualTo("classificationDisplayName");
 		assertThat(response.getStatus()).isEqualTo(genericStatus);
 		assertThat(response.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
@@ -60,7 +67,9 @@ class SupportManagementMapperTest {
 	void toCaseStatusResponse_withoutExternalCaseId() {
 		// Arrange
 		final var namespace = "namespace";
+		final var municipalityId = "municipalityId";
 		final var genericStatus = "genericStatus";
+		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
 			.title("title")
@@ -71,15 +80,16 @@ class SupportManagementMapperTest {
 			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"));
 		final var spy = Mockito.spy(supportManagementMapper);
 		when(spy.getStatus(errand.getStatus())).thenReturn(genericStatus);
+		when(supportManagementServiceMock.getClassificationDisplayName(municipalityId, namespace, errand)).thenReturn(classificationDisplayName);
 
 		// Act
-		final var response = spy.toCaseStatusResponse(errand, namespace);
+		final var response = spy.toCaseStatusResponse(errand, namespace, municipalityId);
 
 		// Assert
 		assertThat(response).isNotNull();
 		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isNull();
-		assertThat(response.getCaseType()).isEqualTo("type");
+		assertThat(response.getCaseType()).isEqualTo("classificationDisplayName");
 		assertThat(response.getStatus()).isEqualTo(genericStatus);
 		assertThat(response.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
@@ -89,7 +99,9 @@ class SupportManagementMapperTest {
 	void toCaseStatusResponse_withNullModified() {
 		// Arrange
 		final var namespace = "namespace";
+		final var municipalityId = "municipalityId";
 		final var genericStatus = "genericStatus";
+		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
 			.title("title")
@@ -100,15 +112,16 @@ class SupportManagementMapperTest {
 			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
 		final var spy = Mockito.spy(supportManagementMapper);
 		when(spy.getStatus(errand.getStatus())).thenReturn(genericStatus);
+		when(supportManagementServiceMock.getClassificationDisplayName(municipalityId, namespace, errand)).thenReturn(classificationDisplayName);
 
 		// Act
-		final var response = spy.toCaseStatusResponse(errand, namespace);
+		final var response = spy.toCaseStatusResponse(errand, namespace, municipalityId);
 
 		// Assert
 		assertThat(response).isNotNull();
 		assertThat(response.getCaseId()).isEqualTo("errandId");
 		assertThat(response.getExternalCaseId()).isEqualTo("caseId");
-		assertThat(response.getCaseType()).isEqualTo("type");
+		assertThat(response.getCaseType()).isEqualTo("classificationDisplayName");
 		assertThat(response.getStatus()).isEqualTo(genericStatus);
 		assertThat(response.getLastStatusChange()).isNull();
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
@@ -119,7 +132,7 @@ class SupportManagementMapperTest {
 		final var statusEntity = new SupportManagementStatusEntity();
 		final var genericStatus = "genericStatus";
 		statusEntity.setGenericStatus(genericStatus);
-		when(supportManagementStatusRepository.findBySystemStatus("someStatus")).thenReturn(Optional.of(statusEntity));
+		when(supportManagementStatusRepositoryMock.findBySystemStatus("someStatus")).thenReturn(Optional.of(statusEntity));
 
 		final var status = supportManagementMapper.getStatus("someStatus");
 
@@ -128,11 +141,10 @@ class SupportManagementMapperTest {
 
 	@Test
 	void getStatus_notFound() {
-		when(supportManagementStatusRepository.findBySystemStatus("someStatus")).thenReturn(Optional.empty());
+		when(supportManagementStatusRepositoryMock.findBySystemStatus("someStatus")).thenReturn(Optional.empty());
 
 		final var status = supportManagementMapper.getStatus("someStatus");
 
 		assertThat(status).isNotNull().isEqualTo("someStatus");
 	}
-
 }

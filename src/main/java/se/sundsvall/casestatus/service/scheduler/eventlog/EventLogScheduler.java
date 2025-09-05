@@ -51,5 +51,4 @@ public class EventLogScheduler {
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
 	}
-
 }

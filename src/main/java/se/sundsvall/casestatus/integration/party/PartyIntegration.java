@@ -17,6 +17,7 @@ public class PartyIntegration {
 	static final String INVALID_PARTY_ID = "Invalid partyId: %s";
 	static final String INVALID_LEGAL_ID = "Invalid legalId: %s";
 	private static final Logger LOG = LoggerFactory.getLogger(PartyIntegration.class);
+
 	private final PartyClient client;
 
 	public PartyIntegration(final PartyClient client) {
@@ -51,6 +52,5 @@ public class PartyIntegration {
 		}
 
 		throw Problem.valueOf(BAD_REQUEST, INVALID_LEGAL_ID.formatted(legalId));
-
 	}
 }

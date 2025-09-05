@@ -11,7 +11,6 @@ public enum FamilyId {
 	TILLSTANDFORSALJNINGTOBAKSVAROR(380, 187, "2281");
 
 	private final int testValue;
-
 	private final int prodValue;
 
 	@Getter
@@ -26,7 +25,7 @@ public enum FamilyId {
 	public int getValue() {
 		final var bean = ContextUtil.getBean(CaseStatusCache.class);
 		final var isProd = bean.isProduction();
-		return isProd ? prodValue : testValue;
 
+		return isProd ? prodValue : testValue;
 	}
 }

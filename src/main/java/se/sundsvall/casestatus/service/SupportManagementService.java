@@ -1,10 +1,16 @@
 package se.sundsvall.casestatus.service;
 
+import static java.util.Collections.emptySet;
+import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
+
 import generated.se.sundsvall.supportmanagement.Errand;
+import generated.se.sundsvall.supportmanagement.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang3.Strings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -73,9 +79,24 @@ public class SupportManagementService {
 		final var result = supportManagementIntegration.findErrandById(municipalityId, namespace, errandId);
 		if (result.getStatusCode().is2xxSuccessful()) {
 			return result.getBody();
-		} else {
+		}
+
+		return null;
+	}
+
+	public String getClassificationDisplayName(String municipalityId, String namespace, Errand errand) {
+		final var classification = errand.getClassification();
+		if (isNull(classification)) {
 			return null;
 		}
+
+		return supportManagementIntegration.findCategoriesForNamespace(municipalityId, namespace).stream()
+			.filter(category -> Strings.CI.equals(category.getName(), classification.getCategory()))
+			.flatMap(category -> ofNullable(category.getTypes()).orElse(emptySet()).stream())
+			.filter(type -> Strings.CI.equals(type.getName(), classification.getType()))
+			.map(Type::getDisplayName)
+			.findFirst()
+			.orElse(classification.getType()); // fallback
 	}
 
 	private String getSearchRole(final String municipalityId, final String namespace) {

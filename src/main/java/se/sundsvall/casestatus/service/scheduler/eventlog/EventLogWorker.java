@@ -44,6 +44,7 @@ public class EventLogWorker {
 		final OepIntegratorClient oepIntegratorClient,
 		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
 		@Value("${scheduler.eventlog.clock-skew:PT5S}") final Duration clockSkew) {
+
 		this.eventlogClient = eventlogClient;
 		this.supportManagementService = supportManagementService;
 		this.oepIntegratorClient = oepIntegratorClient;
@@ -73,7 +74,6 @@ public class EventLogWorker {
 				setUnHealthyConsumer.accept("Error setting status for errand " + errand.getId());
 			}
 		});
-
 	}
 
 	private void setStatus(final ExecutionInformationEntity executionInformation, final Errand errand, final Consumer<String> setUnHealthyConsumer) {
@@ -129,6 +129,7 @@ public class EventLogWorker {
 			allEvents.addAll(response.getContent());
 			pageNumber++;
 		} while (response.hasNext());
+
 		return allEvents;
 	}
 
@@ -147,5 +148,4 @@ public class EventLogWorker {
 			.findFirst()
 			.orElse(null);
 	}
-
 }
