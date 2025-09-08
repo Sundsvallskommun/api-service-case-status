@@ -15,9 +15,7 @@ public final class Mapper {
 	private static final String XPATH_FIRST_SUBMITTED_VALUE = "//header/FirstSubmitted/text()";
 	private static final String XPATH_LAST_STATUS_CHANGE_VALUE = "//header/LastSubmitted/text()";
 
-	private Mapper() {
-		// To prevent instantiation
-	}
+	private Mapper() {}
 
 	private static CaseEntity buildCaseEntity(final CaseStatus caseStatus, final ModelCase oepCase, final String id, final String municipalityId, final boolean isPrivate) {
 		final CaseEntity.CaseEntityBuilder builder = CaseEntity.builder()

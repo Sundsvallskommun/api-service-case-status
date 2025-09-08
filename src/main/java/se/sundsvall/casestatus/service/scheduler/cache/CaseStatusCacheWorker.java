@@ -79,5 +79,4 @@ public class CaseStatusCacheWorker {
 						: Xsoup.select(flowInstance.first(), "chooseCompany/organizationNumber/text()").get());
 		};
 	}
-
 }

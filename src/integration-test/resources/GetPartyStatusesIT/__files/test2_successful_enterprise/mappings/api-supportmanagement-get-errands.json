@@ -6,7 +6,12 @@
 				"equalTo": "stakeholders.externalId:'212000-2411' and stakeholders.role:'PRIMARY'"
 			}
 		},
-		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*"
+		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
 	},
 	"response": {
 		"headers": {

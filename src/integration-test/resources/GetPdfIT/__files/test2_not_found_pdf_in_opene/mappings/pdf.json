@@ -1,7 +1,12 @@
 {
 	"request": {
 		"method": "GET",
-		"urlPattern": "/oep-integrator/2281/EXTERNAL/cases/fel/pdf"
+		"urlPattern": "/oep-integrator/2281/EXTERNAL/cases/fel/pdf",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
 	},
 	"response": {
 		"headers": {

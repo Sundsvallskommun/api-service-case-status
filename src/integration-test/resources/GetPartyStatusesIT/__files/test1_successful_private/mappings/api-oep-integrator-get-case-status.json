@@ -1,7 +1,12 @@
 {
 	"request": {
 		"method": "GET",
-		"url": "/oep-integrator/2281/EXTERNAL/cases/4999/status"
+		"url": "/oep-integrator/2281/EXTERNAL/cases/4999/status",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
 	},
 	"response": {
 		"headers": {
