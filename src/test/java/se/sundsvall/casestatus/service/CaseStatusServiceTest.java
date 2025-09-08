@@ -225,7 +225,7 @@ class CaseStatusServiceTest {
 		when(supportManagementStatusRepositoryMock.findBySystemStatus(any())).thenReturn(Optional.of(status));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand)).thenReturn(classificationDisplayName);
 
-		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, MUNICIPALITY_ID, status.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, status.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
 
 		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
 
@@ -320,7 +320,7 @@ class CaseStatusServiceTest {
 		when(supportManagementStatusRepositoryMock.findBySystemStatus(any())).thenReturn(Optional.of(supportManagementStatus));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand)).thenReturn(classificationDisplayName);
 
-		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, MUNICIPALITY_ID, supportManagementStatus.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, supportManagementStatus.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId)).thenReturn(errandMap);
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
@@ -547,7 +547,7 @@ class CaseStatusServiceTest {
 		when(supportManagementStatusRepositoryMock.findBySystemStatus(any())).thenReturn(Optional.of(supportManagementStatus));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, supportManagementErrand)).thenReturn(classificationDisplayName);
 
-		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, MUNICIPALITY_ID, supportManagementStatus.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse("SUPPORT_MANAGEMENT",
+		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, supportManagementStatus.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse("SUPPORT_MANAGEMENT",
 			"1234567890"));
 		when(caseDataIntegrationMock.getNamespaces()).thenReturn(List.of(NAMESPACE_1));
 		when(caseDataIntegrationMock.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber))
@@ -561,6 +561,6 @@ class CaseStatusServiceTest {
 
 		verify(caseDataIntegrationMock).getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber);
 		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber));
-		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, MUNICIPALITY_ID, supportManagementStatus.getGenericStatus(), classificationDisplayName);
+		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, supportManagementStatus.getGenericStatus(), classificationDisplayName);
 	}
 }

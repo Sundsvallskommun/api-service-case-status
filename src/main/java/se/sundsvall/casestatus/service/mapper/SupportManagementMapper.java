@@ -30,7 +30,7 @@ public class SupportManagementMapper {
 		return empty();
 	}
 
-	public CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace, final String municipalityId, String status, String classificationName) {
+	public CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace, String status, String classificationName) {
 		final var externalCaseId = getExternalCaseId(errand);
 
 		final var modified = Optional.ofNullable(errand.getModified())

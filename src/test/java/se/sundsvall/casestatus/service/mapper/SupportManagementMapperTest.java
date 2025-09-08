@@ -19,9 +19,9 @@ class SupportManagementMapperTest {
 
 	@Test
 	void toCaseStatusResponse_withExternalCaseId() {
+
 		// Arrange
 		final var namespace = "namespace";
-		final var municipalityId = "municipalityId";
 		final var genericStatus = "genericStatus";
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
@@ -35,7 +35,7 @@ class SupportManagementMapperTest {
 			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
 
 		// Act
-		final var response = supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId, genericStatus, classificationDisplayName);
+		final var response = supportManagementMapper.toCaseStatusResponse(errand, namespace, genericStatus, classificationDisplayName);
 
 		// Assert
 		assertThat(response).isNotNull();
@@ -49,9 +49,9 @@ class SupportManagementMapperTest {
 
 	@Test
 	void toCaseStatusResponse_withoutExternalCaseId() {
+
 		// Arrange
 		final var namespace = "namespace";
-		final var municipalityId = "municipalityId";
 		final var genericStatus = "genericStatus";
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
@@ -64,7 +64,7 @@ class SupportManagementMapperTest {
 			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"));
 
 		// Act
-		final var response = supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId, genericStatus, classificationDisplayName);
+		final var response = supportManagementMapper.toCaseStatusResponse(errand, namespace, genericStatus, classificationDisplayName);
 
 		// Assert
 		assertThat(response).isNotNull();
@@ -78,9 +78,9 @@ class SupportManagementMapperTest {
 
 	@Test
 	void toCaseStatusResponse_withNullModified() {
+
 		// Arrange
 		final var namespace = "namespace";
-		final var municipalityId = "municipalityId";
 		final var genericStatus = "genericStatus";
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
@@ -93,7 +93,7 @@ class SupportManagementMapperTest {
 			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
 
 		// Act
-		final var response = supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId, genericStatus, classificationDisplayName);
+		final var response = supportManagementMapper.toCaseStatusResponse(errand, namespace, genericStatus, classificationDisplayName);
 
 		// Assert
 		assertThat(response).isNotNull();

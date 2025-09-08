@@ -159,7 +159,6 @@ public class CaseStatusService {
 				.map(errand -> supportManagementMapper.toCaseStatusResponse(
 					errand,
 					namespace,
-					municipalityId,
 					getSupportManagementStatus(errand.getStatus()),
 					getSupportManagementClassficationName(municipalityId, namespace, errand)))
 				.forEach(statuses::add));
@@ -222,7 +221,6 @@ public class CaseStatusService {
 					.map(errand -> supportManagementMapper.toCaseStatusResponse(
 						errand,
 						namespace,
-						municipalityId,
 						getSupportManagementStatus(errand.getStatus()),
 						getSupportManagementClassficationName(municipalityId, namespace, errand)));
 			})
@@ -263,7 +261,6 @@ public class CaseStatusService {
 					.map(errand -> supportManagementMapper.toCaseStatusResponse(
 						errand,
 						namespace,
-						municipalityId,
 						getSupportManagementStatus(errand.getStatus()),
 						getSupportManagementClassficationName(municipalityId, namespace, errand)));
 			})
