@@ -1,7 +1,12 @@
 {
 	"request": {
 		"method": "GET",
-		"url": "/oep-integrator/2281/EXTERNAL/cases/parties/a893dfa2-f781-49a9-9c5f-cba6353cf059"
+		"url": "/oep-integrator/2281/EXTERNAL/cases/parties/a893dfa2-f781-49a9-9c5f-cba6353cf059",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
 	},
 	"response": {
 		"headers": {

@@ -12,6 +12,7 @@ import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizati
 import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 import generated.client.oep_integrator.InstanceType;
+import generated.se.sundsvall.supportmanagement.Errand;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +30,8 @@ import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
+import se.sundsvall.casestatus.integration.db.SupportManagementStatusRepository;
+import se.sundsvall.casestatus.integration.db.model.SupportManagementStatusEntity;
 import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
@@ -45,6 +48,7 @@ public class CaseStatusService {
 	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
 	private final PartyIntegration partyIntegration;
 	private final SupportManagementService supportManagementService;
+	private final SupportManagementStatusRepository supportManagementStatusRepository;
 
 	private final CaseManagementMapper caseManagementMapper;
 	private final CaseDataIntegration caseDataIntegration;
@@ -58,7 +62,8 @@ public class CaseStatusService {
 		final SupportManagementService supportManagementService,
 		final CaseManagementMapper caseManagementMapper,
 		final CaseDataIntegration caseDataIntegration,
-		final SupportManagementMapper supportManagementMapper) {
+		final SupportManagementMapper supportManagementMapper,
+		final SupportManagementStatusRepository supportManagementStatusRepository) {
 
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.oepIntegratorClient = oepIntegratorClient;
@@ -69,6 +74,7 @@ public class CaseStatusService {
 		this.caseManagementMapper = caseManagementMapper;
 		this.caseDataIntegration = caseDataIntegration;
 		this.supportManagementMapper = supportManagementMapper;
+		this.supportManagementStatusRepository = supportManagementStatusRepository;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
@@ -150,7 +156,12 @@ public class CaseStatusService {
 	private void getSupportManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
 		supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)
 			.forEach((namespace, errands) -> errands.stream()
-				.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId))
+				.map(errand -> supportManagementMapper.toCaseStatusResponse(
+					errand,
+					namespace,
+					municipalityId,
+					getSupportManagementStatus(errand.getStatus()),
+					getSupportManagementClassficationName(municipalityId, namespace, errand)))
 				.forEach(statuses::add));
 	}
 
@@ -208,7 +219,12 @@ public class CaseStatusService {
 			.flatMap(entry -> {
 				var namespace = entry.getKey();
 				return entry.getValue().stream()
-					.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId));
+					.map(errand -> supportManagementMapper.toCaseStatusResponse(
+						errand,
+						namespace,
+						municipalityId,
+						getSupportManagementStatus(errand.getStatus()),
+						getSupportManagementClassficationName(municipalityId, namespace, errand)));
 			})
 			.toList();
 
@@ -244,8 +260,23 @@ public class CaseStatusService {
 			.flatMap(entry -> {
 				var namespace = entry.getKey();
 				return entry.getValue().stream()
-					.map(errand -> supportManagementMapper.toCaseStatusResponse(errand, namespace, municipalityId));
+					.map(errand -> supportManagementMapper.toCaseStatusResponse(
+						errand,
+						namespace,
+						municipalityId,
+						getSupportManagementStatus(errand.getStatus()),
+						getSupportManagementClassficationName(municipalityId, namespace, errand)));
 			})
 			.toList());
+	}
+
+	private String getSupportManagementClassficationName(final String municipalityId, String namespace, final Errand errand) {
+		return supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand);
+	}
+
+	private String getSupportManagementStatus(final String systemStatus) {
+		return supportManagementStatusRepository.findBySystemStatus(systemStatus)
+			.map(SupportManagementStatusEntity::getGenericStatus)
+			.orElse(systemStatus);
 	}
 }

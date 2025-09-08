@@ -1,7 +1,12 @@
 {
 	"request": {
 		"method": "GET",
-		"urlPattern": "/supportmanagement/2281/SECOND_NAMESPACE/errands.*"
+		"urlPattern": "/supportmanagement/2281/SECOND_NAMESPACE/errands.*",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
 	},
 	"response": {
 		"headers": {

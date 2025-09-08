@@ -1,7 +1,12 @@
 {
 	"request": {
 		"method": "GET",
-		"url": "/casemanagement/2281/a893dfa2-f781-49a9-9c5f-cba6353cf059/statuses"
+		"url": "/casemanagement/2281/a893dfa2-f781-49a9-9c5f-cba6353cf059/statuses",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
 	},
 	"response": {
 		"headers": {
