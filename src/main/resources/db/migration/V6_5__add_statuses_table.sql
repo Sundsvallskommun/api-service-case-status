@@ -1,14 +1,14 @@
 CREATE TABLE IF NOT EXISTS statuses
 (
 	id INT AUTO_INCREMENT PRIMARY KEY,
-	case_management_display_name varchar(255),
-	case_management_status varchar(255),
-	external_display_name varchar(255),
-	external_status varchar(255),
-	oep_display_name varchar(255),
-	oep_status varchar(255),
-	support_management_display_name varchar(255),
-	support_management_status varchar(255)
+	case_management_display_name varchar(100),
+	case_management_status varchar(50),
+	external_display_name varchar(100),
+	external_status varchar(50),
+	oep_display_name varchar(100),
+	oep_status varchar(50),
+	support_management_display_name varchar(100),
+	support_management_status varchar(50)
 );
 
 CREATE INDEX idx_oep_status
