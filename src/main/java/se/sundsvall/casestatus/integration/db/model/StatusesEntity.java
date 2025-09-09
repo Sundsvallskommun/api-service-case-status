@@ -31,28 +31,28 @@ public class StatusesEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
-	@Column(name = "support_management_status")
+	@Column(name = "support_management_status", length = 50)
 	private String supportManagementStatus;
 
-	@Column(name = "support_management_display_name")
+	@Column(name = "support_management_display_name", length = 100)
 	private String supportManagementDisplayName;
 
-	@Column(name = "case_management_status")
+	@Column(name = "case_management_status", length = 50)
 	private String caseManagementStatus;
 
-	@Column(name = "case_management_display_name")
+	@Column(name = "case_management_display_name", length = 100)
 	private String caseManagementDisplayName;
 
-	@Column(name = "oep_status")
+	@Column(name = "oep_status", length = 50)
 	private String oepStatus;
 
-	@Column(name = "oep_display_name")
+	@Column(name = "oep_display_name", length = 100)
 	private String oepDisplayName;
 
-	@Column(name = "external_status")
+	@Column(name = "external_status", length = 50)
 	private String externalStatus;
 
-	@Column(name = "external_display_name")
+	@Column(name = "external_display_name", length = 100)
 	private String externalDisplayName;
 
 	@Override

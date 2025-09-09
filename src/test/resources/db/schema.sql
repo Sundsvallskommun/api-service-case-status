@@ -30,14 +30,14 @@
 
     create table statuses (
         id integer not null auto_increment,
-        case_management_display_name varchar(255),
-        case_management_status varchar(255),
-        external_display_name varchar(255),
-        external_status varchar(255),
-        oep_display_name varchar(255),
-        oep_status varchar(255),
-        support_management_display_name varchar(255),
-        support_management_status varchar(255),
+        case_management_status varchar(50),
+        external_status varchar(50),
+        oep_status varchar(50),
+        support_management_status varchar(50),
+        case_management_display_name varchar(100),
+        external_display_name varchar(100),
+        oep_display_name varchar(100),
+        support_management_display_name varchar(100),
         primary key (id)
     ) engine=InnoDB;
 
