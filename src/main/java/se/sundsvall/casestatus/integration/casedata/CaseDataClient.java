@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import se.sundsvall.casestatus.integration.casedata.configuration.CaseDataConfiguration;
 
-@FeignClient(name = CLIENT_ID, url = "${integration.case-data.base-url}", configuration = CaseDataConfiguration.class)
+@FeignClient(name = CLIENT_ID, url = "${integration.case-data.base-url}", configuration = CaseDataConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)
 public interface CaseDataClient {
 
