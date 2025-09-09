@@ -63,6 +63,8 @@ spring:
 resilience4j:
   circuitbreaker:
     instances:
+      case-data:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
       case-management:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
       oep-integrator:
