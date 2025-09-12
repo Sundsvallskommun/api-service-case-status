@@ -1,6 +1,7 @@
 package se.sundsvall.casestatus.service.mapper;
 
 import static java.util.Optional.ofNullable;
+import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 import static se.sundsvall.casestatus.util.Constants.UNKNOWN;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
@@ -8,22 +9,22 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
+import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
-import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
+import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 
 @Component
 public final class CaseManagementMapper {
 
 	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
+	private final StatusesRepository statusesRepository;
 	private final CaseTypeRepository caseTypeRepository;
 
 	public CaseManagementMapper(
-		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
+		final StatusesRepository statusesRepository,
 		final CaseTypeRepository caseTypeRepository) {
-		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
+		this.statusesRepository = statusesRepository;
 		this.caseTypeRepository = caseTypeRepository;
 	}
 
@@ -32,6 +33,7 @@ public final class CaseManagementMapper {
 			.withCaseId(caseStatus.getCaseId())
 			.withCaseType(getServiceName(caseStatus.getServiceName(), caseStatus.getCaseType(), municipalityId))
 			.withStatus(getStatus(caseStatus.getStatus()))
+			.withExternalStatus(getExternalStatus(caseStatus.getStatus()))
 			.withLastStatusChange(getTimestamp(caseStatus.getTimestamp()))
 			.withFirstSubmitted(getTimestamp(caseStatus.getTimestamp()))
 			.withSystem(ofNullable(caseStatus.getSystem()).map(CaseStatusDTO.SystemEnum::toString).orElse(UNKNOWN))
@@ -45,13 +47,25 @@ public final class CaseManagementMapper {
 	/**
 	 * Translates the CaseManagement ID to the corresponding OpenE ID or returns the original status if no mapping is found.
 	 *
-	 * @param  originalStatus The original CaseManagement status.
-	 * @return                The corresponding OpenE status or the original status if no mapping is found.
+	 * @param  caseManagementStatus The original CaseManagement status.
+	 * @return                      The corresponding OpenE status or the original status if no mapping is found.
 	 */
-	String getStatus(final String originalStatus) {
-		return caseManagementOpeneViewRepository.findByCaseManagementId(originalStatus)
-			.map(CaseManagementOpeneView::getOpenEId)
-			.orElse(originalStatus);
+	String getStatus(final String caseManagementStatus) {
+		return statusesRepository.findByCaseManagementStatus(caseManagementStatus)
+			.map(StatusesEntity::getOepStatus)
+			.orElse(caseManagementStatus);
+	}
+
+	/**
+	 * Translates the CaseManagement ID to the corresponding OpenE ID or returns the original status if no mapping is found.
+	 *
+	 * @param  caseManagementStatus The original CaseManagement status.
+	 * @return                      The external status or default status if no mapping is found.
+	 */
+	String getExternalStatus(final String caseManagementStatus) {
+		return statusesRepository.findByCaseManagementStatus(caseManagementStatus)
+			.map(StatusesEntity::getExternalStatus)
+			.orElse(DEFAULT_EXTERNAL_STATUS);
 	}
 
 	/**

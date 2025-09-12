@@ -38,13 +38,11 @@ import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
-import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
-import se.sundsvall.casestatus.integration.db.SupportManagementStatusRepository;
+import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
-import se.sundsvall.casestatus.integration.db.model.SupportManagementStatusEntity;
-import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
+import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
@@ -75,16 +73,13 @@ class CaseStatusServiceTest {
 	private CaseRepository caseRepositoryMock;
 
 	@Mock
-	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
-
-	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
 
 	@Mock
 	private SupportManagementService supportManagementServiceMock;
 
 	@Mock
-	private SupportManagementStatusRepository supportManagementStatusRepositoryMock;
+	private StatusesRepository statusesRepositoryMock;
 
 	@Mock
 	private CaseManagementMapper caseManagementMapperMock;
@@ -99,8 +94,12 @@ class CaseStatusServiceTest {
 	void getOepStatusCaseStatusFoundInCaseManagement() {
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.of(new CaseStatusDTO().status("someStatus")));
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId("someStatus"))
-			.thenReturn(Optional.of(CaseManagementOpeneView.builder().withCaseManagementId("status").withOpenEId("someStatus").build()));
+		when(statusesRepositoryMock.findByCaseManagementStatus("someStatus"))
+			.thenReturn(Optional.of(StatusesEntity.builder()
+				.withCaseManagementStatus("status")
+				.withOepStatus("someStatus")
+				.withExternalStatus("someExternalStatus")
+				.build()));
 
 		final var status = caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
@@ -111,8 +110,8 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
 		verifyNoMoreInteractions(caseManagementIntegrationMock);
-		verify(caseManagementOpeneViewRepositoryMock).findByCaseManagementId(any(String.class));
-		verifyNoMoreInteractions(caseManagementOpeneViewRepositoryMock);
+		verify(statusesRepositoryMock).findByCaseManagementStatus(any(String.class));
+		verifyNoMoreInteractions(caseManagementIntegrationMock, statusesRepositoryMock);
 	}
 
 	@Test
@@ -206,8 +205,13 @@ class CaseStatusServiceTest {
 	@Test
 	void getCaseStatuses() {
 
+		final var smStatus = "smStatus";
 		final var errand = createErrand();
-		final var status = new SupportManagementStatusEntity(1, "systemStatus", "genericStatus");
+		final var statuses = StatusesEntity.builder()
+			.withSupportManagementStatus(smStatus)
+			.withExternalStatus("Handläggning pågår")
+			.build();
+
 		final var classificationDisplayName = "classificationDisplayName";
 
 		when(caseManagementIntegrationMock.getCaseStatusForOrganizationNumber(any(String.class), any(String.class)))
@@ -220,13 +224,11 @@ class CaseStatusServiceTest {
 			.thenReturn(List.of(CaseEntity.builder().build()));
 
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId"))
-			.thenReturn(Map.of(NAMESPACE_1, List.of(errand)));
+			.thenReturn(Map.of(NAMESPACE_1, List.of(errand.status(smStatus))));
 
-		when(supportManagementStatusRepositoryMock.findBySystemStatus(any())).thenReturn(Optional.of(status));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand)).thenReturn(classificationDisplayName);
 
-		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, status.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
-
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
 		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(4);
@@ -235,15 +237,16 @@ class CaseStatusServiceTest {
 		verify(caseManagementMapperMock, times(2)).toCaseStatusResponse(any(CaseStatusDTO.class), eq(MUNICIPALITY_ID));
 		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId");
+		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 
-		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock);
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock, supportManagementMapperMock);
 	}
 
 	@Test
 	void getOepStatusCaseStatusNotFoundInOpenE() {
 		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
 			.thenReturn(Optional.of(new CaseStatusDTO().status("someStatus")));
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId("someStatus"))
+		when(statusesRepositoryMock.findByCaseManagementStatus("someStatus"))
 			.thenReturn(Optional.empty());
 
 		assertThatThrownBy(() -> caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
@@ -251,8 +254,8 @@ class CaseStatusServiceTest {
 			.hasMessage("Not Found: Could not find matching open-E status for status someStatus");
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
-		verify(caseManagementOpeneViewRepositoryMock).findByCaseManagementId(any(String.class));
-		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementOpeneViewRepositoryMock);
+		verify(statusesRepositoryMock).findByCaseManagementStatus(any(String.class));
+		verifyNoMoreInteractions(caseManagementIntegrationMock, statusesRepositoryMock);
 	}
 
 	@Test
@@ -302,11 +305,19 @@ class CaseStatusServiceTest {
 		final var caseStatus = createCaseStatusDTO(BYGGR);
 		final var caseStatuses = List.of(caseStatus);
 
-		final var errand = createErrand();
+		final var oepStatus = "oepStatus";
+		final var externalStatus = "externalStatus";
+		final var smStatus = "smStatus";
+
+		final var errand = createErrand().status(smStatus);
 		final var errands = List.of(errand);
 		final var errandMap = Map.of(NAMESPACE_1, errands);
 
-		final var supportManagementStatus = new SupportManagementStatusEntity(1, "systemStatus", "genericStatus");
+		final var statuses = StatusesEntity.builder()
+			.withSupportManagementStatus(smStatus)
+			.withOepStatus(oepStatus)
+			.withExternalStatus(externalStatus)
+			.build();
 		final var classificationDisplayName = "classificationDisplayName";
 
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.PRIVATE, partyId));
@@ -315,12 +326,12 @@ class CaseStatusServiceTest {
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
 
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName("someTitle").flowInstanceId("someFlowInstanceId")));
-		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name(oepStatus));
 
-		when(supportManagementStatusRepositoryMock.findBySystemStatus(any())).thenReturn(Optional.of(supportManagementStatus));
+		when(statusesRepositoryMock.findBySupportManagementStatus(smStatus)).thenReturn(Optional.of(statuses));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand)).thenReturn(classificationDisplayName);
 
-		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, supportManagementStatus.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId)).thenReturn(errandMap);
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
@@ -332,7 +343,9 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
 		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId);
-		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock);
+		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
+		verify(statusesRepositoryMock).findByOepStatus(oepStatus);
+		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock, statusesRepositoryMock);
 	}
 
 	/**
@@ -536,18 +549,28 @@ class CaseStatusServiceTest {
 	@Test
 	void getErrandStatuses_errandNumber() {
 		final var errandNumber = "Case 123";
+		final var oepStatus = "oepStatus";
+		final var externalStatus = "externalStatus";
+		final var smStatus = "smStatus";
+		final var cmStatus = "status";
+		final var statuses = StatusesEntity.builder()
+			.withSupportManagementStatus(smStatus)
+			.withCaseManagementStatus(cmStatus)
+			.withOepStatus(oepStatus)
+			.withExternalStatus(externalStatus)
+			.build();
 
-		final var supportManagementErrand = createErrand();
-		final var supportManagementStatus = new SupportManagementStatusEntity(1, "systemStatus", "genericStatus");
+		final var supportManagementErrand = createErrand().status(smStatus);
 		final var classificationDisplayName = "classificationDisplayName";
 
 		when(supportManagementServiceMock.getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber)))
 			.thenReturn(Map.of(NAMESPACE_1, List.of(supportManagementErrand)));
 
-		when(supportManagementStatusRepositoryMock.findBySystemStatus(any())).thenReturn(Optional.of(supportManagementStatus));
+		when(statusesRepositoryMock.findBySupportManagementStatus(any())).thenReturn(Optional.of(statuses));
+		when(statusesRepositoryMock.findByCaseManagementStatus(any())).thenReturn(Optional.of(statuses));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, supportManagementErrand)).thenReturn(classificationDisplayName);
 
-		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, supportManagementStatus.getGenericStatus(), classificationDisplayName)).thenReturn(createCaseStatusResponse("SUPPORT_MANAGEMENT",
+		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse("SUPPORT_MANAGEMENT",
 			"1234567890"));
 		when(caseDataIntegrationMock.getNamespaces()).thenReturn(List.of(NAMESPACE_1));
 		when(caseDataIntegrationMock.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber))
@@ -561,6 +584,9 @@ class CaseStatusServiceTest {
 
 		verify(caseDataIntegrationMock).getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber);
 		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber));
-		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, supportManagementStatus.getGenericStatus(), classificationDisplayName);
+		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, statuses, classificationDisplayName);
+		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
+		verify(statusesRepositoryMock).findByCaseManagementStatus(cmStatus);
+		verifyNoMoreInteractions(caseDataIntegrationMock, supportManagementServiceMock, statusesRepositoryMock, supportManagementMapperMock);
 	}
 }

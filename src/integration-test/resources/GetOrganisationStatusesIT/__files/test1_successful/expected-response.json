@@ -6,6 +6,7 @@
 		"firstSubmitted": "2022-09-01 10:48",
 		"lastStatusChange": "2022-09-01 10:48",
 		"status": "Pågående",
+		"externalStatus": "Handläggning pågår",
 		"system": "BYGGR"
 	},
 	{
@@ -16,6 +17,7 @@
 		"firstSubmitted": "2022-05-11 14:24",
 		"lastStatusChange": "2022-05-11 14:24",
 		"status": "Inskickat",
+		"externalStatus": "Inskickat",
 		"system": "OPEN_E_PLATFORM"
 	},
 	{
@@ -26,6 +28,7 @@
 		"lastStatusChange": "2023-03-14 13:27",
 		"namespace": "MYNAMESPACE",
 		"status": "Klart",
+		"externalStatus": "Avslutat",
 		"system": "SUPPORT_MANAGEMENT"
 	}
 ]

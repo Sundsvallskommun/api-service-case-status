@@ -19,16 +19,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
+import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
-import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
+import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 
 @ExtendWith(MockitoExtension.class)
 class CaseManagementMapperTest {
 
 	@Mock
-	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
+	private StatusesRepository statusesRepositoryMock;
 
 	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
@@ -43,6 +43,7 @@ class CaseManagementMapperTest {
 		final var municipalityId = "2281";
 		final var spy = Mockito.spy(caseManagementMapper);
 		when(spy.getStatus(caseStatus.getStatus())).thenReturn("status");
+		when(spy.getExternalStatus(caseStatus.getStatus())).thenReturn("externalStatus");
 		when(spy.getTimestamp(caseStatus.getTimestamp())).thenReturn("2025-04-01 12:30");
 		when(spy.getServiceName(caseStatus.getServiceName(), caseStatus.getCaseType(), municipalityId)).thenReturn("serviceName");
 
@@ -54,6 +55,7 @@ class CaseManagementMapperTest {
 			assertThat(response.getExternalCaseId()).isEqualTo(caseStatus.getExternalCaseId());
 			assertThat(response.getCaseType()).isEqualTo("serviceName");
 			assertThat(response.getStatus()).isEqualTo("status");
+			assertThat(response.getExternalStatus()).isEqualTo("externalStatus");
 			assertThat(response.getLastStatusChange()).isEqualTo("2025-04-01 12:30");
 			assertThat(response.getFirstSubmitted()).isEqualTo("2025-04-01 12:30");
 			assertThat(response.getErrandNumber()).isEqualTo("errandNumber");
@@ -68,14 +70,14 @@ class CaseManagementMapperTest {
 	void getStatus_1() {
 		final var originalStatus = "originalStatus";
 
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(originalStatus)).thenReturn(Optional.empty());
+		when(statusesRepositoryMock.findByCaseManagementStatus(originalStatus)).thenReturn(Optional.empty());
 
 		final var result = caseManagementMapper.getStatus(originalStatus);
 
 		assertThat(result).isEqualTo(originalStatus);
-		verify(caseManagementOpeneViewRepositoryMock).findByCaseManagementId(originalStatus);
+		verify(statusesRepositoryMock).findByCaseManagementStatus(originalStatus);
 
-		verifyNoMoreInteractions(caseManagementOpeneViewRepositoryMock);
+		verifyNoMoreInteractions(statusesRepositoryMock);
 		verifyNoInteractions(caseTypeRepositoryMock);
 	}
 
@@ -84,18 +86,23 @@ class CaseManagementMapperTest {
 	 */
 	@Test
 	void getStatus_2() {
-		final var originalStatus = "originalStatus";
-		final var view = new CaseManagementOpeneView();
-		view.setOpenEId("openEId");
+		final var caseManagementStatus = "caseManagementStatus";
+		final var oepStatus = "openStatus";
+		final var externalStatus = "externalStatus";
+		final var statuses = StatusesEntity.builder()
+			.withCaseManagementStatus(caseManagementStatus)
+			.withOepStatus(oepStatus)
+			.withExternalStatus(externalStatus)
+			.build();
 
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(originalStatus)).thenReturn(Optional.of(view));
+		when(statusesRepositoryMock.findByCaseManagementStatus(caseManagementStatus)).thenReturn(Optional.of(statuses));
 
-		final var result = caseManagementMapper.getStatus(originalStatus);
+		final var result = caseManagementMapper.getStatus(caseManagementStatus);
 
-		assertThat(result).isEqualTo("openEId");
-		verify(caseManagementOpeneViewRepositoryMock).findByCaseManagementId(originalStatus);
+		assertThat(result).isEqualTo("openStatus");
+		verify(statusesRepositoryMock).findByCaseManagementStatus(caseManagementStatus);
 
-		verifyNoMoreInteractions(caseManagementOpeneViewRepositoryMock);
+		verifyNoMoreInteractions(statusesRepositoryMock);
 		verifyNoInteractions(caseTypeRepositoryMock);
 	}
 
@@ -137,7 +144,7 @@ class CaseManagementMapperTest {
 		assertThat(result).isEqualTo("serviceName");
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
-		verifyNoInteractions(caseManagementOpeneViewRepositoryMock);
+		verifyNoInteractions(statusesRepositoryMock);
 	}
 
 	/**
@@ -157,7 +164,7 @@ class CaseManagementMapperTest {
 		assertThat(result).isEqualTo("description");
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
-		verifyNoInteractions(caseManagementOpeneViewRepositoryMock);
+		verifyNoInteractions(statusesRepositoryMock);
 	}
 
 	/**
@@ -175,7 +182,7 @@ class CaseManagementMapperTest {
 		assertThat(result).isEqualTo(caseType);
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
-		verifyNoInteractions(caseManagementOpeneViewRepositoryMock);
+		verifyNoInteractions(statusesRepositoryMock);
 	}
 
 }
