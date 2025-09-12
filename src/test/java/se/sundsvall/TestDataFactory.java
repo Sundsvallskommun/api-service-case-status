@@ -52,6 +52,7 @@ public final class TestDataFactory {
 			.withExternalCaseId(externalCaseId)
 			.withCaseType("caseType")
 			.withStatus("status")
+			.withExternalStatus("externalStatus")
 			.withLastStatusChange("2025-03-24 12:00:00")
 			.withFirstSubmitted("2025-03-24 12:00:00")
 			.withErrandNumber("errandNumber")
