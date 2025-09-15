@@ -28,6 +28,9 @@ public class CaseStatusResponse {
 	@Schema(description = "Status", example = "In progress")
 	private String status;
 
+	@Schema(description = "External status", example = "Handläggning pågår")
+	private String externalStatus;
+
 	@Schema(description = "First submitted", example = "2021-01-01")
 	private String firstSubmitted;
 
