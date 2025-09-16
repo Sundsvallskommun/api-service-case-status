@@ -239,6 +239,43 @@ class CaseStatusServiceTest {
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId");
 		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock, supportManagementMapperMock, statusesRepositoryMock);
+	}
+
+	@Test
+	void getCaseStatusesWhenNullStatusFromSM() {
+
+		final var errand = createErrand();
+		final var statuses = StatusesEntity.builder()
+			.build();
+
+		final var classificationDisplayName = "classificationDisplayName";
+
+		when(caseManagementIntegrationMock.getCaseStatusForOrganizationNumber(any(String.class), any(String.class)))
+			.thenReturn(List.of(new CaseStatusDTO().status("someStatus"), new CaseStatusDTO().status("someOtherStatus")));
+
+		when(caseManagementMapperMock.toCaseStatusResponse(any(CaseStatusDTO.class), eq(MUNICIPALITY_ID)))
+			.thenReturn(CaseStatusResponse.builder().build());
+
+		when(caseRepositoryMock.findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class)))
+			.thenReturn(List.of(CaseEntity.builder().build()));
+
+		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId"))
+			.thenReturn(Map.of(NAMESPACE_1, List.of(errand.status(null))));
+
+		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand)).thenReturn(classificationDisplayName);
+
+		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT, "1234567890"));
+		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID);
+
+		assertThat(result).isNotNull().hasSize(4);
+
+		verify(caseManagementIntegrationMock).getCaseStatusForOrganizationNumber(any(String.class), any(String.class));
+		verify(caseManagementMapperMock, times(2)).toCaseStatusResponse(any(CaseStatusDTO.class), eq(MUNICIPALITY_ID));
+		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
+		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId");
+
+		verifyNoInteractions(statusesRepositoryMock);
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock, supportManagementMapperMock);
 	}
 
