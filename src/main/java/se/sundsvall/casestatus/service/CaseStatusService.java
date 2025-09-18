@@ -3,6 +3,8 @@ package se.sundsvall.casestatus.service;
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.StringUtils.hasText;
 import static org.zalando.problem.Status.BAD_REQUEST;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
@@ -22,7 +24,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -199,14 +200,14 @@ public class CaseStatusService {
 	}
 
 	public List<CaseStatusResponse> getErrandStatuses(final String municipalityId, final String propertyDesignation, final String errandNumber) {
-		if (StringUtils.isNotBlank(propertyDesignation) && StringUtils.isNotBlank(errandNumber)) {
+		if (hasText(propertyDesignation) && hasText(errandNumber)) {
 			throw Problem.valueOf(BAD_REQUEST, "Both propertyDesignation and errandNumber cannot be provided at the same time");
 		}
 		if (propertyDesignation == null && errandNumber == null) {
 			throw Problem.valueOf(BAD_REQUEST, "Either propertyDesignation or errandNumber must be provided");
 		}
 
-		if (StringUtils.isNotBlank(propertyDesignation)) {
+		if (hasText(propertyDesignation)) {
 			return caseDataIntegration.getNamespaces().stream()
 				.flatMap(namespace -> caseDataIntegration.getCaseDataCaseByPropertyDesignation(municipalityId, namespace, propertyDesignation).stream())
 				.toList();
@@ -277,6 +278,10 @@ public class CaseStatusService {
 	}
 
 	private StatusesEntity getStatusesBySupportManagementStatus(final String supportManagementStatus) {
+		if (isBlank(supportManagementStatus)) {
+			return StatusesEntity.builder()
+				.build();
+		}
 		return statusesRepository.findBySupportManagementStatus(supportManagementStatus).orElse(StatusesEntity.builder()
 			.withSupportManagementStatus(supportManagementStatus)
 			.withExternalStatus(DEFAULT_EXTERNAL_STATUS)
@@ -284,13 +289,13 @@ public class CaseStatusService {
 	}
 
 	private String getExternalStatusByOepStatus(final CaseStatus oepStatus) {
-		if (oepStatus == null || StringUtils.isBlank(oepStatus.getName())) {
-			return DEFAULT_EXTERNAL_STATUS;
+		if (oepStatus == null || isBlank(oepStatus.getName())) {
+			return null;
 		}
 		return statusesRepository.findByOepStatus(oepStatus.getName()).stream()
 			.map(StatusesEntity::getExternalStatus)
 			.filter(Objects::nonNull)
-			.filter(StringUtils::isNotBlank)
+			.filter(org.springframework.util.StringUtils::hasText)
 			.findFirst()
 			.orElse(DEFAULT_EXTERNAL_STATUS);
 	}
@@ -299,13 +304,11 @@ public class CaseStatusService {
 
 		return statusResponses.stream()
 			.map(response -> {
-				if (StringUtils.isNotBlank(response.getStatus())) {
+				if (hasText(response.getStatus())) {
 					final var externalStatus = statusesRepository.findByCaseManagementStatus(response.getStatus())
 						.map(StatusesEntity::getExternalStatus)
 						.orElse(DEFAULT_EXTERNAL_STATUS);
 					response.setExternalStatus(externalStatus);
-				} else {
-					response.setExternalStatus(DEFAULT_EXTERNAL_STATUS);
 				}
 				return response;
 			}).toList();
@@ -313,11 +316,11 @@ public class CaseStatusService {
 
 	private CaseStatusResponse addExternalStatusByOepStatus(CaseStatusResponse caseStatusResponse) {
 
-		if (StringUtils.isNotBlank(caseStatusResponse.getStatus())) {
+		if (hasText(caseStatusResponse.getStatus())) {
 			final var externalStatus = statusesRepository.findByOepStatus(caseStatusResponse.getStatus()).stream()
 				.map(StatusesEntity::getExternalStatus)
 				.filter(Objects::nonNull)
-				.filter(StringUtils::isNotBlank)
+				.filter(org.springframework.util.StringUtils::hasText)
 				.findFirst()
 				.orElse(DEFAULT_EXTERNAL_STATUS);
 			caseStatusResponse.setExternalStatus(externalStatus);

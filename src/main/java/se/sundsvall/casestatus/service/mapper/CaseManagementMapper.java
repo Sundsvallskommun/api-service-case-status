@@ -1,6 +1,7 @@
 package se.sundsvall.casestatus.service.mapper;
 
 import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 import static se.sundsvall.casestatus.util.Constants.UNKNOWN;
 
@@ -51,6 +52,9 @@ public final class CaseManagementMapper {
 	 * @return                      The corresponding OpenE status or the original status if no mapping is found.
 	 */
 	String getStatus(final String caseManagementStatus) {
+		if (isBlank(caseManagementStatus)) {
+			return null;
+		}
 		return statusesRepository.findByCaseManagementStatus(caseManagementStatus)
 			.map(StatusesEntity::getOepStatus)
 			.orElse(caseManagementStatus);
@@ -63,6 +67,9 @@ public final class CaseManagementMapper {
 	 * @return                      The external status or default status if no mapping is found.
 	 */
 	String getExternalStatus(final String caseManagementStatus) {
+		if (isBlank(caseManagementStatus)) {
+			return null;
+		}
 		return statusesRepository.findByCaseManagementStatus(caseManagementStatus)
 			.map(StatusesEntity::getExternalStatus)
 			.orElse(DEFAULT_EXTERNAL_STATUS);

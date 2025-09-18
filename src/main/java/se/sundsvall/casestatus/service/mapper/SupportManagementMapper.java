@@ -2,7 +2,6 @@ package se.sundsvall.casestatus.service.mapper;
 
 import static java.util.Optional.empty;
 import static se.sundsvall.casestatus.util.Constants.DATE_TIME_FORMAT;
-import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
 
 import generated.se.sundsvall.supportmanagement.Errand;
@@ -73,7 +72,7 @@ public class SupportManagementMapper {
 			.withExternalCaseId(externalCaseId.orElse(null))
 			.withCaseType(classificationName)
 			.withStatus(Optional.ofNullable(statuses.getOepStatus()).orElse(statuses.getSupportManagementStatus()))
-			.withExternalStatus(Optional.ofNullable(statuses.getExternalStatus()).orElse(DEFAULT_EXTERNAL_STATUS))
+			.withExternalStatus(statuses.getExternalStatus())
 			.withLastStatusChange(modified)
 			.withFirstSubmitted(firstSubmitted)
 			.withSystem(SUPPORT_MANAGEMENT)

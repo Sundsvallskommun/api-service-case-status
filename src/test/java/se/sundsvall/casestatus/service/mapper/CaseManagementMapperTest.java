@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
+import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.time.LocalDateTime;
@@ -104,6 +105,41 @@ class CaseManagementMapperTest {
 
 		verifyNoMoreInteractions(statusesRepositoryMock);
 		verifyNoInteractions(caseTypeRepositoryMock);
+	}
+
+	@Test
+	void getStatusWhenCMStatusIsNull() {
+
+		final var result = caseManagementMapper.getStatus(null);
+
+		assertThat(result).isNull();
+		verifyNoInteractions(statusesRepositoryMock);
+		verifyNoInteractions(caseTypeRepositoryMock);
+	}
+
+	@Test
+	void getExternalStatusWhenCMStatusIsNull() {
+
+		final var result = caseManagementMapper.getExternalStatus(null);
+
+		assertThat(result).isNull();
+		verifyNoInteractions(statusesRepositoryMock);
+		verifyNoInteractions(caseTypeRepositoryMock);
+	}
+
+	@Test
+	void getExternalStatusWhenCMStatusIsNotFound() {
+
+		final var caseManagementStatus = "caseManagementStatus";
+
+		when(statusesRepositoryMock.findByCaseManagementStatus(caseManagementStatus)).thenReturn(Optional.empty());
+
+		final var result = caseManagementMapper.getExternalStatus(caseManagementStatus);
+
+		assertThat(result).isEqualTo(DEFAULT_EXTERNAL_STATUS);
+		verify(statusesRepositoryMock).findByCaseManagementStatus(caseManagementStatus);
+		verifyNoInteractions(caseTypeRepositoryMock);
+		verifyNoMoreInteractions(statusesRepositoryMock);
 	}
 
 	/**
