@@ -29,9 +29,6 @@ import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 @SpringBootTest(properties = {
 	"scheduler.eventlog.cron=* * * * * *", // Setup to execute every second
 	"scheduler.eventlog.name=eventlog",
-	"spring.flyway.enabled=true",
-	"integration.db.case-status.driver-class-name=org.testcontainers.jdbc.ContainerDatabaseDriver",
-	"integration.db.case-status.url=jdbc:tc:mariadb:10.6.4:////",
 	"server.shutdown=immediate",
 	"spring.lifecycle.timeout-per-shutdown-phase=0s"
 })
