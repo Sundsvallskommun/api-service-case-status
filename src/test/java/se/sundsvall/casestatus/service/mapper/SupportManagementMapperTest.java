@@ -20,7 +20,7 @@ class SupportManagementMapperTest {
 	private SupportManagementMapper supportManagementMapper;
 
 	@Test
-	void toCaseStatusResponse_withExternalCaseId() {
+	void toCaseStatusResponseWithExternalCaseId() {
 
 		// Arrange
 		final var namespace = "namespace";
@@ -53,7 +53,7 @@ class SupportManagementMapperTest {
 	}
 
 	@Test
-	void toCaseStatusResponse_withoutExternalCaseId() {
+	void toCaseStatusResponseWithoutExternalCaseId() {
 
 		// Arrange
 		final var namespace = "namespace";
@@ -85,7 +85,7 @@ class SupportManagementMapperTest {
 	}
 
 	@Test
-	void toCaseStatusResponse_withNullModified() {
+	void toCaseStatusResponseWithNullModified() {
 
 		// Arrange
 		final var namespace = "namespace";
@@ -117,7 +117,7 @@ class SupportManagementMapperTest {
 	}
 
 	@Test
-	void toCaseStatusResponse_withNullInStatuses() {
+	void toCaseStatusResponseWithNullInStatuses() {
 
 		// Arrange
 		final var namespace = "namespace";
@@ -147,7 +147,7 @@ class SupportManagementMapperTest {
 	}
 
 	@Test
-	void toCaseStatusResponse_withNullInExternalStatus() {
+	void toCaseStatusResponseWithNullInExternalStatus() {
 
 		// Arrange
 		final var namespace = "namespace";
