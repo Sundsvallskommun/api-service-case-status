@@ -128,6 +128,20 @@ class CaseStatusServiceTest {
 	}
 
 	@Test
+	void getOepStatusCaseStatusNullInCaseManagement() {
+		when(caseManagementIntegrationMock.getCaseStatusForExternalId(any(String.class), any(String.class)))
+			.thenReturn(Optional.of(new CaseStatusDTO()));
+
+		assertThatThrownBy(() -> caseStatusService.getOepStatus(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Not Found: Case with id someExternalCaseId not found");
+
+		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
+		verifyNoMoreInteractions(caseManagementIntegrationMock);
+		verifyNoInteractions(statusesRepositoryMock);
+	}
+
+	@Test
 	void getCaseStatusCaseStatusFoundInCaseManagement() {
 		final var caseStatus = new CaseStatusDTO()
 			.caseId("someCaseId")
