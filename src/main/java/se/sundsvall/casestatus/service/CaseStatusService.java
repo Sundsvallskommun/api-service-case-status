@@ -16,6 +16,7 @@ import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
+import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.supportmanagement.Errand;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -77,12 +78,13 @@ public class CaseStatusService {
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
-		final var caseStatus = caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
+		final var cmStatus = caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
+			.map(CaseStatusDTO::getStatus)
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 
-		final var oepStatus = statusesRepository.findByCaseManagementStatus(caseStatus.getStatus())
+		final var oepStatus = statusesRepository.findByCaseManagementStatus(cmStatus)
 			.map(StatusesEntity::getOepStatus)
-			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, "Could not find matching open-E status for status %s".formatted(caseStatus.getStatus())));
+			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, "Could not find matching open-E status for status %s".formatted(cmStatus)));
 
 		return toOepStatusResponse(oepStatus);
 	}
