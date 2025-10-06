@@ -808,7 +808,7 @@ components:
         cellphoneNumber:
           type: string
           description: Stakeholder cellphone number
-          example: "0701234567"
+          example: "0701740605"
         addresses:
           type: array
           description: A stakeholder may have one or more addresses. For example one

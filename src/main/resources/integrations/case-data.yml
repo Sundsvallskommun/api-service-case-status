@@ -5160,7 +5160,7 @@ components:
         mobileNumber:
           type: string
           description: The mobile number of the recipient
-          example: "+46701234567"
+          example: "+46701740605"
         email:
           type: string
           description: The email of the user that sent the message
@@ -5753,7 +5753,7 @@ components:
         mobileNumber:
           type: string
           description: The mobile number of the recipient
-          example: "+46701234567"
+          example: "+46701740605"
         recipients:
           type: array
           description: "The recipients of the message, if email"
