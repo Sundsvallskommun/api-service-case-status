@@ -1,4 +1,9 @@
 {
 	"id": 10361,
-	"name": "Inskickat"
+	"name": "Inskickat",
+	"newExternalMessagesDisallowed": false,
+	"addExternalMessage": false,
+	"addInternalMessage": false,
+	"isRestrictedAdminDeletable": false,
+	"status": "SUBMITTED"
 }

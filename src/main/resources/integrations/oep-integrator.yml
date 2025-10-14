@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.2"
+  version: "1.4"
 servers:
-  - url: http://localhost:58939
+  - url: http://localhost:54381
     description: Generated server url
 tags:
   - name: Instances
@@ -1145,12 +1145,12 @@ components:
     Problem:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -1317,12 +1317,12 @@ components:
                 type: boolean
         message:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
         title:
           type: string
         detail:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
         instance:
           type: string
           format: uri
@@ -1415,7 +1415,6 @@ components:
     WebmessageRequest:
       required:
         - message
-        - sender
       type: object
       properties:
         sender:
@@ -1651,6 +1650,22 @@ components:
           type: string
           description: The status name
           example: Inskickat
+        newExternalMessagesDisallowed:
+          type: boolean
+          description: Whether new external messages are disallowed
+        addExternalMessage:
+          type: boolean
+          description: Whether to add external message
+        addInternalMessage:
+          type: boolean
+          description: Whether to add internal message
+        isRestrictedAdminDeletable:
+          type: boolean
+          description: Whether restricted admin can delete
+        status:
+          type: string
+          description: The status
+          example: ARCHIVED
       description: Case status model
     CaseEnvelope:
       type: object

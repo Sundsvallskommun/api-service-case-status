@@ -219,7 +219,7 @@ public class CaseStatusService {
 		final var supportManagementCases = supportManagementService.getSupportManagementCases(municipalityId, filterString);
 		final var caseStatusResponses = supportManagementCases.entrySet().stream()
 			.flatMap(entry -> {
-				var namespace = entry.getKey();
+				final var namespace = entry.getKey();
 				return entry.getValue().stream()
 					.map(errand -> supportManagementMapper.toCaseStatusResponse(
 						errand,
@@ -248,7 +248,7 @@ public class CaseStatusService {
 		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
 			.map(caseEnvelope -> {
 				final var casestatus = oepIntegratorClient.getCaseStatus(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId());
-				var caseStatusResponse = OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
+				final var caseStatusResponse = OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
 				if (caseStatusResponse != null) {
 					caseStatusResponse.setExternalStatus(getExternalStatusByOepStatus(casestatus));
 				}
@@ -264,7 +264,7 @@ public class CaseStatusService {
 			.entrySet()
 			.stream()
 			.flatMap(entry -> {
-				var namespace = entry.getKey();
+				final var namespace = entry.getKey();
 				return entry.getValue().stream()
 					.map(errand -> supportManagementMapper.toCaseStatusResponse(
 						errand,
@@ -275,7 +275,7 @@ public class CaseStatusService {
 			.toList());
 	}
 
-	private String getSupportManagementClassificationName(final String municipalityId, String namespace, final Errand errand) {
+	private String getSupportManagementClassificationName(final String municipalityId, final String namespace, final Errand errand) {
 		return supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand);
 	}
 
@@ -291,10 +291,10 @@ public class CaseStatusService {
 	}
 
 	private String getExternalStatusByOepStatus(final CaseStatus oepStatus) {
-		if (oepStatus == null || isBlank(oepStatus.getName())) {
+		if (oepStatus == null || isBlank(oepStatus.getStatus())) {
 			return null;
 		}
-		return statusesRepository.findByOepStatus(oepStatus.getName()).stream()
+		return statusesRepository.findByOepStatus(oepStatus.getStatus()).stream()
 			.map(StatusesEntity::getExternalStatus)
 			.filter(Objects::nonNull)
 			.filter(org.springframework.util.StringUtils::hasText)
@@ -302,7 +302,7 @@ public class CaseStatusService {
 			.orElse(DEFAULT_EXTERNAL_STATUS);
 	}
 
-	private List<CaseStatusResponse> addExternalStatusesByCaseManagementStatus(List<CaseStatusResponse> statusResponses) {
+	private List<CaseStatusResponse> addExternalStatusesByCaseManagementStatus(final List<CaseStatusResponse> statusResponses) {
 
 		return statusResponses.stream()
 			.map(response -> {
@@ -316,7 +316,7 @@ public class CaseStatusService {
 			}).toList();
 	}
 
-	private CaseStatusResponse addExternalStatusByOepStatus(CaseStatusResponse caseStatusResponse) {
+	private CaseStatusResponse addExternalStatusByOepStatus(final CaseStatusResponse caseStatusResponse) {
 
 		if (hasText(caseStatusResponse.getStatus())) {
 			final var externalStatus = statusesRepository.findByOepStatus(caseStatusResponse.getStatus()).stream()
