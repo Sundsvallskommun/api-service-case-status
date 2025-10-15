@@ -377,7 +377,7 @@ class CaseStatusServiceTest {
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
 
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName("someTitle").flowInstanceId("someFlowInstanceId")));
-		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name(oepStatus));
+		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().status(oepStatus));
 
 		when(statusesRepositoryMock.findBySupportManagementStatus(smStatus)).thenReturn(Optional.of(statuses));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand)).thenReturn(classificationDisplayName);
