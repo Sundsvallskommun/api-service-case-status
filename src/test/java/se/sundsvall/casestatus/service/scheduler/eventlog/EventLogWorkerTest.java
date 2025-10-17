@@ -34,9 +34,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import se.sundsvall.casestatus.Application;
-import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
+import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
-import se.sundsvall.casestatus.integration.db.model.views.CaseManagementOpeneView;
+import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
@@ -46,7 +46,7 @@ import se.sundsvall.casestatus.service.SupportManagementService;
 class EventLogWorkerTest {
 
 	@MockitoBean
-	private CaseManagementOpeneViewRepository caseManagementOpeneViewRepositoryMock;
+	private StatusesRepository statusesRepositoryMock;
 
 	@MockitoBean
 	private EventlogClient eventlogClientMock;
@@ -87,11 +87,11 @@ class EventLogWorkerTest {
 			.withMunicipalityId(municipalityId)
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
-		final var caseMapping = CaseManagementOpeneView.builder().withCaseManagementId(internalStatus).withOpenEId("someOpenEStatus").build();
+		final var statuses = new StatusesEntity().builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey).metadata(List.of(new Metadata().key("Namespace").value(namespace))), new Event().logKey(logkey2).metadata(List.of(new Metadata().key("Namespace").value(namespace)))));
 		when(eventPageMock.hasNext()).thenReturn(false);
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(internalStatus)).thenReturn(Optional.of(caseMapping));
+		when(statusesRepositoryMock.findBySupportManagementStatus(internalStatus)).thenReturn(Optional.of(statuses));
 
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPageMock);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
@@ -102,7 +102,7 @@ class EventLogWorkerTest {
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
 		verify(supportManagementServiceMock, times(2)).getSupportManagementCaseById(eq(municipalityId), same(namespace), anyString());
 		verify(oepIntegratorClientMock, times(2)).setStatus(anyString(), eq(InstanceType.EXTERNAL), any(), any(CaseStatusChangeRequest.class));
-		verify(caseManagementOpeneViewRepositoryMock, times(2)).findByCaseManagementId(internalStatus);
+		verify(statusesRepositoryMock, times(2)).findBySupportManagementStatus(internalStatus);
 		assertThat(filterArgumentCaptor.getValue()).isEqualTo("message:'Ärendet har uppdaterats.' and created > '" + executionInformationEntity.getLastSuccessfulExecution().minus(Duration.parse("PT5S")) +
 			"' and sourceType: 'Errand' and owner: 'SupportManagement' and type: 'UPDATE'");
 	}
@@ -184,7 +184,7 @@ class EventLogWorkerTest {
 		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
-		when(caseManagementOpeneViewRepositoryMock.findByCaseManagementId(internalStatus)).thenReturn(Optional.empty());
+		when(statusesRepositoryMock.findBySupportManagementStatus(internalStatus)).thenReturn(Optional.empty());
 
 		// Act
 		eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
