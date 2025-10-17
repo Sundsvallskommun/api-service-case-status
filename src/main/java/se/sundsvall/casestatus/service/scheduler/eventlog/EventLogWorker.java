@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
-import se.sundsvall.casestatus.integration.db.CaseManagementOpeneViewRepository;
+import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
@@ -35,20 +35,20 @@ public class EventLogWorker {
 	private final EventlogClient eventlogClient;
 	private final SupportManagementService supportManagementService;
 	private final OepIntegratorClient oepIntegratorClient;
-	private final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository;
+	private final StatusesRepository statusesRepository;
 	private final Duration clockSkew;
 
 	public EventLogWorker(
 		final EventlogClient eventlogClient,
 		final SupportManagementService supportManagementService,
 		final OepIntegratorClient oepIntegratorClient,
-		final CaseManagementOpeneViewRepository caseManagementOpeneViewRepository,
+		final StatusesRepository statusesRepository,
 		@Value("${scheduler.eventlog.clock-skew:PT5S}") final Duration clockSkew) {
 
 		this.eventlogClient = eventlogClient;
 		this.supportManagementService = supportManagementService;
 		this.oepIntegratorClient = oepIntegratorClient;
-		this.caseManagementOpeneViewRepository = caseManagementOpeneViewRepository;
+		this.statusesRepository = statusesRepository;
 		this.clockSkew = clockSkew;
 	}
 
@@ -89,21 +89,21 @@ public class EventLogWorker {
 				return;
 			}
 
-			final String openEId;
+			final String openEStatus;
 			try {
-				openEId = caseManagementOpeneViewRepository
-					.findByCaseManagementId(errand.getStatus())
+				openEStatus = statusesRepository
+					.findBySupportManagementStatus(errand.getStatus())
 					.orElseThrow()
-					.getOpenEId();
+					.getOepStatus();
 			} catch (final Exception e) {
 				setUnHealthyConsumer.accept("Mismatch for status " + errand.getStatus() + "was not found in OpenEId mapping");
 				log.error("RequestID: {} - Failed to find OpenEId for errand {}: {}", RequestId.get(), errand.getId(), e.getMessage());
 				return;
 			}
 
-			log.info("RequestID: {} - found mapped OpenEId: {} for errand: {}", RequestId.get(), openEId, errand.getId());
+			log.info("RequestID: {} - found mapped OpenEId: {} for errand: {}", RequestId.get(), openEStatus, errand.getId());
 
-			final CaseStatusChangeRequest statusChangeRequest = new CaseStatusChangeRequest().name(openEId);
+			final CaseStatusChangeRequest statusChangeRequest = new CaseStatusChangeRequest().name(openEStatus);
 
 			try {
 				oepIntegratorClient.setStatus(

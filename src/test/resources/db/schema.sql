@@ -41,19 +41,6 @@
         primary key (id)
     ) engine=InnoDB;
 
-    create table support_management_status (
-        id integer not null auto_increment,
-        generic_status varchar(255),
-        system_status varchar(255),
-        primary key (id)
-    ) engine=InnoDB;
-
-    create table v_status_case_management_opene (
-        case_management_id varchar(255) not null,
-        opene_id varchar(255),
-        primary key (case_management_id)
-    ) engine=InnoDB;
-
     create index idx_flow_instance_id_municipality_id 
        on case_status (flow_instance_id, municipality_id);
 
@@ -74,6 +61,3 @@
 
 	create index idx_case_management_status
 		on statuses (case_management_status);
-
-    create index idx_system_status
-       on support_management_status (system_status);
