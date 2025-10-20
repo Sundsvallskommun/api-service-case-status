@@ -49,11 +49,8 @@ public final class OpenEMapper {
 
 	public static CaseStatusResponse toCaseStatusResponse(final CaseEnvelope caseEnvelope) {
 
-		if (caseEnvelope == null) {
-			return null;
-		}
-
-		return Optional.ofNullable(caseEnvelope.getStatus())
+		return Optional.ofNullable(caseEnvelope)
+			.map(CaseEnvelope::getStatus)
 			.map(status -> CaseStatusResponse.builder()
 				.withCaseId(caseEnvelope.getFlowInstanceId())
 				.withCaseType(caseEnvelope.getDisplayName())
