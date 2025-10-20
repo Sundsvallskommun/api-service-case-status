@@ -245,12 +245,11 @@ public class CaseStatusService {
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> getOepStatusesAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId).stream()
+		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream()
 			.map(caseEnvelope -> {
-				final var casestatus = oepIntegratorClient.getCaseStatus(municipalityId, InstanceType.EXTERNAL, caseEnvelope.getFlowInstanceId());
-				final var caseStatusResponse = OpenEMapper.toCaseStatusResponse(caseEnvelope, casestatus);
+				final var caseStatusResponse = OpenEMapper.toCaseStatusResponse(caseEnvelope);
 				if (caseStatusResponse != null) {
-					caseStatusResponse.setExternalStatus(getExternalStatusByOepStatus(casestatus));
+					caseStatusResponse.setExternalStatus(getExternalStatusByOepStatus(caseEnvelope.getStatus()));
 				}
 				return caseStatusResponse;
 

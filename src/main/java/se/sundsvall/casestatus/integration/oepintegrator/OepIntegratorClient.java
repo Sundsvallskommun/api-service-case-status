@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import se.sundsvall.casestatus.integration.oepintegrator.configuration.OepIntegratorConfiguration;
 
 @FeignClient(name = REGISTRATION_ID, url = "${integration.oep-integrator.base-url}", configuration = OepIntegratorConfiguration.class, dismiss404 = true)
@@ -62,7 +63,8 @@ public interface OepIntegratorClient {
 	List<CaseEnvelope> getCasesByPartyId(
 		@PathVariable String municipalityId,
 		@PathVariable InstanceType instanceType,
-		@PathVariable String partyId);
+		@PathVariable String partyId,
+		@RequestParam(required = false) Boolean includeStatus);
 
 	@GetMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/pdf", produces = ALL_VALUE)
 	ResponseEntity<InputStreamResource> getCasePdfByFlowInstanceId(

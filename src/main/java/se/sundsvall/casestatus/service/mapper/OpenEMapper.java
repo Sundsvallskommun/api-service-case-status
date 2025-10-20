@@ -4,7 +4,6 @@ import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
 
 import generated.client.oep_integrator.CaseEnvelope;
-import generated.client.oep_integrator.CaseStatus;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.Optional;
@@ -48,8 +47,13 @@ public final class OpenEMapper {
 			.build();
 	}
 
-	public static CaseStatusResponse toCaseStatusResponse(final CaseEnvelope caseEnvelope, final CaseStatus caseStatus) {
-		return Optional.ofNullable(caseStatus)
+	public static CaseStatusResponse toCaseStatusResponse(final CaseEnvelope caseEnvelope) {
+
+		if (caseEnvelope == null) {
+			return null;
+		}
+
+		return Optional.ofNullable(caseEnvelope.getStatus())
 			.map(status -> CaseStatusResponse.builder()
 				.withCaseId(caseEnvelope.getFlowInstanceId())
 				.withCaseType(caseEnvelope.getDisplayName())

@@ -376,8 +376,7 @@ class CaseStatusServiceTest {
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(caseStatuses);
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
 
-		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName("someTitle").flowInstanceId("someFlowInstanceId")));
-		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().status(oepStatus));
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName("someTitle").status(new CaseStatus().status(oepStatus)).flowInstanceId("someFlowInstanceId")));
 
 		when(statusesRepositoryMock.findBySupportManagementStatus(smStatus)).thenReturn(Optional.of(statuses));
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand)).thenReturn(classificationDisplayName);
@@ -391,8 +390,7 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 
-		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
-		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId);
 		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 		verify(statusesRepositoryMock).findByOepStatus(oepStatus);
@@ -413,8 +411,7 @@ class CaseStatusServiceTest {
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(caseStatuses);
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
-		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName(title).flowInstanceId("someFlowInstanceId")));
-		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
 
@@ -422,8 +419,7 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
-		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
-		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -437,16 +433,14 @@ class CaseStatusServiceTest {
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.ENTERPRISE, partyId));
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
-		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName(title).flowInstanceId("someFlowInstanceId")));
-		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(1);
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
-		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
-		verify(openEIntegrationMock).getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId");
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -487,15 +481,14 @@ class CaseStatusServiceTest {
 		final var title = "someTitle";
 
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(partyResult);
-		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId)).thenReturn(List.of(new CaseEnvelope().displayName(title).flowInstanceId("someFlowInstanceId")));
-		when(openEIntegrationMock.getCaseStatus(MUNICIPALITY_ID, INSTANCE_TYPE, "someFlowInstanceId")).thenReturn(new CaseStatus().name("someStatus"));
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().hasSize(1);
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
-		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId);
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
 	}
 
