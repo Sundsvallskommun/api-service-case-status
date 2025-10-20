@@ -3,6 +3,15 @@
 		"flowInstanceId": "4999",
 		"created": "2025-02-27T11:16:00",
 		"statusUpdated": "2025-03-06T09:10:00",
-		"displayName": "Anmälan om sjukfrånvaro"
+		"displayName": "Anmälan om sjukfrånvaro",
+		"status": {
+			"id": 10361,
+			"name": "Inskickat",
+			"newExternalMessagesDisallowed": false,
+			"addExternalMessage": false,
+			"addInternalMessage": false,
+			"isRestrictedAdminDeletable": false,
+			"status": "SUBMITTED"
+		}
 	}
 ]

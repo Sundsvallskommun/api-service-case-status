@@ -5,9 +5,9 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.4"
+  version: "1.5"
 servers:
-  - url: http://localhost:54381
+  - url: http://localhost:53893
     description: Generated server url
 tags:
   - name: Instances
@@ -1014,6 +1014,13 @@ paths:
           schema:
             type: string
           example: Preliminär
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
       responses:
         "200":
           description: Successful operation
@@ -1686,5 +1693,7 @@ components:
           type: string
           description: The display name for the family the case belongs to
           example: Kompiskortet
+        status:
+          $ref: "#/components/schemas/CaseStatus"
       description: Case envelope model
   securitySchemes: { }
