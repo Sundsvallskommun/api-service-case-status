@@ -3,9 +3,9 @@ package se.sundsvall.casestatus.service.scheduler.eventlog;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -87,7 +87,7 @@ class EventLogWorkerTest {
 			.withMunicipalityId(municipalityId)
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
-		final var statuses = new StatusesEntity().builder().withOepStatus("NewOepStatus").build();
+		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey(logkey).metadata(List.of(new Metadata().key("Namespace").value(namespace))), new Event().logKey(logkey2).metadata(List.of(new Metadata().key("Namespace").value(namespace)))));
 		when(eventPageMock.hasNext()).thenReturn(false);
@@ -195,5 +195,4 @@ class EventLogWorkerTest {
 		verifyNoInteractions(oepIntegratorClientMock);
 		verify(consumerMock).accept(anyString());
 	}
-
 }

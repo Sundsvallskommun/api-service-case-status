@@ -26,7 +26,7 @@ class SupportManagementMapperTest {
 		final var namespace = "namespace";
 		final var smStatus = "someStatus";
 		final var externalStatus = "externalStatus";
-		final var statuses = new StatusesEntity().builder().withSupportManagementStatus(smStatus).withExternalStatus(externalStatus).build();
+		final var statuses = StatusesEntity.builder().withSupportManagementStatus(smStatus).withExternalStatus(externalStatus).build();
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
@@ -59,7 +59,7 @@ class SupportManagementMapperTest {
 		final var namespace = "namespace";
 		final var smStatus = "someStatus";
 		final var externalStatus = "externalStatus";
-		final var statuses = new StatusesEntity().builder().withSupportManagementStatus(smStatus).withExternalStatus(externalStatus).build();
+		final var statuses = StatusesEntity.builder().withSupportManagementStatus(smStatus).withExternalStatus(externalStatus).build();
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
@@ -91,7 +91,7 @@ class SupportManagementMapperTest {
 		final var namespace = "namespace";
 		final var smStatus = "someStatus";
 		final var externalStatus = "externalStatus";
-		final var statuses = new StatusesEntity().builder().withSupportManagementStatus(smStatus).withExternalStatus(externalStatus).build();
+		final var statuses = StatusesEntity.builder().withSupportManagementStatus(smStatus).withExternalStatus(externalStatus).build();
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
@@ -121,7 +121,7 @@ class SupportManagementMapperTest {
 
 		// Arrange
 		final var namespace = "namespace";
-		final var statuses = new StatusesEntity().builder().build();
+		final var statuses = StatusesEntity.builder().build();
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
@@ -152,7 +152,7 @@ class SupportManagementMapperTest {
 		// Arrange
 		final var namespace = "namespace";
 		final var smStatus = "someStatus";
-		final var statuses = new StatusesEntity().builder().withSupportManagementStatus(smStatus).build();
+		final var statuses = StatusesEntity.builder().withSupportManagementStatus(smStatus).build();
 		final var classificationDisplayName = "classificationDisplayName";
 		final var errand = new Errand()
 			.id("errandId")
@@ -176,5 +176,4 @@ class SupportManagementMapperTest {
 		assertThat(response.getLastStatusChange()).isNull();
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
 	}
-
 }
