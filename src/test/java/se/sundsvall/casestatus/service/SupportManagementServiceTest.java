@@ -42,7 +42,7 @@ class SupportManagementServiceTest {
 		final var namespace = "namespace";
 		final var errand = new Errand().id("errandId");
 		final var errandsPage = new PageImpl<>(List.of(errand));
-		when(supportManagementIntegrationMock.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementIntegrationMock.readAllNamespaceConfigs(any())).thenReturn(List.of(new NamespaceConfig().namespace(namespace).municipalityId(municipalityId)));
 		when(supportManagementIntegrationMock.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
 
 		// Act
@@ -61,7 +61,7 @@ class SupportManagementServiceTest {
 		final var role = "role";
 		final var errand = new Errand().id("errandId");
 		final var errandsPage = new PageImpl<>(List.of(errand));
-		when(supportManagementIntegrationMock.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementIntegrationMock.readAllNamespaceConfigs(any())).thenReturn(List.of(new NamespaceConfig().namespace(namespace).municipalityId(municipalityId)));
 		when(supportManagementIntegrationMock.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
 		when(roleSearchProperties.getRoles()).thenReturn(Map.of(municipalityId, Map.of(namespace, role)));
 
@@ -82,7 +82,7 @@ class SupportManagementServiceTest {
 		final var namespace = "namespace";
 		final var errand = new Errand().id("errandId");
 		final var errandsPage = new PageImpl<>(List.of(errand, errand));
-		when(supportManagementIntegrationMock.readAllNamespaceConfigs()).thenReturn(List.of(new NamespaceConfig().namespace(namespace)));
+		when(supportManagementIntegrationMock.readAllNamespaceConfigs(any())).thenReturn(List.of(new NamespaceConfig().namespace(namespace).municipalityId(municipalityId)));
 		when(supportManagementIntegrationMock.findErrands(eq(municipalityId), eq(namespace), any(String.class), any(PageRequest.class))).thenReturn(errandsPage);
 
 		// Act

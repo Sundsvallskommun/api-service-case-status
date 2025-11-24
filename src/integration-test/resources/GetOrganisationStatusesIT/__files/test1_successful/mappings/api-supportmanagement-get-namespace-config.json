@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "GET",
-		"url": "/supportmanagement/namespace-configs"
+		"url": "/supportmanagement/namespace-configs?municipalityId=2281"
 	},
 	"response": {
 		"headers": {

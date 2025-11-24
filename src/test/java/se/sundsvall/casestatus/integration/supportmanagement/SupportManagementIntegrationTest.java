@@ -33,17 +33,18 @@ class SupportManagementIntegrationTest {
 	void readAllNamespaceConfigs() {
 
 		// Arrange
+		final var municipalityId = "municipalityId";
 		final var mockedResult = List.of(new NamespaceConfig());
-		when(supportManagementClientMock.readAllNamespaceConfigs()).thenReturn(mockedResult);
+		when(supportManagementClientMock.readAllNamespaceConfigs(any())).thenReturn(mockedResult);
 
 		// Act
-		final var result = supportManagementIntegration.readAllNamespaceConfigs();
+		final var result = supportManagementIntegration.readAllNamespaceConfigs(municipalityId);
 
 		// Assert
 		assertThat(result)
 			.hasSize(1)
 			.isEqualTo(mockedResult);
-		verify(supportManagementClientMock).readAllNamespaceConfigs();
+		verify(supportManagementClientMock).readAllNamespaceConfigs(municipalityId);
 		verifyNoMoreInteractions(supportManagementClientMock);
 	}
 

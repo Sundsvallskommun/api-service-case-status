@@ -21,7 +21,7 @@ import se.sundsvall.casestatus.integration.supportmanagement.configuration.Suppo
 interface SupportManagementClient {
 
 	@GetMapping(path = "/namespace-configs")
-	List<NamespaceConfig> readAllNamespaceConfigs();
+	List<NamespaceConfig> readAllNamespaceConfigs(@RequestParam String municipalityId);
 
 	@GetMapping(path = "/{municipalityId}/{namespace}/metadata/categories")
 	List<Category> findCategoriesForNamespace(
