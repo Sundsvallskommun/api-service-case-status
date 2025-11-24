@@ -34,13 +34,13 @@ public class SupportManagementService {
 
 		final var errandMap = new HashMap<String, List<Errand>>();
 
-		supportManagementIntegration.readAllNamespaceConfigs().forEach(config -> {
+		supportManagementIntegration.readAllNamespaceConfigs(municipalityId).forEach(config -> {
 			int pageNumber = 0;
 			Page<Errand> response;
 			final List<Errand> allErrands = new ArrayList<>();
 
 			do {
-				response = supportManagementIntegration.findErrands(municipalityId, config.getNamespace(), filter, PageRequest.of(pageNumber, 100));
+				response = supportManagementIntegration.findErrands(config.getMunicipalityId(), config.getNamespace(), filter, PageRequest.of(pageNumber, 100));
 				allErrands.addAll(response.getContent());
 				pageNumber++;
 			} while (response.hasNext());
@@ -57,14 +57,14 @@ public class SupportManagementService {
 
 		final var filter = "stakeholders.externalId:'%s' and stakeholders.role:'%s'";
 
-		supportManagementIntegration.readAllNamespaceConfigs().forEach(config -> {
+		supportManagementIntegration.readAllNamespaceConfigs(municipalityId).forEach(config -> {
 			int pageNumber = 0;
 			Page<Errand> response;
 			final List<Errand> allErrands = new ArrayList<>();
 
 			do {
-				response = supportManagementIntegration.findErrands(municipalityId, config.getNamespace(),
-					filter.formatted(externalId, getSearchRole(municipalityId, config.getNamespace())), PageRequest.of(pageNumber, 100));
+				response = supportManagementIntegration.findErrands(config.getMunicipalityId(), config.getNamespace(),
+					filter.formatted(externalId, getSearchRole(config.getMunicipalityId(), config.getNamespace())), PageRequest.of(pageNumber, 100));
 				allErrands.addAll(response.getContent());
 				pageNumber++;
 			} while (response.hasNext());

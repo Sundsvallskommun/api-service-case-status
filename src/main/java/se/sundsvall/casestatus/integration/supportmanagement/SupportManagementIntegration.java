@@ -20,8 +20,8 @@ public class SupportManagementIntegration {
 	}
 
 	@Cacheable("supportmanagement-namespace-configs")
-	public List<NamespaceConfig> readAllNamespaceConfigs() {
-		return client.readAllNamespaceConfigs();
+	public List<NamespaceConfig> readAllNamespaceConfigs(final String municipalityId) {
+		return client.readAllNamespaceConfigs(municipalityId);
 	}
 
 	public Page<Errand> findErrands(final String municipalityId, final String namespace, final String filter, PageRequest pageRequest) {

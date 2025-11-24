@@ -1,7 +1,7 @@
 {
 	"request": {
 		"method": "GET",
-		"url": "/supportmanagement/namespace-configs",
+		"url": "/supportmanagement/namespace-configs?municipalityId=2281",
 		"headers": {
 			"Authorization": {
 				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
