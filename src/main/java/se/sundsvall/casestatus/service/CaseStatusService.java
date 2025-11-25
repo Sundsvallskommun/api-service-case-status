@@ -3,6 +3,9 @@ package se.sundsvall.casestatus.service;
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.StringUtils.hasText;
 import static org.zalando.problem.Status.BAD_REQUEST;
@@ -22,8 +25,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
@@ -44,6 +47,11 @@ import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 
 @Service
 public class CaseStatusService {
+
+	private final static Set<String> DRAFT_STATUSES = Set.of("Utkast") // Draft statuses
+		.stream()
+		.map(String::toLowerCase)
+		.collect(toSet());
 
 	private final CaseManagementIntegration caseManagementIntegration;
 	private final OepIntegratorClient oepIntegratorClient;
@@ -132,7 +140,7 @@ public class CaseStatusService {
 		return statuses;
 	}
 
-	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId) {
+	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId, boolean includeDrafts) {
 		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
 
 		final var cmFuture = getCaseManagementStatusesAsync(partyId, municipalityId);
@@ -153,7 +161,7 @@ public class CaseStatusService {
 			.flatMap(List::stream)
 			.toList();
 
-		return filterResponses(statuses);
+		return filterResponses(statuses, includeDrafts);
 	}
 
 	private void getSupportManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
@@ -173,10 +181,11 @@ public class CaseStatusService {
 	 * with system
 	 * OPEN_E_PLATFORM are removed.
 	 *
-	 * @param  responses List of CaseStatusResponses
-	 * @return           Filtered list of CaseStatusResponses
+	 * @param  responses     List of CaseStatusResponses
+	 * @param  includeDrafts whether to include drafts in the result, or not.
+	 * @return               Filtered list of CaseStatusResponses
 	 */
-	List<CaseStatusResponse> filterResponses(final List<CaseStatusResponse> responses) {
+	List<CaseStatusResponse> filterResponses(final List<CaseStatusResponse> responses, boolean includeDrafts) {
 
 		if (responses == null) {
 			return emptyList();
@@ -186,7 +195,9 @@ public class CaseStatusService {
 
 		final var filteredStream = responses.stream()
 			.filter(response -> response.getExternalCaseId() != null)
-			.collect(Collectors.groupingBy(CaseStatusResponse::getExternalCaseId))
+			.filter(response -> includeDrafts || !DRAFT_STATUSES.contains( // Remove draft statuses if "includeDrafts" is false
+				ofNullable(response.getStatus()).orElse("").toLowerCase()))
+			.collect(groupingBy(CaseStatusResponse::getExternalCaseId))
 			.entrySet().stream()
 			.flatMap(entry -> {
 				final var entries = entry.getValue();

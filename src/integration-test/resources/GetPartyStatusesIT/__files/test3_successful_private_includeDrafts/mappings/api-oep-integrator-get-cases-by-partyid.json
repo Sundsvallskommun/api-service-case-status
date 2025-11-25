@@ -1,0 +1,18 @@
+{
+	"request": {
+		"method": "GET",
+		"url": "/oep-integrator/2281/EXTERNAL/cases/parties/a893dfa2-f781-49a9-9c5f-cba6353cf059?includeStatus=true",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test1_successful_private/responses/api-oep-integrator-get-cases-by-party-id.json",
+		"status": 200
+	}
+}

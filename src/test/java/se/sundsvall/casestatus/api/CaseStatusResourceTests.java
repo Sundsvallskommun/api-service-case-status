@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.api;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -165,7 +166,7 @@ class CaseStatusResourceTests {
 			.withLastStatusChange("someLastStatusChangeValue")
 			.build();
 
-		when(mockCaseStatusService.getCaseStatusesForParty(any(String.class), any(String.class))).thenReturn(List.of(caseStatusResponse));
+		when(mockCaseStatusService.getCaseStatusesForParty(any(String.class), any(String.class), anyBoolean())).thenReturn(List.of(caseStatusResponse));
 
 		final var partyId = UUID.randomUUID().toString();
 
@@ -183,7 +184,7 @@ class CaseStatusResourceTests {
 		assertThat(result).isNotNull().hasSize(1);
 		assertThat(result.getFirst()).isEqualTo(caseStatusResponse);
 
-		verify(mockCaseStatusService).getCaseStatusesForParty(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
+		verify(mockCaseStatusService).getCaseStatusesForParty(caseStatusServiceArgumentCaptor.capture(), eq("2281"), eq(false));
 		verifyNoMoreInteractions(mockCaseStatusService);
 
 		assertThat(caseStatusServiceArgumentCaptor.getValue()).isEqualTo(partyId);
