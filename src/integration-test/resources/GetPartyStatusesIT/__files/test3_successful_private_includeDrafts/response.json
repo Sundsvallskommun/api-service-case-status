@@ -53,5 +53,17 @@
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Pågående",
 		"system": "ECOS"
+	},
+	{
+		"caseId": "DDEEFF112233",
+		"caseType": "Parkering och reparation",
+		"errandNumber": "CD 2022-12347",
+		"externalCaseId": "12347",
+		"externalStatus": "Handläggning pågår",
+		"firstSubmitted": "2022-01-01 00:00",
+		"lastStatusChange": "2022-01-01 00:00",
+		"namespace": "the-greatest-namespace",
+		"status": "Utkast",
+		"system": "CASE_DATA"
 	}
 ]

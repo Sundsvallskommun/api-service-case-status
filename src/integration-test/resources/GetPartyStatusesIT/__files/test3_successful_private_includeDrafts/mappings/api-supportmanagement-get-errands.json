@@ -1,0 +1,23 @@
+{
+	"request": {
+		"method": "GET",
+		"queryParameters": {
+			"filter": {
+				"equalTo": "stakeholders.externalId:'a893dfa2-f781-49a9-9c5f-cba6353cf059' and stakeholders.role:'PRIMARY'"
+			}
+		},
+		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*",
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test3_successful_private_includeDrafts/responses/api-supportmanagement-get-errands.json",
+		"status": 200
+	}
+}

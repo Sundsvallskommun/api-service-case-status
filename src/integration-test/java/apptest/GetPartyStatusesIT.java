@@ -15,7 +15,9 @@ class GetPartyStatusesIT extends AbstractAppTest {
 	private static final String RESPONSE_FILE = "response.json";
 
 	/**
-	 * Test scenario where the party represents a private individual. Four cases are found in CaseManagement, one case is found in OpenE and one case is found in SupportManagement.
+	 * Test scenario where the party represents a private individual. Four cases are found in CaseManagement (one is a
+	 * draft),
+	 * one case is found in OpenE and one case is found in SupportManagement.
 	 */
 	@Test
 	void test1_successful_private() {
@@ -28,12 +30,28 @@ class GetPartyStatusesIT extends AbstractAppTest {
 	}
 
 	/**
-	 * Test scenario where the party represents an enterprise. Four cases are found in CaseManagement and one case is found in OpenE.
+	 * Test scenario where the party represents an enterprise. Four cases are found in CaseManagement and one case is found
+	 * in OpenE.
 	 */
 	@Test
 	void test2_successful_enterprise() {
 		setupCall()
 			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	/**
+	 * Test scenario where the party represents a private individual. Four cases are found in CaseManagement (one is a
+	 * draft),
+	 * one case is found in OpenE and one case is found in SupportManagement.
+	 */
+	@Test
+	void test3_successful_private_includeDrafts() {
+		setupCall()
+			.withServicePath(PATH + "?includeDrafts=true")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponse(RESPONSE_FILE)

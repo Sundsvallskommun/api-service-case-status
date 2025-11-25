@@ -352,6 +352,7 @@ class CaseStatusServiceTest {
 	@Test
 	void getPrivateCaseStatuses() {
 		final var partyId = "somePartyId";
+		final var includeDrafts = true;
 
 		final var caseStatus = createCaseStatusDTO(BYGGR);
 		final var caseStatuses = List.of(caseStatus);
@@ -384,7 +385,7 @@ class CaseStatusServiceTest {
 		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId)).thenReturn(errandMap);
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
 
 		assertThat(result).isNotNull().hasSize(3);
 
@@ -401,8 +402,9 @@ class CaseStatusServiceTest {
 	 * Test scenario where one case is found in CaseManagement and one case is found in OpenE with a given legalId.
 	 */
 	@Test
-	void getEnterpriseCaseStatuses_1() {
+	void getEnterpriseCaseStatuses1() {
 		final var partyId = "somePartyId";
+		final var includeDrafts = true;
 
 		final var caseStatus = createCaseStatusDTO(BYGGR);
 		final var caseStatuses = List.of(caseStatus);
@@ -413,7 +415,7 @@ class CaseStatusServiceTest {
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
 
 		assertThat(result).isNotNull().hasSize(2);
 
@@ -427,15 +429,17 @@ class CaseStatusServiceTest {
 	 * Test scenario where no case is found in CaseManagement and one case is found in OpenE with formatted legalId
 	 */
 	@Test
-	void getEnterpriseCaseStatuses_2() {
+	void getEnterpriseCaseStatuses2() {
 		final var partyId = "somePartyId";
 		final var title = "someTitle";
+		final var includeDrafts = true;
+
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.ENTERPRISE, partyId));
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -448,9 +452,11 @@ class CaseStatusServiceTest {
 	 * Test scenario where the party id represents an enterprise.
 	 */
 	@Test
-	void getCaseStatusesForParty_1() {
+	void getCaseStatusesForParty1() {
 		final var partyId = "somePartyId";
 		final var legalId = "1234567890";
+		final var includeDrafts = true;
+
 		final var partyResult = Map.of(PartyType.ENTERPRISE, legalId);
 		final var caseStatus = createCaseStatusDTO(BYGGR);
 		final var caseStatuses = List.of(caseStatus);
@@ -459,7 +465,7 @@ class CaseStatusServiceTest {
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
 
 		// act
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -473,9 +479,11 @@ class CaseStatusServiceTest {
 	 * Test scenario where the party id represents an individual.
 	 */
 	@Test
-	void getCaseStatusesForParty_2() {
+	void getCaseStatusesForParty2() {
 		final var partyId = "somePartyId";
 		final var legalId = "1234567890";
+		final var includeDrafts = true;
+
 		final var partyResult = Map.of(PartyType.PRIVATE, legalId);
 		final var spy = Mockito.spy(caseStatusService);
 		final var title = "someTitle";
@@ -483,7 +491,7 @@ class CaseStatusServiceTest {
 		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(partyResult);
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -497,12 +505,13 @@ class CaseStatusServiceTest {
 	 * 'system'. Expects that the response with the 'system' value 'OPEN_E_PLATFORM' is filtered out.
 	 */
 	@Test
-	void filterResponses_1() {
+	void filterResponses1() {
 		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "externalCaseId");
 		final var caseResponse2 = createCaseStatusResponse("BYGGR", "externalCaseId");
 		final var responses = List.of(caseResponse1, caseResponse2);
+		final var includeDrafts = true;
 
-		final var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse2);
 	}
@@ -512,12 +521,13 @@ class CaseStatusServiceTest {
 	 * responses are returned.
 	 */
 	@Test
-	void filterResponses_2() {
+	void filterResponses2() {
 		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
 		final var caseResponse2 = createCaseStatusResponse("BYGGR", "54321");
 		final var responses = List.of(caseResponse1, caseResponse2);
+		final var includeDrafts = true;
 
-		final var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse1, caseResponse2);
 	}
@@ -527,12 +537,13 @@ class CaseStatusServiceTest {
 	 * filtering is done.
 	 */
 	@Test
-	void filterResponses_3() {
+	void filterResponses3() {
 		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", null);
 		final var caseResponse2 = createCaseStatusResponse("BYGGR", null);
 		final var responses = List.of(caseResponse1, caseResponse2);
+		final var includeDrafts = true;
 
-		final var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse1, caseResponse2);
 	}
@@ -543,15 +554,36 @@ class CaseStatusServiceTest {
 	 * never happen.
 	 */
 	@Test
-	void filterResponses_4() {
+	void filterResponses4() {
 		final var caseResponse1 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
 		final var caseResponse2 = createCaseStatusResponse("OPEN_E_PLATFORM", "12345");
+		final var includeDrafts = true;
 
 		final var responses = List.of(caseResponse1, caseResponse2);
 
-		final var result = caseStatusService.filterResponses(responses);
+		final var result = caseStatusService.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().isEmpty();
+	}
+
+	/**
+	 * Test scenario where rafts are filtered out
+	 */
+	@Test
+	void filterResponses5() {
+		final var caseResponse1 = createCaseStatusResponse("BYGGR", "BR-12345");
+		final var caseResponse2 = createCaseStatusResponse("CASE_DATA", "CD-12345");
+		caseResponse2.setStatus("Utkast");
+		final var includeDrafts = false;
+
+		final var responses = List.of(caseResponse1, caseResponse2);
+
+		final var result = caseStatusService.filterResponses(responses, includeDrafts);
+
+		assertThat(result)
+			.isNotNull()
+			.hasSize(1)
+			.containsOnly(caseResponse1);
 	}
 
 	@Test
