@@ -5,7 +5,6 @@ import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.util.StringUtils.hasText;
 import static org.zalando.problem.Status.BAD_REQUEST;
@@ -48,10 +47,7 @@ import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 @Service
 public class CaseStatusService {
 
-	private static final Set<String> DRAFT_STATUSES = Set.of("Utkast") // Draft statuses that should be filtered out.
-		.stream()
-		.map(String::toLowerCase)
-		.collect(toSet());
+	private static final Set<String> DRAFT_STATUSES = Set.of("utkast"); // Draft statuses that should be filtered out.
 
 	private final CaseManagementIntegration caseManagementIntegration;
 	private final OepIntegratorClient oepIntegratorClient;
