@@ -5,30 +5,30 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "4.2"
+  version: "4.3"
 servers:
-  - url: http://localhost:61482
-    description: Generated server url
+- url: http://localhost:63174
+  description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/statuses:
     get:
       tags:
-        - Status Resources
+      - Status Resources
       summary: Get organization statuses
       operationId: getOrganisationStatuses
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: organizationNumber
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: organizationNumber
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Successful Operation
@@ -44,8 +44,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server error
           content:
@@ -55,22 +55,22 @@ paths:
   /{municipalityId}/{externalCaseId}/status:
     get:
       tags:
-        - Status Resources
+      - Status Resources
       summary: Get case status
       operationId: getCaseStatus
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: externalCaseId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: externalCaseId
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Successful Operation
@@ -90,8 +90,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server error
           content:
@@ -101,22 +101,22 @@ paths:
   /{municipalityId}/{externalCaseId}/pdf:
     get:
       tags:
-        - Status Resources
+      - Status Resources
       summary: Get case PDF
       operationId: getCasePdf
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: externalCaseId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: externalCaseId
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Successful Operation
@@ -136,8 +136,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server error
           content:
@@ -147,22 +147,22 @@ paths:
   /{municipalityId}/{externalCaseId}/oepstatus:
     get:
       tags:
-        - Status Resources
+      - Status Resources
       summary: Get status in openE Platform format
       operationId: getOepStatus
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: externalCaseId
-          in: path
-          required: true
-          schema:
-            type: string
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: externalCaseId
+        in: path
+        required: true
+        schema:
+          type: string
       responses:
         "200":
           description: Successful Operation
@@ -182,8 +182,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server error
           content:
@@ -193,24 +193,32 @@ paths:
   /{municipalityId}/party/{partyId}/statuses:
     get:
       tags:
-        - Status Resources
+      - Status Resources
       summary: Get all statuses connected to a partyId
       operationId: getPartyStatuses
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: partyId
-          in: path
-          description: PartyId to find cases for
-          required: true
-          schema:
-            type: string
-          example: 123e4567-e89b-12d3-a456-426614174000
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: partyId
+        in: path
+        description: PartyId to find cases for
+        required: true
+        schema:
+          type: string
+        example: 123e4567-e89b-12d3-a456-426614174000
+      - name: includeDrafts
+        in: query
+        description: Include draft statuses
+        required: false
+        schema:
+          type: boolean
+          default: false
+        example: true
       responses:
         "200":
           description: Successful Operation
@@ -226,8 +234,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server error
           content:
@@ -237,31 +245,31 @@ paths:
   /{municipalityId}/errands/statuses:
     get:
       tags:
-        - Status Resources
+      - Status Resources
       summary: Get errand statuses by errandNumber or propertyDesignation
       operationId: getErrandStatuses
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: propertyDesignation
-          in: query
-          description: Property designation to find cases for
-          required: false
-          schema:
-            type: string
-          example: Körsbärsdalen 123
-        - name: errandNumber
-          in: query
-          description: Errand number to find cases for
-          required: false
-          schema:
-            type: string
-          example: Number 123
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: propertyDesignation
+        in: query
+        description: Property designation to find cases for
+        required: false
+        schema:
+          type: string
+        example: Körsbärsdalen 123
+      - name: errandNumber
+        in: query
+        description: Errand number to find cases for
+        required: false
+        schema:
+          type: string
+        example: Number 123
       responses:
         "200":
           description: Successful Operation
@@ -277,8 +285,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server error
           content:
@@ -288,7 +296,7 @@ paths:
   /api-docs:
     get:
       tags:
-        - API
+      - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -306,10 +314,6 @@ components:
     Problem:
       type: object
       properties:
-        detail:
-          type: string
-        title:
-          type: string
         instance:
           type: string
           format: uri
@@ -322,6 +326,10 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
     StatusType:
       type: object
       properties:
@@ -370,8 +378,6 @@ components:
           type: string
         message:
           type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
@@ -379,6 +385,8 @@ components:
           type: object
           additionalProperties:
             type: object
+        detail:
+          type: string
         suppressed:
           type: array
           items:
@@ -441,10 +449,6 @@ components:
                 type: boolean
         message:
           type: string
-        detail:
-          type: string
-        title:
-          type: string
         instance:
           type: string
           format: uri
@@ -457,6 +461,10 @@ components:
             type: object
         status:
           $ref: "#/components/schemas/StatusType"
+        detail:
+          type: string
+        title:
+          type: string
         suppressed:
           type: array
           items:

@@ -92,7 +92,8 @@ class CaseStatusResource {
 	@GetMapping(path = "/party/{partyId}/statuses", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<CaseStatusResponse>> getPartyStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable @ValidUuid final String partyId) {
+		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable @ValidUuid final String partyId,
+		@Parameter(name = "includeDrafts", description = "Include draft statuses", example = "true") @RequestParam(defaultValue = "false") boolean includeDrafts) {
 		return ok(service.getCaseStatusesForParty(partyId, municipalityId));
 	}
 
