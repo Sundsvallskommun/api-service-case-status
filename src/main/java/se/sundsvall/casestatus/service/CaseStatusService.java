@@ -48,7 +48,7 @@ import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 @Service
 public class CaseStatusService {
 
-	private final static Set<String> DRAFT_STATUSES = Set.of("Utkast") // Draft statuses
+	private static final Set<String> DRAFT_STATUSES = Set.of("Utkast") // Draft statuses that should be filtered out.
 		.stream()
 		.map(String::toLowerCase)
 		.collect(toSet());
