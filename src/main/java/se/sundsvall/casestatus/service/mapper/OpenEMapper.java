@@ -20,15 +20,14 @@ public final class OpenEMapper {
 	public static CaseStatusResponse toCaseStatusResponse(final CaseEntity caseEntity) {
 		return Optional.ofNullable(caseEntity)
 			.map(entity -> CaseStatusResponse.builder()
-				.withCaseId(caseEntity.getFlowInstanceId())
-				.withCaseType(caseEntity.getErrandType())
-				.withStatus(caseEntity.getStatus())
-				.withLastStatusChange(caseEntity.getLastStatusChange())
-				.withFirstSubmitted(caseEntity.getFirstSubmitted())
+				.withCaseId(entity.getFlowInstanceId())
+				.withCaseType(entity.getErrandType())
+				.withStatus(entity.getStatus())
+				.withLastStatusChange(entity.getLastStatusChange())
+				.withFirstSubmitted(entity.getFirstSubmitted())
 				.withSystem(OPEN_E_PLATFORM)
-				.withExternalCaseId(caseEntity.getFlowInstanceId())
-				.withErrandNumber(caseEntity.getFlowInstanceId())
-				.withNamespace(null)
+				.withExternalCaseId(entity.getFlowInstanceId())
+				.withErrandNumber(entity.getFlowInstanceId())
 				.build())
 			.orElse(null);
 	}
@@ -60,8 +59,6 @@ public final class OpenEMapper {
 				.withSystem(OPEN_E_PLATFORM)
 				.withExternalCaseId(caseEnvelope.getFlowInstanceId())
 				.withErrandNumber(caseEnvelope.getFlowInstanceId())
-				.withNamespace(null)
-				.withPropertyDesignations(null)
 				.build())
 			.orElse(null);
 	}

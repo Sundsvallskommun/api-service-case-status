@@ -1,5 +1,9 @@
 package se.sundsvall.casestatus.integration.casedata;
 
+import static java.util.Collections.emptyList;
+import static se.sundsvall.casestatus.integration.casedata.CaseDataMapper.toCaseStatusResponses;
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
+
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,32 +32,42 @@ public class CaseDataIntegration {
 	}
 
 	public List<CaseStatusResponse> getCaseDataCaseByPropertyDesignation(final String municipalityId, final String namespace, final String propertyDesignation) {
+
+		final var logMunicipalityId = sanitizeForLogging(municipalityId);
+		final var logNamespace = sanitizeForLogging(namespace);
+		final var logPropertyDesignation = sanitizeForLogging(propertyDesignation);
+
 		try {
-			LOGGER.info("Fetching errand(s) for municipalityId: {} and propertyDesignation: {}", municipalityId, propertyDesignation);
+			LOGGER.info("Fetching errand(s) for municipalityId: {} and propertyDesignation: {}", logMunicipalityId, logPropertyDesignation);
 			var filter = PROPERTY_DESIGNATION_FILTER.formatted(propertyDesignation);
 			var errandPage = client.getErrands(municipalityId, namespace, filter, PageRequest.of(0, 100));
 			var errands = errandPage.getContent();
 
-			LOGGER.info("Successfully fetched {} errand(s) for municipalityId: {} and propertyDesignation: {}", errands.size(), municipalityId, propertyDesignation);
-			return CaseDataMapper.toCaseStatusResponses(errands);
+			LOGGER.info("Successfully fetched {} errand(s) for municipalityId: {} and namespace: {} and propertyDesignation: {}", errands.size(), logMunicipalityId, logNamespace, logPropertyDesignation);
+			return toCaseStatusResponses(errands);
 		} catch (Exception e) {
-			LOGGER.error("Error while fetching errands for municipalityId: {} and propertyDesignation: {}, returning empty list.", municipalityId, propertyDesignation, e);
-			return List.of();
+			LOGGER.error("Error while fetching errands for municipalityId: {} and namespace: {} and propertyDesignation: {}, returning empty list.", logMunicipalityId, logNamespace, logPropertyDesignation, e);
+			return emptyList();
 		}
 	}
 
 	public List<CaseStatusResponse> getCaseDataCaseByErrandNumber(final String municipalityId, final String namespace, final String errandNumber) {
+
+		final var logMunicipalityId = sanitizeForLogging(municipalityId);
+		final var logNamespace = sanitizeForLogging(namespace);
+		final var logErrandNumber = sanitizeForLogging(errandNumber);
+
 		try {
 			LOGGER.info("Fetching errand(s) for municipalityId: {} and errandNumber: {}", municipalityId, errandNumber);
 			var filter = ERRAND_NUMBER_FILTER.formatted(errandNumber);
 			var errandPage = client.getErrands(municipalityId, namespace, filter, PageRequest.of(0, 100));
 			var errands = errandPage.getContent();
 
-			LOGGER.info("Successfully fetched {} errand(s) for municipalityId: {} and errandNumber: {}", errands.size(), municipalityId, errandNumber);
-			return CaseDataMapper.toCaseStatusResponses(errands);
+			LOGGER.info("Successfully fetched {} errand(s) for municipalityId: {} and namespace: {} and errandNumber: {}", errands.size(), logMunicipalityId, logNamespace, logErrandNumber);
+			return toCaseStatusResponses(errands);
 		} catch (Exception e) {
-			LOGGER.error("Error while fetching errands for municipalityId: {} and errandNumber: {}, returning empty list.", municipalityId, errandNumber, e);
-			return List.of();
+			LOGGER.error("Error while fetching errands for municipalityId: {} and namespace: {} and errandNumber: {}, returning empty list.", logMunicipalityId, logNamespace, logErrandNumber, e);
+			return emptyList();
 		}
 	}
 }

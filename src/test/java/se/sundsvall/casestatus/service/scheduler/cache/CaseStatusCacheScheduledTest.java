@@ -50,7 +50,7 @@ class CaseStatusCacheScheduledTest {
 	void verifyShedLock() {
 
 		// Let mock hang
-		doAnswer(invocation -> {
+		doAnswer(_ -> {
 			mockCalledTime = LocalDateTime.now();
 			await()
 				.forever()
@@ -92,7 +92,7 @@ class CaseStatusCacheScheduledTest {
 
 		@Bean
 		@Primary
-		public CaseStatusCacheWorker createMock() {
+		CaseStatusCacheWorker createMock() {
 			return Mockito.mock(CaseStatusCacheWorker.class);
 		}
 

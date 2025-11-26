@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: api-case-status
   contact: {}
@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "4.3"
 servers:
-- url: http://localhost:63174
+- url: http://localhost:57819
   description: Generated server url
 paths:
   /{municipalityId}/{organizationNumber}/statuses:
@@ -322,13 +322,12 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
+          additionalProperties: {}
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
     StatusType:
       type: object
@@ -383,8 +382,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
+          additionalProperties: {}
         detail:
           type: string
         suppressed:
@@ -423,8 +421,7 @@ components:
     ThrowableProblem:
       type: object
       properties:
-        cause:
-          $ref: "#/components/schemas/ThrowableProblem"
+        cause: {}
         stackTrace:
           type: array
           items:
@@ -457,13 +454,12 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties:
-            type: object
+          additionalProperties: {}
         status:
           $ref: "#/components/schemas/StatusType"
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         suppressed:
           type: array
@@ -507,74 +503,91 @@ components:
           type: string
     CaseStatusResponse:
       type: object
+      description: Case status response
       properties:
         caseId:
           type: string
           description: Case id
-          example: "1234567890"
+          examples:
+          - "1234567890"
         externalCaseId:
           type: string
           description: External case id
-          example: "1234567890"
+          examples:
+          - "1234567890"
         caseType:
           type: string
           description: Case type
-          example: Building permit
+          examples:
+          - Building permit
         status:
           type: string
           description: Status
-          example: In progress
+          examples:
+          - In progress
         externalStatus:
           type: string
           description: External status
-          example: Handläggning pågår
+          examples:
+          - Handläggning pågår
         firstSubmitted:
           type: string
           description: First submitted
-          example: 2021-01-01
+          examples:
+          - 2021-01-01
         lastStatusChange:
           type: string
           description: Last status change
-          example: 2021-01-01
+          examples:
+          - 2021-01-01
         system:
           type: string
           description: The system that the case is in
-          example: BYGGR
+          examples:
+          - BYGGR
         namespace:
           type: string
           description: The namespace of the case
-          example: Namespace
+          examples:
+          - Namespace
         errandNumber:
           type: string
           description: Human readable identifier for the case
-          example: BYGGR-2024-123456
+          examples:
+          - BYGGR-2024-123456
         propertyDesignations:
           type: array
           items:
             type: string
-      description: Case status response
+            description: List of property designations
+            examples:
+            - Residential
     CasePdfResponse:
       type: object
+      description: Case status response
       properties:
         externalCaseId:
           type: string
           description: External case id
-          example: "1234567890"
+          examples:
+          - "1234567890"
         base64:
           type: string
           description: Base64 encoded PDF
-          example: JVBERi0x
-      description: Case status response
+          examples:
+          - JVBERi0x
     OepStatusResponse:
       type: object
+      description: Case status response
       properties:
         key:
           type: string
           description: Key
-          example: status
+          examples:
+          - status
         value:
           type: string
           description: Value
-          example: In progress
-      description: Case status response
+          examples:
+          - In progress
   securitySchemes: {}

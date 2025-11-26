@@ -47,7 +47,7 @@ class EventLogSchedulerShedlockTest {
 	void verifyShedLock() {
 
 		// Let mock hang
-		doAnswer(invocation -> {
+		doAnswer(_ -> {
 			mockCalledTime = LocalDateTime.now();
 			await()
 				.forever()
@@ -87,7 +87,7 @@ class EventLogSchedulerShedlockTest {
 
 		@Bean
 		@Primary
-		public EventLogWorker createMock() {
+		EventLogWorker createMock() {
 			return Mockito.mock(EventLogWorker.class);
 		}
 
