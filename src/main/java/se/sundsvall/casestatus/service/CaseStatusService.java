@@ -113,7 +113,7 @@ public class CaseStatusService {
 
 		try {
 			return toCasePdfResponse(externalCaseId, body);
-		} catch (final IOException e) {
+		} catch (final IOException _) {
 			throw Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Failed to read PDF data");
 		}
 

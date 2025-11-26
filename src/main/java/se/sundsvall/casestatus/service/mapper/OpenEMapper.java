@@ -28,7 +28,6 @@ public final class OpenEMapper {
 				.withSystem(OPEN_E_PLATFORM)
 				.withExternalCaseId(entity.getFlowInstanceId())
 				.withErrandNumber(entity.getFlowInstanceId())
-				.withNamespace(null)
 				.build())
 			.orElse(null);
 	}
@@ -60,8 +59,6 @@ public final class OpenEMapper {
 				.withSystem(OPEN_E_PLATFORM)
 				.withExternalCaseId(caseEnvelope.getFlowInstanceId())
 				.withErrandNumber(caseEnvelope.getFlowInstanceId())
-				.withNamespace(null)
-				.withPropertyDesignations(null)
 				.build())
 			.orElse(null);
 	}
