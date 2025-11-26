@@ -14,8 +14,9 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Case status response")
 public class CasePdfResponse {
 
-	@Schema(description = "External case id", example = "1234567890")
+	@Schema(description = "External case id", examples = "1234567890")
 	private String externalCaseId;
-	@Schema(description = "Base64 encoded PDF", example = "JVBERi0x")
+
+	@Schema(description = "Base64 encoded PDF", examples = "JVBERi0x")
 	private String base64;
 }

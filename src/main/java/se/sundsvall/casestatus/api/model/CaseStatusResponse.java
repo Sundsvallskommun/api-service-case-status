@@ -16,37 +16,36 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Case status response")
 public class CaseStatusResponse {
 
-	@Schema(description = "Case id", example = "1234567890")
+	@Schema(description = "Case id", examples = "1234567890")
 	private String caseId;
 
-	@Schema(description = "External case id", example = "1234567890")
+	@Schema(description = "External case id", examples = "1234567890")
 	private String externalCaseId;
 
-	@Schema(description = "Case type", example = "Building permit")
+	@Schema(description = "Case type", examples = "Building permit")
 	private String caseType;
 
-	@Schema(description = "Status", example = "In progress")
+	@Schema(description = "Status", examples = "In progress")
 	private String status;
 
-	@Schema(description = "External status", example = "Handläggning pågår")
+	@Schema(description = "External status", examples = "Handläggning pågår")
 	private String externalStatus;
 
-	@Schema(description = "First submitted", example = "2021-01-01")
+	@Schema(description = "First submitted", examples = "2021-01-01")
 	private String firstSubmitted;
 
-	@Schema(description = "Last status change", example = "2021-01-01")
+	@Schema(description = "Last status change", examples = "2021-01-01")
 	private String lastStatusChange;
 
-	@Schema(description = "The system that the case is in", example = "BYGGR")
+	@Schema(description = "The system that the case is in", examples = "BYGGR")
 	private String system;
 
-	@Schema(description = "The namespace of the case", example = "Namespace")
+	@Schema(description = "The namespace of the case", examples = "Namespace")
 	private String namespace;
 
-	@Schema(description = "Human readable identifier for the case", example = "BYGGR-2024-123456")
+	@Schema(description = "Human readable identifier for the case", examples = "BYGGR-2024-123456")
 	private String errandNumber;
 
-	@ArraySchema(schema = @Schema(implementation = String.class, description = "List of property designations", example = "Residential"))
+	@ArraySchema(schema = @Schema(implementation = String.class, description = "List of property designations", examples = "Residential"))
 	private List<String> propertyDesignations;
-
 }

@@ -14,8 +14,9 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Case status response")
 public class OepStatusResponse {
 
-	@Schema(description = "Key", example = "status")
+	@Schema(description = "Key", examples = "status")
 	private String key;
-	@Schema(description = "Value", example = "In progress")
+
+	@Schema(description = "Value", examples = "In progress")
 	private String value;
 }
