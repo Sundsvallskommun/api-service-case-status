@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
@@ -186,13 +187,17 @@ public class CaseStatusService {
 		if (responses == null) {
 			return emptyList();
 		}
+
+		// Draft filter predicate (removes drafts, unless includeDrafts is true).
+		final var filterDrafts = draftFilter(includeDrafts);
+
 		final var nullExternalCaseIdStream = responses.stream()
-			.filter(response -> response.getExternalCaseId() == null);
+			.filter(response -> response.getExternalCaseId() == null)
+			.filter(filterDrafts);
 
 		final var filteredStream = responses.stream()
 			.filter(response -> response.getExternalCaseId() != null)
-			.filter(response -> includeDrafts || !DRAFT_STATUSES.contains( // Remove draft statuses if "includeDrafts" is false
-				ofNullable(response.getStatus()).orElse("").toLowerCase()))
+			.filter(filterDrafts)
 			.collect(groupingBy(CaseStatusResponse::getExternalCaseId))
 			.entrySet().stream()
 			.flatMap(entry -> {
@@ -334,5 +339,9 @@ public class CaseStatusService {
 			caseStatusResponse.setExternalStatus(externalStatus);
 		}
 		return caseStatusResponse;
+	}
+
+	private Predicate<CaseStatusResponse> draftFilter(boolean includeDrafts) {
+		return response -> includeDrafts || !DRAFT_STATUSES.contains(ofNullable(response.getStatus()).orElse("").toLowerCase());
 	}
 }
