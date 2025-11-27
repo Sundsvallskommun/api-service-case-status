@@ -6,7 +6,7 @@ _Provides updated status information about cases in underlying systems, ensuring
 
 ### Prerequisites
 
-- **Java 21 or higher**
+- **Java 25 or higher**
 - **Maven**
 - **MariaDB**
 - **Git**
