@@ -26,14 +26,17 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
+import se.sundsvall.casestatus.configuration.AsyncConfig;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
@@ -60,6 +63,7 @@ public class CaseStatusService {
 	private final CaseDataIntegration caseDataIntegration;
 	private final SupportManagementMapper supportManagementMapper;
 	private final StatusesRepository statusesRepository;
+	private final Executor mdcAwareExecutor;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
 		final OepIntegratorClient oepIntegratorClient,
@@ -69,7 +73,8 @@ public class CaseStatusService {
 		final CaseManagementMapper caseManagementMapper,
 		final CaseDataIntegration caseDataIntegration,
 		final SupportManagementMapper supportManagementMapper,
-		final StatusesRepository statusesRepository) {
+		final StatusesRepository statusesRepository,
+		final @Qualifier(AsyncConfig.MDC_EXECUTOR) Executor mdcAwareExecutor) {
 
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.oepIntegratorClient = oepIntegratorClient;
@@ -80,6 +85,7 @@ public class CaseStatusService {
 		this.caseDataIntegration = caseDataIntegration;
 		this.supportManagementMapper = supportManagementMapper;
 		this.statusesRepository = statusesRepository;
+		this.mdcAwareExecutor = mdcAwareExecutor;
 	}
 
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
@@ -253,7 +259,7 @@ public class CaseStatusService {
 	private CompletableFuture<List<CaseStatusResponse>> getCaseManagementStatusesAsync(final String partyId, final String municipalityId) {
 		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.toList());
+			.toList(), mdcAwareExecutor);
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> getOepStatusesAsync(final String partyId, final String municipalityId) {
@@ -266,7 +272,7 @@ public class CaseStatusService {
 				return caseStatusResponse;
 
 			})
-			.toList());
+			.toList(), mdcAwareExecutor);
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> getSupportManagementStatusesAsync(final String externalIdOrOrgNo, final String municipalityId) {
@@ -283,7 +289,7 @@ public class CaseStatusService {
 						getStatusesBySupportManagementStatus(errand.getStatus()),
 						getSupportManagementClassificationName(municipalityId, namespace, errand)));
 			})
-			.toList());
+			.toList(), mdcAwareExecutor);
 	}
 
 	private String getSupportManagementClassificationName(final String municipalityId, final String namespace, final Errand errand) {

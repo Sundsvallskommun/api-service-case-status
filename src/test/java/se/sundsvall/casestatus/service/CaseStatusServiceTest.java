@@ -26,16 +26,19 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.configuration.AsyncConfig;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
@@ -86,6 +89,9 @@ class CaseStatusServiceTest {
 
 	@Mock
 	private SupportManagementMapper supportManagementMapperMock;
+
+	@Spy
+	private Executor mdcExecutorSpy = new AsyncConfig().mdcAwareExecutor();
 
 	@InjectMocks
 	private CaseStatusService caseStatusService;
@@ -395,6 +401,7 @@ class CaseStatusServiceTest {
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId);
 		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 		verify(statusesRepositoryMock).findByOepStatus(oepStatus);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock, statusesRepositoryMock);
 	}
 
@@ -422,6 +429,7 @@ class CaseStatusServiceTest {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -445,6 +453,7 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -472,6 +481,7 @@ class CaseStatusServiceTest {
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementMapperMock, caseManagementIntegrationMock);
 	}
 
@@ -497,6 +507,7 @@ class CaseStatusServiceTest {
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
 	}
 
