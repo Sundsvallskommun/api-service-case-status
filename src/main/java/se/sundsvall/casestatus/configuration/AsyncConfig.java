@@ -13,7 +13,7 @@ public class AsyncConfig {
 	public static final String MDC_EXECUTOR = "mdcAwareExecutor";
 
 	@Bean(name = MDC_EXECUTOR)
-	public Executor mdcAwareExecutor() {
+	Executor mdcAwareExecutor() {
 		ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
 		executor.setCorePoolSize(5);
