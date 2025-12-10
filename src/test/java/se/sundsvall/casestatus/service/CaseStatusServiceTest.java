@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
 import static se.sundsvall.TestDataFactory.createErrand;
@@ -26,20 +27,22 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.configuration.AsyncConfig;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
-import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
@@ -48,7 +51,9 @@ import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest(classes = {
+	CaseStatusService.class, AsyncConfig.class
+}, webEnvironment = NONE)
 class CaseStatusServiceTest {
 
 	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
@@ -57,37 +62,38 @@ class CaseStatusServiceTest {
 	private static final String NAMESPACE_2 = "namespace2";
 	private static final InstanceType INSTANCE_TYPE = InstanceType.EXTERNAL;
 
-	@Mock
+	@MockitoBean
 	private PartyIntegration partyIntegrationMock;
 
-	@Mock
+	@MockitoBean
 	private CaseManagementIntegration caseManagementIntegrationMock;
 
-	@Mock
+	@MockitoBean
 	private CaseDataIntegration caseDataIntegrationMock;
 
-	@Mock
+	@MockitoBean
 	private OepIntegratorClient openEIntegrationMock;
 
-	@Mock
+	@MockitoBean
 	private CaseRepository caseRepositoryMock;
 
-	@Mock
-	private CaseTypeRepository caseTypeRepositoryMock;
-
-	@Mock
+	@MockitoBean
 	private SupportManagementService supportManagementServiceMock;
 
-	@Mock
+	@MockitoBean
 	private StatusesRepository statusesRepositoryMock;
 
-	@Mock
+	@MockitoBean
 	private CaseManagementMapper caseManagementMapperMock;
 
-	@Mock
+	@MockitoBean
 	private SupportManagementMapper supportManagementMapperMock;
 
-	@InjectMocks
+	@MockitoSpyBean
+	@Qualifier(AsyncConfig.MDC_EXECUTOR)
+	private Executor mdcExecutorSpy;
+
+	@Autowired
 	private CaseStatusService caseStatusService;
 
 	@Test
@@ -169,7 +175,7 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForExternalId(any(String.class), any(String.class));
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(caseTypeRepositoryMock, caseManagementIntegrationMock);
+		verifyNoMoreInteractions(caseManagementIntegrationMock);
 	}
 
 	@Test
@@ -251,6 +257,8 @@ class CaseStatusServiceTest {
 		verify(caseManagementMapperMock, times(2)).toCaseStatusResponse(any(CaseStatusDTO.class), eq(MUNICIPALITY_ID));
 		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId");
+		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand);
+		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock, supportManagementMapperMock, statusesRepositoryMock);
@@ -288,6 +296,8 @@ class CaseStatusServiceTest {
 		verify(caseManagementMapperMock, times(2)).toCaseStatusResponse(any(CaseStatusDTO.class), eq(MUNICIPALITY_ID));
 		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(any(String.class), any(String.class));
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, "someOrganizationId");
+		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand);
+		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 
 		verifyNoInteractions(statusesRepositoryMock);
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock, supportManagementMapperMock);
@@ -393,8 +403,11 @@ class CaseStatusServiceTest {
 
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId);
+		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand);
+		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 		verify(statusesRepositoryMock).findByOepStatus(oepStatus);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock, statusesRepositoryMock);
 	}
 
@@ -422,6 +435,7 @@ class CaseStatusServiceTest {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -445,6 +459,7 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -472,6 +487,7 @@ class CaseStatusServiceTest {
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementMapperMock, caseManagementIntegrationMock);
 	}
 
@@ -497,6 +513,7 @@ class CaseStatusServiceTest {
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(3)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
 	}
 
@@ -659,7 +676,9 @@ class CaseStatusServiceTest {
 		assertThat(result.getLast().getSystem()).isEqualTo("CASE_DATA");
 
 		verify(caseDataIntegrationMock).getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE_1, errandNumber);
+		verify(caseDataIntegrationMock).getNamespaces();
 		verify(supportManagementServiceMock).getSupportManagementCases(MUNICIPALITY_ID, "errandNumber:'%s'".formatted(errandNumber));
+		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, supportManagementErrand);
 		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 		verify(statusesRepositoryMock).findByCaseManagementStatus(cmStatus);
