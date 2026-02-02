@@ -69,6 +69,12 @@ resilience4j:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
       oep-integrator:
         ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      eventlog:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      support-management:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
+      party:
+        ignoreExceptions: se.sundsvall.dept44.exception.ClientProblem
 logbook:
   body-filters:
     x-path:
