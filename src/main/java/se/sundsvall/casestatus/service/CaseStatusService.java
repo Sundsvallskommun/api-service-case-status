@@ -14,7 +14,6 @@ import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
 import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
-import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
@@ -129,11 +128,11 @@ public class CaseStatusService {
 	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {
 		final List<CaseStatusResponse> statuses = new ArrayList<>();
 
-		caseManagementIntegration.getCaseStatusForOrganizationNumber(sanitizeForLogging(organizationNumber), municipalityId).stream()
+		caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
 			.forEach(statuses::add);
 
-		caseRepository.findByOrganisationNumberAndMunicipalityId(sanitizeForLogging(organizationNumber), municipalityId).stream()
+		caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
 			.map(OpenEMapper::toCaseStatusResponse)
 			.map(this::addExternalStatusByOepStatus)
 			.forEach(statuses::add);

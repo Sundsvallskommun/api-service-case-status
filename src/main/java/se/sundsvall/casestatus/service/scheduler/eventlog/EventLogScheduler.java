@@ -13,20 +13,21 @@ import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 public class EventLogScheduler {
 
 	private final ExecutionInformationRepository executionInformationRepository;
-
 	private final EventLogWorker eventLogWorker;
 	private final Consumer<String> eventSetUnHealthyConsumer;
-	@Value("${scheduler.eventlog.municipalityId}")
-	String municipalityId;
+	private final String municipalityId;
 
-	@Value("${scheduler.eventlog.name}")
-	private String jobName;
+	public EventLogScheduler(
+		final ExecutionInformationRepository executionInformationRepository,
+		final EventLogWorker eventLogWorker,
+		final Dept44HealthUtility dept44HealthUtility,
+		@Value("${scheduler.eventlog.municipalityId}") final String municipalityId,
+		@Value("${scheduler.eventlog.name}") final String jobName) {
 
-	public EventLogScheduler(final ExecutionInformationRepository executionInformationRepository, final EventLogWorker eventLogWorker, final Dept44HealthUtility dept44HealthUtility) {
 		this.executionInformationRepository = executionInformationRepository;
 		this.eventLogWorker = eventLogWorker;
+		this.municipalityId = municipalityId;
 		this.eventSetUnHealthyConsumer = msg -> dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, String.format("Eventlog error: %s", msg));
-
 	}
 
 	@Dept44Scheduled(
@@ -39,10 +40,12 @@ public class EventLogScheduler {
 		final var startTime = OffsetDateTime.now();
 		final var executionInformation = executionInformationRepository.findById(municipalityId).orElse(initiateExecutionInfo(municipalityId));
 
-		eventLogWorker.updateStatus(executionInformation, eventSetUnHealthyConsumer);
+		final var success = eventLogWorker.updateStatus(executionInformation, eventSetUnHealthyConsumer);
 
-		executionInformation.setLastSuccessfulExecution(startTime);
-		executionInformationRepository.save(executionInformation);
+		if (success) {
+			executionInformation.setLastSuccessfulExecution(startTime);
+			executionInformationRepository.save(executionInformation);
+		}
 	}
 
 	private ExecutionInformationEntity initiateExecutionInfo(final String municipalityId) {

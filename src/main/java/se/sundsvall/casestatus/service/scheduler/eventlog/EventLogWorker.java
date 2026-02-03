@@ -52,69 +52,86 @@ public class EventLogWorker {
 		this.clockSkew = clockSkew;
 	}
 
-	void updateStatus(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
+	boolean updateStatus(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
 
 		final var events = getEvents(executionInformation).stream().distinct().toList();
 
 		if (events.isEmpty()) {
 			log.info("RequestID: {} - No events found for municipality {}", RequestId.get(), executionInformation.getMunicipalityId());
-			return;
+			return true;
 		}
 
 		final var result = events.stream()
+			.filter(event -> {
+				final var namespace = getNamespace(event);
+				if (namespace == null) {
+					log.warn("RequestID: {} - No namespace found for event with logKey: {}", RequestId.get(), event.getLogKey());
+					return false;
+				}
+				return true;
+			})
 			.map(event -> supportManagementService.getSupportManagementCaseById(executionInformation.getMunicipalityId(), getNamespace(event), event.getLogKey()))
 			.filter(Objects::nonNull)
 			.toList();
 
-		result.forEach(errand -> {
+		var allSuccessful = true;
+		for (final var errand : result) {
 			try {
-				setStatus(executionInformation, errand, setUnHealthyConsumer);
+				if (!setStatus(executionInformation, errand, setUnHealthyConsumer)) {
+					allSuccessful = false;
+				}
 			} catch (final Exception e) {
 				log.error("RequestID: {} - Error setting status for errand {}: {}", RequestId.get(), errand.getId(), e.getMessage());
 				setUnHealthyConsumer.accept("Error setting status for errand " + errand.getId());
+				allSuccessful = false;
 			}
-		});
+		}
+
+		return allSuccessful;
 	}
 
-	private void setStatus(final ExecutionInformationEntity executionInformation, final Errand errand, final Consumer<String> setUnHealthyConsumer) {
-		if (errand.getChannel() != null && VALID_CHANNELS.contains(errand.getChannel())) {
+	private boolean setStatus(final ExecutionInformationEntity executionInformation, final Errand errand, final Consumer<String> setUnHealthyConsumer) {
+		if (errand.getChannel() == null || !VALID_CHANNELS.contains(errand.getChannel())) {
+			return true; // Not a valid channel, skip but consider successful
+		}
 
-			log.info("RequestID: {} - setStatus on errand with ID: {}", RequestId.get(), errand.getId());
+		log.info("RequestID: {} - setStatus on errand with ID: {}", RequestId.get(), errand.getId());
 
-			final var channel = Objects.requireNonNull(errand.getChannel());
-			final var instanceType = getInstanceType(channel);
-			final var externalCaseId = getExternalCaseId(errand);
-			if (externalCaseId.isEmpty()) {
-				log.warn("RequestID: {} - No external case ID found for errand: {}", RequestId.get(), errand.getId());
-				return;
-			}
+		final var channel = Objects.requireNonNull(errand.getChannel());
+		final var instanceType = getInstanceType(channel);
+		final var externalCaseId = getExternalCaseId(errand);
+		if (externalCaseId.isEmpty()) {
+			log.warn("RequestID: {} - No external case ID found for errand: {}", RequestId.get(), errand.getId());
+			return true; // No external case ID, skip but consider successful
+		}
 
-			final String openEStatus;
-			try {
-				openEStatus = statusesRepository
-					.findBySupportManagementStatus(errand.getStatus())
-					.orElseThrow()
-					.getOepStatus();
-			} catch (final Exception e) {
-				setUnHealthyConsumer.accept("Mismatch for status " + errand.getStatus() + "was not found in OpenEId mapping");
-				log.error("RequestID: {} - Failed to find OpenEId for errand {}: {}", RequestId.get(), errand.getId(), e.getMessage());
-				return;
-			}
+		final String openEStatus;
+		try {
+			openEStatus = statusesRepository
+				.findBySupportManagementStatus(errand.getStatus())
+				.orElseThrow()
+				.getOepStatus();
+		} catch (final Exception e) {
+			setUnHealthyConsumer.accept("Mismatch for status " + errand.getStatus() + " was not found in OpenEId mapping");
+			log.error("RequestID: {} - Failed to find OpenEId for errand {}: {}", RequestId.get(), errand.getId(), e.getMessage());
+			return false;
+		}
 
-			log.info("RequestID: {} - found mapped OpenEId: {} for errand: {}", RequestId.get(), openEStatus, errand.getId());
+		log.info("RequestID: {} - found mapped OpenEId: {} for errand: {}", RequestId.get(), openEStatus, errand.getId());
 
-			final CaseStatusChangeRequest statusChangeRequest = new CaseStatusChangeRequest().name(openEStatus);
+		final CaseStatusChangeRequest statusChangeRequest = new CaseStatusChangeRequest().name(openEStatus);
 
-			try {
-				oepIntegratorClient.setStatus(
-					executionInformation.getMunicipalityId(),
-					instanceType,
-					externalCaseId.get(),
-					statusChangeRequest);
-			} catch (final Exception e) {
-				setUnHealthyConsumer.accept("Failed to update openE status for errand " + errand.getId());
-				log.error("RequestID: {} - Failed to set status for errand {} with external case ID {}: {}", RequestId.get(), errand.getId(), externalCaseId.get(), e.getMessage());
-			}
+		try {
+			oepIntegratorClient.setStatus(
+				executionInformation.getMunicipalityId(),
+				instanceType,
+				externalCaseId.get(),
+				statusChangeRequest);
+			return true;
+		} catch (final Exception e) {
+			setUnHealthyConsumer.accept("Failed to update openE status for errand " + errand.getId());
+			log.error("RequestID: {} - Failed to set status for errand {} with external case ID {}: {}", RequestId.get(), errand.getId(), externalCaseId.get(), e.getMessage());
+			return false;
 		}
 	}
 
