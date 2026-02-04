@@ -76,12 +76,7 @@ public class SupportManagementService {
 	}
 
 	public Errand getSupportManagementCaseById(final String municipalityId, final String namespace, final String errandId) {
-		final var result = supportManagementIntegration.findErrandById(municipalityId, namespace, errandId);
-		if (result.getStatusCode().is2xxSuccessful()) {
-			return result.getBody();
-		}
-
-		return null;
+		return supportManagementIntegration.findErrandById(municipalityId, namespace, errandId).orElse(null);
 	}
 
 	public String getClassificationDisplayName(String municipalityId, String namespace, Errand errand) {
