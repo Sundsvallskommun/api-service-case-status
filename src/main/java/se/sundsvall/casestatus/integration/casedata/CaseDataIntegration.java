@@ -58,7 +58,7 @@ public class CaseDataIntegration {
 		final var logErrandNumber = sanitizeForLogging(errandNumber);
 
 		try {
-			LOGGER.info("Fetching errand(s) for municipalityId: {} and errandNumber: {}", municipalityId, errandNumber);
+			LOGGER.info("Fetching errand(s) for municipalityId: {} and errandNumber: {}", logMunicipalityId, logErrandNumber);
 			var filter = ERRAND_NUMBER_FILTER.formatted(errandNumber);
 			var errandPage = client.getErrands(municipalityId, namespace, filter, PageRequest.of(0, 100));
 			var errands = errandPage.getContent();
