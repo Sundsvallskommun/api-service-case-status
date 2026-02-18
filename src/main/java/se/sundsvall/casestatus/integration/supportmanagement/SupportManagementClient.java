@@ -1,7 +1,5 @@
 package se.sundsvall.casestatus.integration.supportmanagement;
 
-import static se.sundsvall.casestatus.integration.supportmanagement.configuration.SupportManagementConfiguration.CLIENT_ID;
-
 import generated.se.sundsvall.supportmanagement.Category;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
@@ -15,6 +13,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import se.sundsvall.casestatus.integration.supportmanagement.configuration.SupportManagementConfiguration;
+
+import static se.sundsvall.casestatus.integration.supportmanagement.configuration.SupportManagementConfiguration.CLIENT_ID;
 
 @FeignClient(name = CLIENT_ID,
 	url = "${integration.support-management.base-url}",

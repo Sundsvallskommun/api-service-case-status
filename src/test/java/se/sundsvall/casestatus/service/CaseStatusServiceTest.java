@@ -1,22 +1,5 @@
 package se.sundsvall.casestatus.service;
 
-import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
-import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
-import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
-import static se.sundsvall.TestDataFactory.createErrand;
-import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
-
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
@@ -50,6 +33,23 @@ import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
+
+import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
+import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
+import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
+import static se.sundsvall.TestDataFactory.createErrand;
+import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
 
 @SpringBootTest(classes = {
 	CaseStatusService.class, AsyncConfig.class

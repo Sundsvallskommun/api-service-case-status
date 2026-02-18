@@ -1,8 +1,8 @@
 package se.sundsvall.casestatus.api.model;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OepStatusResponseTests {
 

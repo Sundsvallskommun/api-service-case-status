@@ -1,9 +1,5 @@
 package se.sundsvall.casestatus.integration.casedata;
 
-import static java.util.Collections.emptyList;
-import static se.sundsvall.casestatus.integration.casedata.CaseDataMapper.toCaseStatusResponses;
-import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
-
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +7,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.casedata.configuration.CaseDataProperties;
+
+import static java.util.Collections.emptyList;
+import static se.sundsvall.casestatus.integration.casedata.CaseDataMapper.toCaseStatusResponses;
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 @Component
 public class CaseDataIntegration {

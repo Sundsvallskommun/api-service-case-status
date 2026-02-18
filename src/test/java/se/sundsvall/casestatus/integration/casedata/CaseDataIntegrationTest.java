@@ -1,17 +1,5 @@
 package se.sundsvall.casestatus.integration.casedata;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.zalando.problem.Status.NOT_FOUND;
-import static se.sundsvall.TestDataFactory.createCaseDataErrand;
-import static se.sundsvall.casestatus.integration.casedata.CaseDataIntegration.ERRAND_NUMBER_FILTER;
-import static se.sundsvall.casestatus.integration.casedata.CaseDataIntegration.PROPERTY_DESIGNATION_FILTER;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +11,18 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.zalando.problem.Problem;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.TestDataFactory.createCaseDataErrand;
+import static se.sundsvall.casestatus.integration.casedata.CaseDataIntegration.ERRAND_NUMBER_FILTER;
+import static se.sundsvall.casestatus.integration.casedata.CaseDataIntegration.PROPERTY_DESIGNATION_FILTER;
 
 @ExtendWith(MockitoExtension.class)
 class CaseDataIntegrationTest {

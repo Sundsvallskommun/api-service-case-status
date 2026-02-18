@@ -1,15 +1,15 @@
 package se.sundsvall.casestatus.integration.party;
 
-import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
-import static generated.se.sundsvall.party.PartyType.PRIVATE;
-import static org.zalando.problem.Status.BAD_REQUEST;
-
 import generated.se.sundsvall.party.PartyType;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.zalando.problem.Problem;
+
+import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
+import static generated.se.sundsvall.party.PartyType.PRIVATE;
+import static org.zalando.problem.Status.BAD_REQUEST;
 
 @Component
 public class PartyIntegration {

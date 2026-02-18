@@ -1,13 +1,13 @@
 package se.sundsvall.casestatus.service.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Base64;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.InputStreamResource;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class OpenEMapperTest {
 

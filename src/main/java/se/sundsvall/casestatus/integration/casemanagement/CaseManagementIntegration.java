@@ -1,15 +1,15 @@
 package se.sundsvall.casestatus.integration.casemanagement;
 
-import static java.util.Collections.emptyList;
-import static java.util.Optional.empty;
-import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
-
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.empty;
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 @Component
 public class CaseManagementIntegration {

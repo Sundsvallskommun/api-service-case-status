@@ -1,13 +1,13 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.ModelCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith({
 	ResourceLoaderExtension.class

@@ -1,7 +1,5 @@
 package se.sundsvall.casestatus.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +10,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.service.CaseStatusService;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("junit")
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
