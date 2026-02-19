@@ -1,8 +1,5 @@
 package se.sundsvall.casestatus.service.mapper;
 
-import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
-import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
-
 import generated.client.oep_integrator.CaseEnvelope;
 import java.io.IOException;
 import java.util.Base64;
@@ -12,6 +9,9 @@ import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
+
+import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
 
 public final class OpenEMapper {
 

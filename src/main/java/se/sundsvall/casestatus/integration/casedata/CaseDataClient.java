@@ -1,7 +1,5 @@
 package se.sundsvall.casestatus.integration.casedata;
 
-import static se.sundsvall.casestatus.integration.casedata.configuration.CaseDataConfiguration.CLIENT_ID;
-
 import generated.se.sundsvall.casedata.Errand;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -11,6 +9,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import se.sundsvall.casestatus.integration.casedata.configuration.CaseDataConfiguration;
+
+import static se.sundsvall.casestatus.integration.casedata.configuration.CaseDataConfiguration.CLIENT_ID;
 
 @FeignClient(name = CLIENT_ID, url = "${integration.case-data.base-url}", configuration = CaseDataConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)

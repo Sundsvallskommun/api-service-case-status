@@ -1,10 +1,5 @@
 package se.sundsvall.casestatus.service.mapper;
 
-import static java.util.Optional.ofNullable;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
-import static se.sundsvall.casestatus.util.Constants.UNKNOWN;
-
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,6 +9,11 @@ import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
+
+import static java.util.Optional.ofNullable;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
+import static se.sundsvall.casestatus.util.Constants.UNKNOWN;
 
 @Component
 public final class CaseManagementMapper {

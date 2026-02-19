@@ -1,20 +1,5 @@
 package se.sundsvall.casestatus.service;
 
-import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
-import static generated.se.sundsvall.party.PartyType.PRIVATE;
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.groupingBy;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.util.StringUtils.hasText;
-import static org.zalando.problem.Status.BAD_REQUEST;
-import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
-import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
-import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
-import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
-import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
-import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
-
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
@@ -46,6 +31,21 @@ import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
+
+import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
+import static generated.se.sundsvall.party.PartyType.PRIVATE;
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.groupingBy;
+import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.util.StringUtils.hasText;
+import static org.zalando.problem.Status.BAD_REQUEST;
+import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
+import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
+import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
+import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
+import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
 @Service
 public class CaseStatusService {

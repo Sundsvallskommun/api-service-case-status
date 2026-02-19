@@ -1,11 +1,5 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
-import static org.slf4j.LoggerFactory.getLogger;
-import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
-import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
-import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
-import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
-
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
@@ -27,6 +21,12 @@ import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
 import se.sundsvall.dept44.requestid.RequestId;
+
+import static org.slf4j.LoggerFactory.getLogger;
+import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
 
 @Component
 public class EventLogWorker {

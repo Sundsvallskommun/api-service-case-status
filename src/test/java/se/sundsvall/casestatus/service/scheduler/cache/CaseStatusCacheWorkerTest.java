@@ -1,11 +1,5 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
@@ -25,6 +19,12 @@ import se.sundsvall.casestatus.service.scheduler.cache.domain.FamilyId;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 import se.sundsvall.dept44.test.annotation.resource.Load;
 import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith({
 	MockitoExtension.class, ResourceLoaderExtension.class

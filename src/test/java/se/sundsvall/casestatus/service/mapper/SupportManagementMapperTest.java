@@ -1,8 +1,5 @@
 package se.sundsvall.casestatus.service.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
-
 import generated.se.sundsvall.supportmanagement.Classification;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.ExternalTag;
@@ -12,6 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 
 @ExtendWith(MockitoExtension.class)
 class SupportManagementMapperTest {

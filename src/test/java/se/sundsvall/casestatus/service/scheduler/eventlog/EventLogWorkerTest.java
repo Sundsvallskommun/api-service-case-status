@@ -1,17 +1,5 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
-
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
@@ -40,6 +28,18 @@ import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
+
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 
 @ActiveProfiles("junit")
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)

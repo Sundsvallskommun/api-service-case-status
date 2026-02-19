@@ -1,13 +1,5 @@
 package se.sundsvall.casestatus.service.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
-import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
-
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import java.time.LocalDateTime;
 import java.time.Month;
@@ -24,6 +16,14 @@ import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
+import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 
 @ExtendWith(MockitoExtension.class)
 class CaseManagementMapperTest {

@@ -1,8 +1,5 @@
 package se.sundsvall.casestatus.integration.casedata;
 
-import static java.util.Collections.emptyList;
-import static java.util.Optional.ofNullable;
-
 import generated.se.sundsvall.casedata.Address;
 import generated.se.sundsvall.casedata.Errand;
 import generated.se.sundsvall.casedata.Facility;
@@ -16,6 +13,9 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+
+import static java.util.Collections.emptyList;
+import static java.util.Optional.ofNullable;
 
 public final class CaseDataMapper {
 

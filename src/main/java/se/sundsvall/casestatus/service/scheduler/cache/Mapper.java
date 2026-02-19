@@ -1,11 +1,11 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
-import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
-
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.ModelCase;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 import us.codecraft.xsoup.Xsoup;
+
+import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
 
 public final class Mapper {
 

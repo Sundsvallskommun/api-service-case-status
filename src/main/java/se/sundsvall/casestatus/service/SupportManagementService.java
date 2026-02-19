@@ -1,9 +1,5 @@
 package se.sundsvall.casestatus.service;
 
-import static java.util.Collections.emptySet;
-import static java.util.Objects.isNull;
-import static java.util.Optional.ofNullable;
-
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.Type;
 import java.util.ArrayList;
@@ -16,6 +12,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import se.sundsvall.casestatus.integration.supportmanagement.SupportManagementIntegration;
 import se.sundsvall.casestatus.util.RoleSearchProperties;
+
+import static java.util.Collections.emptySet;
+import static java.util.Objects.isNull;
+import static java.util.Optional.ofNullable;
 
 @Service
 public class SupportManagementService {
