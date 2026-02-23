@@ -17,13 +17,14 @@ import static se.sundsvall.casestatus.integration.eventlog.configuration.Eventlo
 @FeignClient(name = CLIENT_ID, url = "${integration.eventlog.base-url}", configuration = EventlogConfiguration.class)
 @CircuitBreaker(name = CLIENT_ID)
 public interface EventlogClient {
+
 	/**
 	 * Fetch created log events for a logKey.
 	 *
 	 * @param  municipalityId municipality id to fetch events for
-	 * @param  pageable       information of page, size and sorting options for the request
+	 * @param  pageable       information of page, size, and sorting options for the request
 	 * @param  filter         filter to apply to the search
-	 * @return                response containing result of search based on the provided parameters
+	 * @return                response containing a result of search based on the provided parameters
 	 */
 	@GetMapping(path = "/{municipalityId}", produces = APPLICATION_JSON_VALUE)
 	Page<Event> getEvents(

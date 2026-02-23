@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.integration.db.model;
 
 import java.time.OffsetDateTime;
 import java.util.Random;
+import java.util.UUID;
 import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -38,14 +39,20 @@ class ExecutionInformationEntityTest {
 		// Arrange
 		final var lastSuccessfulExecution = now();
 		final var municipalityId = "municipalityId";
+		final var serviceName = "serviceName";
+		final var id = UUID.randomUUID().toString();
 
 		// Act
 		final var result = ExecutionInformationEntity.builder()
+			.withId(id)
+			.withServiceName(serviceName)
 			.withLastSuccessfulExecution(lastSuccessfulExecution)
 			.withMunicipalityId(municipalityId)
 			.build();
 		// Assert
 		assertThat(result).isNotNull().hasNoNullFieldsOrProperties();
+		assertThat(result.getId()).isEqualTo(id);
+		assertThat(result.getServiceName()).isEqualTo(serviceName);
 		assertThat(result.getLastSuccessfulExecution()).isEqualTo(lastSuccessfulExecution);
 		assertThat(result.getMunicipalityId()).isEqualTo(municipalityId);
 

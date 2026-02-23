@@ -1,11 +1,15 @@
 scheduler:
   eventlog:
-    cron: "-"
-    name: "eventlog"
     municipalityId: 123
     shedlock-lock-at-most-for: PT10M
     maximum-execution-time: PT10M
     clock-skew: PT5S
+    case-data:
+      cron: "-"
+    support-management:
+      cron: "-"
+    case-management:
+      cron: "-"
 cache:
   isprod: false
   scheduled:
@@ -29,7 +33,6 @@ integration:
     namespaces:
       - NAMESPACE_1
       - NAMESPACE_2
-
 spring:
   main:
     banner-mode: 'off'
@@ -75,21 +78,27 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/token
         registration:
           case-management:
+            authorization-grant-type: client_credentials
             client-id: the-client-id
             client-secret: the-client-secret
           eventlog:
+            authorization-grant-type: client_credentials
             client-id: the-client-id
-            client-secret: the-client
+            client-secret: the-client-secret
           party:
+            authorization-grant-type: client_credentials
             client-id: the-client-id
             client-secret: the-client-secret
           support-management:
+            authorization-grant-type: client_credentials
             client-id: the-client-id
-            client-secret: the-client
+            client-secret: the-client-secret
           oep-integrator:
+            authorization-grant-type: client_credentials
             client-id: the-client-id
             client-secret: the-client-secret
           case-data:
+            authorization-grant-type: client_credentials
             client-id: the-client-id
             client-secret: the-client-secret
 

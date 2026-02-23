@@ -2,6 +2,8 @@ package se.sundsvall.casestatus.integration.db.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
@@ -22,8 +24,14 @@ import org.hibernate.annotations.TimeZoneStorageType;
 public class ExecutionInformationEntity {
 
 	@Id
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private String id;
+
 	@Column(name = "municipality_id", length = 4, nullable = false)
 	private String municipalityId;
+
+	@Column(name = "service_name")
+	private String serviceName;
 
 	@Column(name = "last_successful_execution")
 	@TimeZoneStorage(TimeZoneStorageType.NORMALIZE)

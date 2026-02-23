@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,19 +23,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_JOB_NAME;
+import static se.sundsvall.casestatus.util.Constants.CASE_MANAGEMENT_JOB_NAME;
 
 @SpringBootTest(properties = {
-	"scheduler.eventlog.support-management.cron=* * * * * *", // Setup to execute every second
+	"scheduler.eventlog.case-management.cron=* * * * * *", // Setup to execute every second
 	"scheduler.eventlog.name=eventlog",
 	"server.shutdown=immediate",
 	"spring.lifecycle.timeout-per-shutdown-phase=0s"
 })
 @ActiveProfiles("junit")
-class EventLogSchedulerShedlockTest {
+class EventLogSchedulerCaseManagementShedlockTest {
 
 	@Autowired
 	private EventLogWorker eventLogWorkerMock;
@@ -45,7 +47,7 @@ class EventLogSchedulerShedlockTest {
 	private LocalDateTime mockCalledTime;
 
 	@Test
-	void verifyShedLock() {
+	void verifyShedLockForCaseManagement() {
 
 		// Let mock hang
 		doAnswer(_ -> {
@@ -54,7 +56,7 @@ class EventLogSchedulerShedlockTest {
 				.forever()
 				.until(() -> false);
 			return null;
-		}).when(eventLogWorkerMock).updateSupportManagementStatuses(any(ExecutionInformationEntity.class), any());
+		}).when(eventLogWorkerMock).updateOepCase(anyString(), any(ExecutionInformationEntity.class), any(Consumer.class));
 
 		// Make sure scheduling occurs multiple times
 		await().until(() -> mockCalledTime != null && LocalDateTime.now().isAfter(mockCalledTime.plusSeconds(2)));
@@ -62,10 +64,10 @@ class EventLogSchedulerShedlockTest {
 		// Verify lock
 		await()
 			.atMost(5, TimeUnit.SECONDS)
-			.untilAsserted(() -> assertThat(getLockedAt(SUPPORT_MANAGEMENT_JOB_NAME))
+			.untilAsserted(() -> assertThat(getLockedAt(CASE_MANAGEMENT_JOB_NAME))
 				.isCloseTo(LocalDateTime.now(Clock.systemUTC()), within(10, ChronoUnit.SECONDS)));
 
-		verify(eventLogWorkerMock, times(1)).updateSupportManagementStatuses(any(ExecutionInformationEntity.class), any());
+		verify(eventLogWorkerMock, times(1)).updateOepCase(anyString(), any(ExecutionInformationEntity.class), any(Consumer.class));
 
 	}
 

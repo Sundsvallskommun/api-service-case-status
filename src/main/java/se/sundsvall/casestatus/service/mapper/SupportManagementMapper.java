@@ -12,7 +12,7 @@ import static java.util.Objects.isNull;
 import static java.util.Optional.empty;
 import static se.sundsvall.casestatus.util.Constants.DATE_TIME_FORMAT;
 import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
-import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
+import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
 
 @Component
 public class SupportManagementMapper {
@@ -52,7 +52,7 @@ public class SupportManagementMapper {
 			.withExternalStatus(getExternalStatus(statuses))
 			.withLastStatusChange(modified)
 			.withFirstSubmitted(firstSubmitted)
-			.withSystem(SUPPORT_MANAGEMENT)
+			.withSystem(SUPPORT_MANAGEMENT_SYSTEM)
 			.withErrandNumber(errand.getErrandNumber())
 			.withNamespace(namespace)
 			.withPropertyDesignations(null)
