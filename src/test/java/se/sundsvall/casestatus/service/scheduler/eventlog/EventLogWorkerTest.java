@@ -1,5 +1,17 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
@@ -28,18 +40,6 @@ import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
-
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 
 @ActiveProfiles("junit")
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -70,7 +70,7 @@ class EventLogWorkerTest {
 	private Consumer<String> consumerMock;
 
 	@Test
-	void updateStatus() {
+	void updateSupportManagementStatuses() {
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
@@ -97,7 +97,7 @@ class EventLogWorkerTest {
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 
 		// Act
-		final var result = eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
+		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
 		// Assert
 		assertThat(result).isTrue();
@@ -110,7 +110,7 @@ class EventLogWorkerTest {
 	}
 
 	@Test
-	void testUpdateStatusWithEmptyLogKeys() {
+	void testUpdateSupportManagementStatusesWithEmptyLogKeys() {
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var executionInformationEntity = ExecutionInformationEntity.builder()
@@ -123,7 +123,7 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 
 		// Act
-		final var result = eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
+		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
 		// Assert
 		assertThat(result).isTrue();
@@ -134,7 +134,7 @@ class EventLogWorkerTest {
 	}
 
 	@Test
-	void updateStatusWithoutFamilyId() {
+	void updateSupportManagementStatusesWithoutFamilyId() {
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
@@ -156,7 +156,7 @@ class EventLogWorkerTest {
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 
 		// Act
-		final var result = eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
+		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
 		// Assert
 		assertThat(result).isTrue();
@@ -166,7 +166,7 @@ class EventLogWorkerTest {
 	}
 
 	@Test
-	void updateStatusWithMismatchingStatus() {
+	void updateStatusWithMismatchingSupportManagementStatuses() {
 
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
@@ -191,7 +191,7 @@ class EventLogWorkerTest {
 		when(statusesRepositoryMock.findBySupportManagementStatus(internalStatus)).thenReturn(Optional.empty());
 
 		// Act
-		final var result = eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
+		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
 		// Assert
 		assertThat(result).isFalse();
@@ -202,7 +202,7 @@ class EventLogWorkerTest {
 	}
 
 	@Test
-	void updateStatusWithMissingNamespace() {
+	void updateSupportManagementStatusesWithMissingNamespace() {
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var logkey = "1";
@@ -218,7 +218,7 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 
 		// Act
-		final var result = eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
+		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
 		// Assert
 		assertThat(result).isTrue();
@@ -227,7 +227,7 @@ class EventLogWorkerTest {
 	}
 
 	@Test
-	void updateStatusWithOepIntegratorFailure() {
+	void updateSupportManagementStatusesWithOepIntegratorFailure() {
 		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
@@ -253,7 +253,7 @@ class EventLogWorkerTest {
 		when(oepIntegratorClientMock.setStatus(anyString(), any(), anyString(), any())).thenThrow(new RuntimeException("OEP error"));
 
 		// Act
-		final var result = eventLogWorker.updateStatus(executionInformationEntity, consumerMock);
+		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
 		// Assert
 		assertThat(result).isFalse();

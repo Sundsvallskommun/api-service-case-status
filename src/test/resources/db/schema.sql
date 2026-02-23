@@ -13,7 +13,6 @@
         primary key (flow_instance_id)
     ) engine=InnoDB;
 
-
     create table case_type (
         id integer not null,
         description varchar(255),
@@ -25,7 +24,9 @@
     create table execution_information (
         municipality_id varchar(4) not null,
         last_successful_execution datetime(6),
-        primary key (municipality_id)
+        id varchar(255) not null,
+        service_name varchar(255),
+        primary key (id)
     ) engine=InnoDB;
 
     create table statuses (
@@ -50,14 +51,14 @@
     create index idx_person_id_municipality_id 
        on case_status (person_id, municipality_id);
 
-    create index idx_enum_value_municipality_id
+    create index idx_enum_value_municipality_id 
        on case_type (enum, municipality_id);
 
-	create index idx_oep_status
-		on statuses (oep_status);
+    create index idx_oep_status 
+       on statuses (oep_status);
 
-	create index idx_support_management_status
-		on statuses (support_management_status);
+    create index idx_support_management_status 
+       on statuses (support_management_status);
 
-	create index idx_case_management_status
-		on statuses (case_management_status);
+    create index idx_case_management_status 
+       on statuses (case_management_status);

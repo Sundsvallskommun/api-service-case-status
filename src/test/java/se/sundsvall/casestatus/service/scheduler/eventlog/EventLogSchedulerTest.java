@@ -1,5 +1,11 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,17 +17,10 @@ import se.sundsvall.casestatus.integration.db.ExecutionInformationRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class EventLogSchedulerTest {
 
-	private static final String MUNICIPALITY_ID = "testMunicipalityId";
-	private static final String JOB_NAME = "testJobName";
+	private static final String MUNICIPALITY_ID = "2281";
 
 	@Mock
 	private ExecutionInformationRepository executionInformationRepository;
@@ -36,48 +35,43 @@ class EventLogSchedulerTest {
 
 	@BeforeEach
 	void setUp() {
-		eventLogScheduler = new EventLogScheduler(
-			executionInformationRepository,
-			eventLogWorker,
-			dept44HealthUtility,
-			MUNICIPALITY_ID,
-			JOB_NAME);
+		eventLogScheduler = new EventLogScheduler(executionInformationRepository, eventLogWorker, dept44HealthUtility, MUNICIPALITY_ID);
 	}
 
 	@Test
-	void testUpdateStatusSuccess() {
+	void testUpdateSupportManagementStatusesSuccess() {
 		// Arrange
 		final var executionInformationEntity = ExecutionInformationEntity.builder()
 			.withMunicipalityId(MUNICIPALITY_ID)
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
-		when(executionInformationRepository.findById(MUNICIPALITY_ID)).thenReturn(Optional.of(executionInformationEntity));
-		when(eventLogWorker.updateStatus(eq(executionInformationEntity), any())).thenReturn(true);
+		when(executionInformationRepository.findByMunicipalityIdAndServiceName(MUNICIPALITY_ID, "SupportManagement")).thenReturn(Optional.of(executionInformationEntity));
+		when(eventLogWorker.updateSupportManagementStatuses(eq(executionInformationEntity), any())).thenReturn(true);
 
 		// Act
-		eventLogScheduler.updateStatus();
+		eventLogScheduler.updateSupportManagementStatuses();
 
 		// Assert
-		verify(eventLogWorker).updateStatus(eq(executionInformationEntity), any());
+		verify(eventLogWorker).updateSupportManagementStatuses(eq(executionInformationEntity), any());
 		verify(executionInformationRepository).save(executionInformationEntity);
 	}
 
 	@Test
-	void testUpdateStatusFailure() {
+	void testUpdateSupportManagementStatusesFailure() {
 		// Arrange
 		final var executionInformationEntity = ExecutionInformationEntity.builder()
 			.withMunicipalityId(MUNICIPALITY_ID)
 			.withLastSuccessfulExecution(OffsetDateTime.now())
 			.build();
-		when(executionInformationRepository.findById(MUNICIPALITY_ID)).thenReturn(Optional.of(executionInformationEntity));
-		when(eventLogWorker.updateStatus(eq(executionInformationEntity), any())).thenReturn(false);
+		when(executionInformationRepository.findByMunicipalityIdAndServiceName(MUNICIPALITY_ID, "SupportManagement")).thenReturn(Optional.of(executionInformationEntity));
+		when(eventLogWorker.updateSupportManagementStatuses(eq(executionInformationEntity), any())).thenReturn(false);
 
 		// Act
-		eventLogScheduler.updateStatus();
+		eventLogScheduler.updateSupportManagementStatuses();
 
 		// Assert
-		verify(eventLogWorker).updateStatus(eq(executionInformationEntity), any());
-		verify(executionInformationRepository).findById(MUNICIPALITY_ID);
+		verify(eventLogWorker).updateSupportManagementStatuses(eq(executionInformationEntity), any());
+		verify(executionInformationRepository).findByMunicipalityIdAndServiceName(MUNICIPALITY_ID, "SupportManagement");
 		verifyNoMoreInteractions(executionInformationRepository);
 	}
 }

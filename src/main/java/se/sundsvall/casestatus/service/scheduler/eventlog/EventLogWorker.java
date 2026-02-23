@@ -1,5 +1,12 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
+import static java.util.stream.Collectors.toMap;
+import static org.slf4j.LoggerFactory.getLogger;
+import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
+
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
@@ -21,12 +28,6 @@ import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
 import se.sundsvall.dept44.requestid.RequestId;
-
-import static org.slf4j.LoggerFactory.getLogger;
-import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
-import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
-import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
-import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
 
 @Component
 public class EventLogWorker {
@@ -52,7 +53,73 @@ public class EventLogWorker {
 		this.clockSkew = clockSkew;
 	}
 
-	boolean updateStatus(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
+	boolean updateOepCase(final String serviceName, final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
+		final var events = getCaseEvents(executionInformation, serviceName).stream().distinct().toList();
+
+		if (events.isEmpty()) {
+			log.info("RequestID: {} - No events found for service {} in municipality {}", RequestId.get(), serviceName, executionInformation.getMunicipalityId());
+			return true;
+		}
+
+		for (var event : events) {
+			var metadata = event.getMetadata().stream()
+				.collect(toMap(Metadata::getKey, Metadata::getValue));
+
+			var status = statusesRepository.findByCaseManagementStatus(metadata.get("Status"))
+				.orElseThrow()
+				.getOepStatus();
+
+			try {
+				oepIntegratorClient.setStatus(
+					executionInformation.getMunicipalityId(),
+					InstanceType.EXTERNAL,
+					event.getLogKey(),
+					new CaseStatusChangeRequest().name(status));
+				return true;
+			} catch (final Exception e) {
+				setUnHealthyConsumer.accept("Failed to update Open-E status for case with external ID " + event.getLogKey());
+				log.error("RequestID: {} - Failed to set status for case with external ID {}: {}", RequestId.get(), event.getLogKey(), e.getMessage());
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	boolean updateCaseManagementStatuses(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer, final String serviceName) {
+		final var events = getCaseEvents(executionInformation, serviceName).stream().distinct().toList();
+
+		if (events.isEmpty()) {
+			log.info("RequestID: {} - No events found for service {} in municipality {}", RequestId.get(), serviceName, executionInformation.getMunicipalityId());
+			return true;
+		}
+
+		for (var event : events) {
+			var metadata = event.getMetadata().stream()
+				.collect(toMap(Metadata::getKey, Metadata::getValue));
+
+			var status = statusesRepository.findByCaseManagementStatus(metadata.get("Status"))
+				.orElseThrow()
+				.getOepStatus();
+
+			try {
+				oepIntegratorClient.setStatus(
+					executionInformation.getMunicipalityId(),
+					InstanceType.EXTERNAL,
+					event.getLogKey(),
+					new CaseStatusChangeRequest().name(status));
+				return true;
+			} catch (final Exception e) {
+				setUnHealthyConsumer.accept("Failed to update openE status for errand " + event.getLogKey());
+				log.error("RequestID: {} - Failed to set status for {} with external case ID {}: {}", RequestId.get(), serviceName, event.getLogKey(), e.getMessage());
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	boolean updateSupportManagementStatuses(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
 
 		final var events = getEvents(executionInformation).stream().distinct().toList();
 
@@ -133,6 +200,21 @@ public class EventLogWorker {
 			log.error("RequestID: {} - Failed to set status for errand {} with external case ID {}: {}", RequestId.get(), errand.getId(), externalCaseId.get(), e.getMessage());
 			return false;
 		}
+	}
+
+	private List<Event> getCaseEvents(final ExecutionInformationEntity executionInformation, final String serviceName) {
+		int pageNumber = 0;
+		Page<Event> response;
+		final var allEvents = new ArrayList<Event>();
+		final var filterString = "message ~ 'Status updated to' and created > '%s' and sourceType: 'Errand' and owner: '%s' and type: 'UPDATE'"
+			.formatted(executionInformation.getLastSuccessfulExecution().minus(clockSkew), serviceName);
+		do {
+			response = eventlogClient.getEvents(executionInformation.getMunicipalityId(), PageRequest.of(pageNumber, 100), filterString);
+			allEvents.addAll(response.getContent());
+			pageNumber++;
+		} while (response.hasNext());
+
+		return allEvents;
 	}
 
 	private List<Event> getEvents(final ExecutionInformationEntity executionInformation) {
