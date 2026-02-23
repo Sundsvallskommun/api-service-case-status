@@ -1,22 +1,5 @@
 package se.sundsvall.casestatus.service;
 
-import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
-import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
-import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
-import static se.sundsvall.TestDataFactory.createErrand;
-import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
-
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
@@ -50,6 +33,23 @@ import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
+
+import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
+import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
+import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
+import static se.sundsvall.TestDataFactory.createErrand;
+import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
 
 @SpringBootTest(classes = {
 	CaseStatusService.class, AsyncConfig.class
@@ -356,7 +356,8 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Test scenario where one case is found in CaseManagement, one case is found in OpenE and one case is found in SupportManagement.
+	 * Test scenario where one case is found in CaseManagement, one case is found in OpenE and one case is found in
+	 * SupportManagement.
 	 */
 	@Test
 	void getPrivateCaseStatuses() {
@@ -517,7 +518,8 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Test scenario where two CaseStatusResponses are filtered. They share the same 'externalCaseId' but different 'system'. Expects that the response with the 'system' value 'OPEN_E_PLATFORM' is filtered out.
+	 * Test scenario where two CaseStatusResponses are filtered. They share the same 'externalCaseId' but different
+	 * 'system'. Expects that the response with the 'system' value 'OPEN_E_PLATFORM' is filtered out.
 	 */
 	@Test
 	void filterResponses1() {
@@ -532,7 +534,8 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Test scenario where two CaseStatusResponses are filtered. They have different externalCaseId's. Expects that both responses are returned.
+	 * Test scenario where two CaseStatusResponses are filtered. They have different externalCaseId's. Expects that both
+	 * responses are returned.
 	 */
 	@Test
 	void filterResponses2() {
@@ -547,7 +550,8 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Test scenario where two CaseStatusResponses are filtered. Both have 'null' and 'externalCaseId'. Expects that no filtering is done.
+	 * Test scenario where two CaseStatusResponses are filtered. Both have 'null' and 'externalCaseId'. Expects that no
+	 * filtering is done.
 	 */
 	@Test
 	void filterResponses3() {
@@ -562,7 +566,9 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Test scenario where two OPEN_E_PLATFORM responses are filtered. They share the same 'externalCaseId'. Expects that both responses are filtered out. 'ExternalCaseId' is unique per instance of Open-E Platform, this scenario should never happen.
+	 * Test scenario where two OPEN_E_PLATFORM responses are filtered. They share the same 'externalCaseId'. Expects that
+	 * both responses are filtered out. 'ExternalCaseId' is unique per instance of Open-E Platform, this scenario should
+	 * never happen.
 	 */
 	@Test
 	void filterResponses4() {

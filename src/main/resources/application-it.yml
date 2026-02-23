@@ -1,6 +1,5 @@
 scheduler:
   eventlog:
-    name: "eventlog"
     municipalityId: 123
     shedlock-lock-at-most-for: PT10M
     maximum-execution-time: PT10M

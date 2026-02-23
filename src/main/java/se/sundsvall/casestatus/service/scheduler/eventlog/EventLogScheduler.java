@@ -1,9 +1,5 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
-import static se.sundsvall.casestatus.util.Constants.CASE_DATA;
-import static se.sundsvall.casestatus.util.Constants.CASE_MANAGEMENT;
-import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
-
 import java.time.OffsetDateTime;
 import java.util.function.Consumer;
 import org.springframework.beans.factory.annotation.Value;
@@ -13,12 +9,15 @@ import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.dept44.scheduling.Dept44Scheduled;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 
+import static se.sundsvall.casestatus.util.Constants.CASE_DATA;
+import static se.sundsvall.casestatus.util.Constants.CASE_DATA_JOB_NAME;
+import static se.sundsvall.casestatus.util.Constants.CASE_MANAGEMENT;
+import static se.sundsvall.casestatus.util.Constants.CASE_MANAGEMENT_JOB_NAME;
+import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT;
+import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_JOB_NAME;
+
 @Component
 public class EventLogScheduler {
-
-	private static final String SUPPORT_MANAGEMENT_JOB_NAME = "UpdateSupportManagementStatuses";
-	private static final String CASE_MANAGEMENT_JOB_NAME = "UpdateCaseManagementStatuses";
-	private static final String CASE_DATA_JOB_NAME = "UpdateCaseDataStatuses";
 
 	private final ExecutionInformationRepository executionInformationRepository;
 	private final EventLogWorker eventLogWorker;

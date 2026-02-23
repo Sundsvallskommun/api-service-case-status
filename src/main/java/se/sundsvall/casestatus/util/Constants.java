@@ -7,6 +7,9 @@ public final class Constants {
 	public static final String SUPPORT_MANAGEMENT = "SupportManagement";
 	public static final String CASE_MANAGEMENT = "CaseManagement";
 	public static final String CASE_DATA = "CaseData";
+	public static final String SUPPORT_MANAGEMENT_JOB_NAME = "UpdateSupportManagementStatuses";
+	public static final String CASE_MANAGEMENT_JOB_NAME = "UpdateCaseManagementStatuses";
+	public static final String CASE_DATA_JOB_NAME = "UpdateCaseDataStatuses";
 
 	public static final String EXTERNAL_CHANNEL_E_SERVICE = "ESERVICE";
 	public static final String INTERNAL_CHANNEL_E_SERVICE = "ESERVICE_INTERNAL";

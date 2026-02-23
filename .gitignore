@@ -38,3 +38,6 @@ build/
 ### VS Code ###
 .vscode/
 /CLAUDE.md
+
+### Claude Code ###
+.claude/

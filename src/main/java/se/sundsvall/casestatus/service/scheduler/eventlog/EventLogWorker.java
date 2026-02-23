@@ -1,12 +1,5 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
-import static java.util.stream.Collectors.toMap;
-import static org.slf4j.LoggerFactory.getLogger;
-import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
-import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
-import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
-import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
-
 import generated.client.oep_integrator.CaseStatusChangeRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
@@ -28,6 +21,13 @@ import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
 import se.sundsvall.dept44.requestid.RequestId;
+
+import static java.util.stream.Collectors.toMap;
+import static org.slf4j.LoggerFactory.getLogger;
+import static se.sundsvall.casestatus.service.mapper.SupportManagementMapper.getExternalCaseId;
+import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
+import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
 
 @Component
 public class EventLogWorker {
@@ -65,53 +65,25 @@ public class EventLogWorker {
 			var metadata = event.getMetadata().stream()
 				.collect(toMap(Metadata::getKey, Metadata::getValue));
 
-			var status = statusesRepository.findByCaseManagementStatus(metadata.get("Status"))
-				.orElseThrow()
-				.getOepStatus();
+			var statusesEntity = statusesRepository.findByCaseManagementStatus(metadata.get("Status"));
 
-			try {
-				oepIntegratorClient.setStatus(
-					executionInformation.getMunicipalityId(),
-					InstanceType.EXTERNAL,
-					event.getLogKey(),
-					new CaseStatusChangeRequest().name(status));
-				return true;
-			} catch (final Exception e) {
-				setUnHealthyConsumer.accept("Failed to update Open-E status for case with external ID " + event.getLogKey());
-				log.error("RequestID: {} - Failed to set status for case with external ID {}: {}", RequestId.get(), event.getLogKey(), e.getMessage());
-				return false;
+			if (statusesEntity.isEmpty()) {
+				continue;
 			}
-		}
+			var status = statusesEntity.get().getOepStatus();
 
-		return true;
-	}
-
-	boolean updateCaseManagementStatuses(final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer, final String serviceName) {
-		final var events = getCaseEvents(executionInformation, serviceName).stream().distinct().toList();
-
-		if (events.isEmpty()) {
-			log.info("RequestID: {} - No events found for service {} in municipality {}", RequestId.get(), serviceName, executionInformation.getMunicipalityId());
-			return true;
-		}
-
-		for (var event : events) {
-			var metadata = event.getMetadata().stream()
-				.collect(toMap(Metadata::getKey, Metadata::getValue));
-
-			var status = statusesRepository.findByCaseManagementStatus(metadata.get("Status"))
-				.orElseThrow()
-				.getOepStatus();
+			var externalCaseId = metadata.get("ExternalCaseId");
 
 			try {
 				oepIntegratorClient.setStatus(
 					executionInformation.getMunicipalityId(),
 					InstanceType.EXTERNAL,
-					event.getLogKey(),
+					externalCaseId,
 					new CaseStatusChangeRequest().name(status));
 				return true;
 			} catch (final Exception e) {
-				setUnHealthyConsumer.accept("Failed to update openE status for errand " + event.getLogKey());
-				log.error("RequestID: {} - Failed to set status for {} with external case ID {}: {}", RequestId.get(), serviceName, event.getLogKey(), e.getMessage());
+				setUnHealthyConsumer.accept("Failed to update Open-E status for case with external ID " + externalCaseId);
+				log.error("RequestID: {} - Failed to set status for case with external ID {}: {}", RequestId.get(), externalCaseId, e.getMessage());
 				return false;
 			}
 		}
