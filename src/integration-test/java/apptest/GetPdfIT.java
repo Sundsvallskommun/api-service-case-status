@@ -2,12 +2,13 @@ package apptest;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.jdbc.Sql;
 
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
 
 @WireMockAppTestSuite(files = "classpath:/GetPdfIT/", classes = Application.class)
 @Sql(scripts = {"/db/truncate.sql", "/db/casestatus.sql"})
@@ -24,7 +25,7 @@ class GetPdfIT extends AbstractAppTest {
 		setupCall()
 			.withServicePath(PATH)
 			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
+			.withExpectedResponseStatus(OK)
 			.withExpectedResponse("expected-response.json")
 			.sendRequestAndVerifyResponse();
 	}
@@ -34,7 +35,7 @@ class GetPdfIT extends AbstractAppTest {
 		setupCall()
 			.withServicePath(FAULTY_PATH)
 			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.NOT_FOUND)
+			.withExpectedResponseStatus(NOT_FOUND)
 			.withExpectedResponse("expected-response.json")
 			.sendRequestAndVerifyResponse();
 	}

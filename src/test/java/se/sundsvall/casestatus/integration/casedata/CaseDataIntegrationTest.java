@@ -10,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,7 +19,7 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.TestDataFactory.createCaseDataErrand;
 import static se.sundsvall.casestatus.integration.casedata.CaseDataIntegration.ERRAND_NUMBER_FILTER;
 import static se.sundsvall.casestatus.integration.casedata.CaseDataIntegration.PROPERTY_DESIGNATION_FILTER;

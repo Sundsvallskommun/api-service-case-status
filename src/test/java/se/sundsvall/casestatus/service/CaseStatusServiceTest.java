@@ -20,7 +20,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
-import org.zalando.problem.Problem;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.configuration.AsyncConfig;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
@@ -33,6 +32,7 @@ import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
+import se.sundsvall.dept44.problem.Problem;
 
 import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
 import static java.util.Collections.emptyList;

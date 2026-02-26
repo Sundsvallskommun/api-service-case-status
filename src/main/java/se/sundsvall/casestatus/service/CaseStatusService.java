@@ -15,8 +15,6 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
@@ -31,6 +29,7 @@ import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
+import se.sundsvall.dept44.problem.Problem;
 
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
@@ -38,8 +37,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static org.apache.commons.lang3.StringUtils.isBlank;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.util.StringUtils.hasText;
-import static org.zalando.problem.Status.BAD_REQUEST;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
@@ -90,11 +91,11 @@ public class CaseStatusService {
 	public OepStatusResponse getOepStatus(final String externalCaseId, final String municipalityId) {
 		final var cmStatus = caseManagementIntegration.getCaseStatusForExternalId(externalCaseId, municipalityId)
 			.map(CaseStatusDTO::getStatus)
-			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
+			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 
 		final var oepStatus = statusesRepository.findByCaseManagementStatus(cmStatus)
 			.map(StatusesEntity::getOepStatus)
-			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, "Could not find matching open-E status for status %s".formatted(cmStatus)));
+			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "Could not find matching open-E status for status %s".formatted(cmStatus)));
 
 		return toOepStatusResponse(oepStatus);
 	}
@@ -105,7 +106,7 @@ public class CaseStatusService {
 			.or(() -> caseRepository.findByFlowInstanceIdAndMunicipalityId(externalCaseId, municipalityId)
 				.map(OpenEMapper::toCaseStatusResponse))
 			.map(this::addExternalStatusByOepStatus)
-			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
+			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 	}
 
 	public CasePdfResponse getCasePdf(final String municipalityId, final String externalCaseId) {
@@ -114,13 +115,13 @@ public class CaseStatusService {
 		final var body = response.getBody();
 
 		if (response.getStatusCode().is4xxClientError() || body == null) {
-			throw Problem.valueOf(Status.NOT_FOUND, "Could not find PDF for case with externalCaseId %s".formatted(externalCaseId));
+			throw Problem.valueOf(NOT_FOUND, "Could not find PDF for case with externalCaseId %s".formatted(externalCaseId));
 		}
 
 		try {
 			return toCasePdfResponse(externalCaseId, body);
 		} catch (final IOException _) {
-			throw Problem.valueOf(Status.INTERNAL_SERVER_ERROR, "Failed to read PDF data");
+			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Failed to read PDF data");
 		}
 
 	}
