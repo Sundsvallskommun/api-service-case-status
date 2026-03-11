@@ -333,7 +333,7 @@ class EventLogWorkerTest {
 		assertThat(result).isTrue();
 		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId), any(CaseStatusChangeRequest.class));
 		verify(messagingIntegrationMock).sendSlackMessage(eq(municipalityId), contains(externalCaseId));
-		verifyNoInteractions(consumerMock);
+		verify(consumerMock).accept("Failed to update openE status for case with external ID " + externalCaseId);
 	}
 
 	@Test
@@ -470,6 +470,7 @@ class EventLogWorkerTest {
 		assertThat(slackMessageCaptor.getValue())
 			.startsWith("CaseStatus [junit] - RequestID: ")
 			.contains("Failed to set status 'OepStatus1' for case with external ID 'ext-1'. Error: 'OEP error'");
+		verify(consumerMock, times(1)).accept("Failed to update openE status for case with external ID " + externalCaseId1);
 	}
 
 	@Test

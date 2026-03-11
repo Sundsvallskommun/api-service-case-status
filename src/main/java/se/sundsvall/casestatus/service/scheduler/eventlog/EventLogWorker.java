@@ -91,6 +91,7 @@ public class EventLogWorker {
 				log.info("RequestID: {} - Successfully set status '{}' for case with external ID {}", RequestId.get(), status, externalCaseId);
 			} catch (final Exception e) {
 				log.error("RequestID: {} - Failed to set status for case with external ID {}: {}", RequestId.get(), externalCaseId, e.getMessage());
+				setUnHealthyConsumer.accept("Failed to update openE status for case with external ID " + externalCaseId);
 				messagingIntegration.sendSlackMessage(executionInformation.getMunicipalityId(),
 					"CaseStatus [%s] - RequestID: %s - Failed to set status '%s' for case with external ID '%s'. Error: '%s'"
 						.formatted(environmentUtil.extractEnvironment(), RequestId.get(), status, externalCaseId, e.getMessage()));
