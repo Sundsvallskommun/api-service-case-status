@@ -45,6 +45,12 @@ integration:
     namespaces:
       - CASE_STATUS
       - CASE_DATA
+  messaging:
+    connectTimeout: 5
+    readTimeout: 30
+    base-url: http://messaging.url
+    channel: test-channel
+    token: test-token
 spring:
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
@@ -86,6 +92,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
           case-data:
             token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
+          messaging:
+            token-uri: http://localhost:${wiremock.server.port:}/api-gateway/token
         registration:
           case-management:
             authorization-grant-type: client_credentials
@@ -108,6 +116,10 @@ spring:
             client-id: the-client-id
             client-secret: the-client-secret
           case-data:
+            authorization-grant-type: client_credentials
+            client-id: the-client-id
+            client-secret: the-client-secret
+          messaging:
             authorization-grant-type: client_credentials
             client-id: the-client-id
             client-secret: the-client-secret

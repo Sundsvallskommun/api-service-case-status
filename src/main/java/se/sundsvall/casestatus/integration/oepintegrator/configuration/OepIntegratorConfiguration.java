@@ -11,14 +11,14 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 @Import(FeignConfiguration.class)
 public class OepIntegratorConfiguration {
 
-	public static final String REGISTRATION_ID = "oep-integrator";
+	public static final String CLIENT_ID = "oep-integrator";
 
 	@Bean
 	FeignBuilderCustomizer feignBuilderCustomizer(final OepIntegratorProperties oepIntegratorProperties, final ClientRegistrationRepository clientRepository) {
 		return FeignMultiCustomizer.create()
-			.withErrorDecoder(new ProblemErrorDecoder(REGISTRATION_ID))
+			.withErrorDecoder(new ProblemErrorDecoder(CLIENT_ID))
 			.withRequestTimeoutsInSeconds(oepIntegratorProperties.connectTimeout(), oepIntegratorProperties.readTimeout())
-			.withRetryableOAuth2InterceptorForClientRegistration(clientRepository.findByRegistrationId(REGISTRATION_ID))
+			.withRetryableOAuth2InterceptorForClientRegistration(clientRepository.findByRegistrationId(CLIENT_ID))
 			.composeCustomizersToOne();
 	}
 

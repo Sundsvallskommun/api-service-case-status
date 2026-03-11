@@ -33,6 +33,10 @@ integration:
     namespaces:
       - NAMESPACE_1
       - NAMESPACE_2
+  messaging:
+    base-url: http://localhost:${wiremock.server.port}/messaging
+    channel: test-channel
+    token: test-token
 spring:
   main:
     banner-mode: 'off'
@@ -76,6 +80,8 @@ spring:
             token-uri: http://localhost:${wiremock.server.port:}/token
           case-data:
             token-uri: http://localhost:${wiremock.server.port:}/token
+          messaging:
+            token-uri: http://localhost:${wiremock.server.port:}/token
         registration:
           case-management:
             authorization-grant-type: client_credentials
@@ -98,6 +104,10 @@ spring:
             client-id: the-client-id
             client-secret: the-client-secret
           case-data:
+            authorization-grant-type: client_credentials
+            client-id: the-client-id
+            client-secret: the-client-secret
+          messaging:
             authorization-grant-type: client_credentials
             client-id: the-client-id
             client-secret: the-client-secret
