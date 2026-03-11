@@ -18,8 +18,10 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
+import se.sundsvall.casestatus.integration.messaging.MessagingIntegration;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
+import se.sundsvall.casestatus.service.util.EnvironmentUtil;
 import se.sundsvall.dept44.requestid.RequestId;
 
 import static java.util.stream.Collectors.toMap;
@@ -37,20 +39,26 @@ public class EventLogWorker {
 	private final SupportManagementService supportManagementService;
 	private final OepIntegratorClient oepIntegratorClient;
 	private final StatusesRepository statusesRepository;
+	private final MessagingIntegration messagingIntegration;
 	private final Duration clockSkew;
+	private final EnvironmentUtil environmentUtil;
 
 	public EventLogWorker(
 		final EventlogClient eventlogClient,
 		final SupportManagementService supportManagementService,
 		final OepIntegratorClient oepIntegratorClient,
 		final StatusesRepository statusesRepository,
-		@Value("${scheduler.eventlog.clock-skew:PT5S}") final Duration clockSkew) {
+		final MessagingIntegration messagingIntegration,
+		@Value("${scheduler.eventlog.clock-skew:PT5S}") final Duration clockSkew,
+		final EnvironmentUtil environmentUtil) {
 
 		this.eventlogClient = eventlogClient;
 		this.supportManagementService = supportManagementService;
 		this.oepIntegratorClient = oepIntegratorClient;
 		this.statusesRepository = statusesRepository;
+		this.messagingIntegration = messagingIntegration;
 		this.clockSkew = clockSkew;
+		this.environmentUtil = environmentUtil;
 	}
 
 	boolean updateOepCase(final String serviceName, final ExecutionInformationEntity executionInformation, final Consumer<String> setUnHealthyConsumer) {
@@ -62,6 +70,7 @@ public class EventLogWorker {
 		}
 
 		for (var event : events) {
+			RequestId.init(); // Initialize RequestId for each event for better traceability in logs.
 			var metadata = event.getMetadata().stream()
 				.collect(toMap(Metadata::getKey, Metadata::getValue));
 
@@ -71,7 +80,6 @@ public class EventLogWorker {
 				continue;
 			}
 			var status = statusesEntity.get().getOepStatus();
-
 			var externalCaseId = metadata.get("ExternalCaseId");
 
 			try {
@@ -80,11 +88,13 @@ public class EventLogWorker {
 					InstanceType.EXTERNAL,
 					externalCaseId,
 					new CaseStatusChangeRequest().name(status));
-				return true;
+				log.info("RequestID: {} - Successfully set status '{}' for case with external ID {}", RequestId.get(), status, externalCaseId);
 			} catch (final Exception e) {
-				setUnHealthyConsumer.accept("Failed to update Open-E status for case with external ID " + externalCaseId);
 				log.error("RequestID: {} - Failed to set status for case with external ID {}: {}", RequestId.get(), externalCaseId, e.getMessage());
-				return false;
+				setUnHealthyConsumer.accept("Failed to update openE status for case with external ID " + externalCaseId);
+				messagingIntegration.sendSlackMessage(executionInformation.getMunicipalityId(),
+					"CaseStatus [%s] - RequestID: %s - Failed to set status '%s' for case with external ID '%s'. Error: '%s'"
+						.formatted(environmentUtil.extractEnvironment(), RequestId.get(), status, externalCaseId, e.getMessage()));
 			}
 		}
 

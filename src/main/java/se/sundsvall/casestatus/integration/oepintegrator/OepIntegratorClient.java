@@ -21,10 +21,10 @@ import se.sundsvall.casestatus.integration.oepintegrator.configuration.OepIntegr
 
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static se.sundsvall.casestatus.integration.oepintegrator.configuration.OepIntegratorConfiguration.REGISTRATION_ID;
+import static se.sundsvall.casestatus.integration.oepintegrator.configuration.OepIntegratorConfiguration.CLIENT_ID;
 
-@FeignClient(name = REGISTRATION_ID, url = "${integration.oep-integrator.base-url}", configuration = OepIntegratorConfiguration.class, dismiss404 = true)
-@CircuitBreaker(name = REGISTRATION_ID)
+@FeignClient(name = CLIENT_ID, url = "${integration.oep-integrator.base-url}", configuration = OepIntegratorConfiguration.class, dismiss404 = true)
+@CircuitBreaker(name = CLIENT_ID)
 public interface OepIntegratorClient {
 
 	@PostMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/delivery", consumes = APPLICATION_JSON_VALUE, produces = ALL_VALUE)

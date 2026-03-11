@@ -28,13 +28,16 @@ import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
+import se.sundsvall.casestatus.integration.messaging.MessagingIntegration;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.SupportManagementService;
+import se.sundsvall.casestatus.service.util.EnvironmentUtil;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.times;
@@ -63,6 +66,12 @@ class EventLogWorkerTest {
 	@MockitoBean
 	private OepIntegratorClient oepIntegratorClientMock;
 
+	@MockitoBean
+	private MessagingIntegration messagingIntegrationMock;
+
+	@MockitoBean
+	private EnvironmentUtil environmentUtilMock;
+
 	@Mock
 	private Page<Event> eventPageMock;
 
@@ -77,7 +86,6 @@ class EventLogWorkerTest {
 
 	@Test
 	void updateSupportManagementStatuses() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
@@ -102,10 +110,8 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPageMock);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
 		verify(supportManagementServiceMock, times(2)).getSupportManagementCaseById(eq(municipalityId), same(namespace), anyString());
@@ -117,7 +123,6 @@ class EventLogWorkerTest {
 
 	@Test
 	void testUpdateSupportManagementStatusesWithEmptyLogKeys() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var executionInformationEntity = ExecutionInformationEntity.builder()
 			.withMunicipalityId(municipalityId)
@@ -128,10 +133,8 @@ class EventLogWorkerTest {
 		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture());
 		verifyNoInteractions(supportManagementServiceMock, oepIntegratorClientMock);
@@ -141,7 +144,6 @@ class EventLogWorkerTest {
 
 	@Test
 	void updateSupportManagementStatusesWithoutFamilyId() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
@@ -161,20 +163,16 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementServiceMock, times(1)).getSupportManagementCaseById(eq(municipalityId), same(namespace), anyString());
+		verify(supportManagementServiceMock).getSupportManagementCaseById(eq(municipalityId), same(namespace), anyString());
 		verifyNoInteractions(oepIntegratorClientMock);
 	}
 
 	@Test
 	void updateStatusWithMismatchingSupportManagementStatuses() {
-
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
@@ -196,20 +194,17 @@ class EventLogWorkerTest {
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 		when(statusesRepositoryMock.findBySupportManagementStatus(internalStatus)).thenReturn(Optional.empty());
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isFalse();
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verify(supportManagementServiceMock, times(1)).getSupportManagementCaseById(eq(municipalityId), eq(namespace), anyString());
+		verify(supportManagementServiceMock).getSupportManagementCaseById(eq(municipalityId), eq(namespace), anyString());
 		verifyNoInteractions(oepIntegratorClientMock);
 		verify(consumerMock).accept(anyString());
 	}
 
 	@Test
 	void updateSupportManagementStatusesWithMissingNamespace() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var logkey = "1";
 
@@ -223,10 +218,8 @@ class EventLogWorkerTest {
 		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
 		verifyNoInteractions(supportManagementServiceMock, oepIntegratorClientMock, statusesRepositoryMock);
@@ -234,7 +227,6 @@ class EventLogWorkerTest {
 
 	@Test
 	void updateSupportManagementStatusesWithOepIntegratorFailure() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
@@ -258,10 +250,8 @@ class EventLogWorkerTest {
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 		when(oepIntegratorClientMock.setStatus(anyString(), any(), anyString(), any())).thenThrow(new RuntimeException("OEP error"));
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isFalse();
 		verify(oepIntegratorClientMock).setStatus(anyString(), eq(InstanceType.EXTERNAL), eq(logkey), any(CaseStatusChangeRequest.class));
 		verify(consumerMock).accept(anyString());
@@ -269,7 +259,6 @@ class EventLogWorkerTest {
 
 	@Test
 	void updateOepCase_success() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue = "SomeStatus";
 		final var externalCaseId = "ext-123";
@@ -286,13 +275,12 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), filterArgumentCaptor.capture())).thenReturn(eventPageMock);
 		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue)).thenReturn(Optional.of(statuses));
 
-		// Act
 		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId), any(CaseStatusChangeRequest.class));
 		verify(statusesRepositoryMock).findByCaseManagementStatus(statusValue);
+		verifyNoInteractions(messagingIntegrationMock);
 		assertThat(filterArgumentCaptor.getValue())
 			.contains("message ~ 'Status updated to'")
 			.contains("owner: 'CaseManagement'")
@@ -303,7 +291,6 @@ class EventLogWorkerTest {
 
 	@Test
 	void updateOepCase_noEvents() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var executionInformationEntity = ExecutionInformationEntity.builder()
 			.withMunicipalityId(municipalityId)
@@ -314,18 +301,15 @@ class EventLogWorkerTest {
 		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 
-		// Act
 		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
-		verifyNoInteractions(statusesRepositoryMock, oepIntegratorClientMock);
+		verifyNoInteractions(statusesRepositoryMock, oepIntegratorClientMock, messagingIntegrationMock);
 	}
 
 	@Test
 	void updateOepCase_oepIntegratorFailure() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue = "SomeStatus";
 		final var externalCaseId = "ext-123";
@@ -342,19 +326,18 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue)).thenReturn(Optional.of(statuses));
 		when(oepIntegratorClientMock.setStatus(anyString(), any(), anyString(), any())).thenThrow(new RuntimeException("OEP error"));
+		when(environmentUtilMock.extractEnvironment()).thenReturn("junit");
 
-		// Act
 		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
 
-		// Assert
-		assertThat(result).isFalse();
+		assertThat(result).isTrue();
 		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId), any(CaseStatusChangeRequest.class));
-		verify(consumerMock).accept(anyString());
+		verify(messagingIntegrationMock).sendSlackMessage(eq(municipalityId), contains(externalCaseId));
+		verify(consumerMock).accept("Failed to update openE status for case with external ID " + externalCaseId);
 	}
 
 	@Test
 	void updateOepCase_statusNotFoundSkipsEvent() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue = "UnknownStatus";
 		final var executionInformationEntity = ExecutionInformationEntity.builder()
@@ -369,18 +352,15 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue)).thenReturn(Optional.empty());
 
-		// Act
 		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(statusesRepositoryMock).findByCaseManagementStatus(statusValue);
-		verifyNoInteractions(oepIntegratorClientMock);
+		verifyNoInteractions(oepIntegratorClientMock, messagingIntegrationMock);
 	}
 
 	@Test
 	void updateOepCase_multiplePages() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue = "SomeStatus";
 		final var externalCaseId = "ext-123";
@@ -406,18 +386,95 @@ class EventLogWorkerTest {
 			.thenReturn(secondPageMock);
 		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue)).thenReturn(Optional.of(statuses));
 
-		// Act
 		final var result = eventLogWorker.updateOepCase(CASE_DATA, executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(eventlogClientMock, times(2)).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
 		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId), any(CaseStatusChangeRequest.class));
+		verifyNoInteractions(messagingIntegrationMock);
+	}
+
+	@Test
+	void updateOepCase_multipleEventsAllProcessed() {
+		final String municipalityId = "testMunicipalityId";
+		final var statusValue1 = "Status1";
+		final var statusValue2 = "Status2";
+		final var externalCaseId1 = "ext-1";
+		final var externalCaseId2 = "ext-2";
+		final var executionInformationEntity = ExecutionInformationEntity.builder()
+			.withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(OffsetDateTime.now())
+			.build();
+		final var statuses1 = StatusesEntity.builder().withOepStatus("OepStatus1").build();
+		final var statuses2 = StatusesEntity.builder().withOepStatus("OepStatus2").build();
+
+		when(eventPageMock.getContent()).thenReturn(List.of(
+			new Event().logKey("1").metadata(List.of(
+				new Metadata().key("Status").value(statusValue1),
+				new Metadata().key("ExternalCaseId").value(externalCaseId1))),
+			new Event().logKey("2").metadata(List.of(
+				new Metadata().key("Status").value(statusValue2),
+				new Metadata().key("ExternalCaseId").value(externalCaseId2)))));
+		when(eventPageMock.hasNext()).thenReturn(false);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
+		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue1)).thenReturn(Optional.of(statuses1));
+		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue2)).thenReturn(Optional.of(statuses2));
+
+		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
+
+		assertThat(result).isTrue();
+		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId1), any(CaseStatusChangeRequest.class));
+		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId2), any(CaseStatusChangeRequest.class));
+		verify(statusesRepositoryMock).findByCaseManagementStatus(statusValue1);
+		verify(statusesRepositoryMock).findByCaseManagementStatus(statusValue2);
+		verifyNoInteractions(messagingIntegrationMock);
+	}
+
+	@Test
+	void updateOepCase_failureContinuesProcessing() {
+		final String municipalityId = "testMunicipalityId";
+		final var statusValue1 = "Status1";
+		final var statusValue2 = "Status2";
+		final var externalCaseId1 = "ext-1";
+		final var externalCaseId2 = "ext-2";
+		final var executionInformationEntity = ExecutionInformationEntity.builder()
+			.withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(OffsetDateTime.now())
+			.build();
+		final var statuses1 = StatusesEntity.builder().withOepStatus("OepStatus1").build();
+		final var statuses2 = StatusesEntity.builder().withOepStatus("OepStatus2").build();
+
+		when(eventPageMock.getContent()).thenReturn(List.of(
+			new Event().logKey("1").metadata(List.of(
+				new Metadata().key("Status").value(statusValue1),
+				new Metadata().key("ExternalCaseId").value(externalCaseId1))),
+			new Event().logKey("2").metadata(List.of(
+				new Metadata().key("Status").value(statusValue2),
+				new Metadata().key("ExternalCaseId").value(externalCaseId2)))));
+		when(eventPageMock.hasNext()).thenReturn(false);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
+		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue1)).thenReturn(Optional.of(statuses1));
+		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue2)).thenReturn(Optional.of(statuses2));
+		when(oepIntegratorClientMock.setStatus(eq(municipalityId), any(), eq(externalCaseId1), any()))
+			.thenThrow(new RuntimeException("OEP error"));
+		when(environmentUtilMock.extractEnvironment()).thenReturn("junit");
+
+		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
+
+		assertThat(result).isTrue();
+		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId1), any(CaseStatusChangeRequest.class));
+		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId2), any(CaseStatusChangeRequest.class));
+
+		final var slackMessageCaptor = ArgumentCaptor.forClass(String.class);
+		verify(messagingIntegrationMock, times(1)).sendSlackMessage(eq(municipalityId), slackMessageCaptor.capture());
+		assertThat(slackMessageCaptor.getValue())
+			.startsWith("CaseStatus [junit] - RequestID: ")
+			.contains("Failed to set status 'OepStatus1' for case with external ID 'ext-1'. Error: 'OEP error'");
+		verify(consumerMock, times(1)).accept("Failed to update openE status for case with external ID " + externalCaseId1);
 	}
 
 	@Test
 	void updateSupportManagementStatusesWithInternalChannel() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var logkey = "1";
@@ -440,17 +497,14 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.INTERNAL), any(), any(CaseStatusChangeRequest.class));
 	}
 
 	@Test
 	void updateSupportManagementStatusesWithInvalidChannel() {
-		// Arrange
 		final String municipalityId = "testMunicipalityId";
 		final var logkey = "1";
 		final var namespace = "namespace";
@@ -469,10 +523,8 @@ class EventLogWorkerTest {
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
 		when(supportManagementServiceMock.getSupportManagementCaseById(eq(municipalityId), any(), anyString())).thenReturn(errand);
 
-		// Act
 		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
 
-		// Assert
 		assertThat(result).isTrue();
 		verifyNoInteractions(oepIntegratorClientMock, statusesRepositoryMock);
 	}

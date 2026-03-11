@@ -23,7 +23,6 @@
 			<groupId>se.sundsvall.dept44</groupId>
 			<artifactId>dept44-starter-jpa</artifactId>
 		</dependency>
-
 		<!-- Test -->
 		<dependency>
 			<groupId>se.sundsvall.dept44</groupId>
@@ -245,6 +244,32 @@
 								<dateLibrary>java8-localdatetime</dateLibrary>
 								<apiPackage>generated</apiPackage>
 								<modelPackage>generated.client.oep-integrator</modelPackage>
+								<openApiNullable>false</openApiNullable>
+								<generatePom>false</generatePom>
+								<useBeanValidation>true</useBeanValidation>
+								<useSwaggerAnnotations>true</useSwaggerAnnotations>
+								<interfaceOnly>true</interfaceOnly>
+							</configOptions>
+						</configuration>
+					</execution>
+					<execution>
+						<id>messaging-api</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/integrations/messaging.yml</inputSpec>
+							<output>${generated-sources-path}</output>
+							<generatorName>spring</generatorName>
+							<generateApis>false</generateApis>
+							<generateSupportingFiles>false</generateSupportingFiles>
+							<configOptions>
+								<useSpringBoot4>true</useSpringBoot4>
+								<useJackson3>true</useJackson3>
+								<sourceFolder>${generated-sources-java-path}</sourceFolder>
+								<dateLibrary>java8</dateLibrary>
+								<apiPackage>generated</apiPackage>
+								<modelPackage>generated.client.messaging</modelPackage>
 								<openApiNullable>false</openApiNullable>
 								<generatePom>false</generatePom>
 								<useBeanValidation>true</useBeanValidation>
