@@ -17,6 +17,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.ExecutionInformationEntity;
+import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.messaging.MessagingIntegration;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
@@ -69,21 +70,20 @@ public class EventLogWorker {
 			return true;
 		}
 
-		for (var event : events) {
+		for (final var event : events) {
 			RequestId.init(); // Initialize RequestId for each event for better traceability in logs.
-			var metadata = event.getMetadata().stream()
+			final var metadata = event.getMetadata().stream()
 				.collect(toMap(Metadata::getKey, Metadata::getValue));
 
-			var statusesEntity = statusesRepository.findByCaseManagementStatus(metadata.get("Status"));
+			final var externalCaseId = metadata.get("ExternalCaseId");
+			final var status = statusesRepository.findByCaseManagementStatus(metadata.get("Status"))
+				.map(StatusesEntity::getOepStatus)
+				.orElse(null);
 
-			if (statusesEntity.isEmpty()) {
-				continue;
-			}
-			var status = statusesEntity.get().getOepStatus();
-			var externalCaseId = metadata.get("ExternalCaseId");
-
-			if (externalCaseId == null) {
-				log.info("RequestID: {} - No ExternalCaseId found for event, skipping", RequestId.get());
+			if (status == null || externalCaseId == null) {
+				if (externalCaseId == null && status != null) {
+					log.info("RequestID: {} - No ExternalCaseId found for event, skipping", RequestId.get());
+				}
 				continue;
 			}
 
