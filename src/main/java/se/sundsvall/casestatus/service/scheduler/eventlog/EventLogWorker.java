@@ -87,6 +87,11 @@ public class EventLogWorker {
 				continue;
 			}
 
+			if (externalCaseId == null) {
+				log.info("RequestID: {} - No ExternalCaseId found for event, skipping", RequestId.get());
+				continue;
+			}
+
 			try {
 				oepIntegratorClient.setStatus(
 					executionInformation.getMunicipalityId(),
