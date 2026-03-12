@@ -82,6 +82,11 @@ public class EventLogWorker {
 			var status = statusesEntity.get().getOepStatus();
 			var externalCaseId = metadata.get("ExternalCaseId");
 
+			if (externalCaseId == null) {
+				log.info("RequestID: {} - No ExternalCaseId found for event, skipping", RequestId.get());
+				continue;
+			}
+
 			try {
 				oepIntegratorClient.setStatus(
 					executionInformation.getMunicipalityId(),

@@ -360,6 +360,29 @@ class EventLogWorkerTest {
 	}
 
 	@Test
+	void updateOepCase_nullExternalCaseIdSkipsEvent() {
+		final String municipalityId = "testMunicipalityId";
+		final var statusValue = "SomeStatus";
+		final var executionInformationEntity = ExecutionInformationEntity.builder()
+			.withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(OffsetDateTime.now())
+			.build();
+		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
+
+		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey("12345").metadata(List.of(
+			new Metadata().key("Status").value(statusValue)))));
+		when(eventPageMock.hasNext()).thenReturn(false);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
+		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue)).thenReturn(Optional.of(statuses));
+
+		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
+
+		assertThat(result).isTrue();
+		verify(statusesRepositoryMock).findByCaseManagementStatus(statusValue);
+		verifyNoInteractions(oepIntegratorClientMock, messagingIntegrationMock);
+	}
+
+	@Test
 	void updateOepCase_multiplePages() {
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue = "SomeStatus";
