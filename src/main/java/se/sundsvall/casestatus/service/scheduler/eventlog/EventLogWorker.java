@@ -80,9 +80,13 @@ public class EventLogWorker {
 				.map(StatusesEntity::getOepStatus)
 				.orElse(null);
 
-			if (status == null || externalCaseId == null) {
-				if (externalCaseId == null && status != null) {
+			if (externalCaseId == null || status == null) {
+				if (externalCaseId == null) {
 					log.info("RequestID: {} - No ExternalCaseId found for event, skipping", RequestId.get());
+				}
+				if (status == null) {
+					final var metadataStatus = metadata.get("Status");
+					log.info("RequestID: {} - No matching OeP status found for CaseManagement status '{}', skipping", RequestId.get(), metadataStatus);
 				}
 				continue;
 			}
