@@ -53,7 +53,7 @@ import static se.sundsvall.TestDataFactory.createErrand;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
 
 @SpringBootTest(classes = {
-	CaseStatusService.class, AsyncConfig.class, OpenEMapper.class
+	CaseStatusService.class, AsyncConfig.class, OpenEMapper.class, CaseAggregator.class
 }, webEnvironment = NONE)
 class CaseStatusServiceTest {
 
@@ -96,6 +96,9 @@ class CaseStatusServiceTest {
 
 	@Autowired
 	private CaseStatusService caseStatusService;
+
+	@Autowired
+	private CaseAggregator caseAggregator;
 
 	@Test
 	void getOepStatusCaseStatusFoundInCaseManagement() {
@@ -581,7 +584,7 @@ class CaseStatusServiceTest {
 		final var responses = List.of(caseResponse1, caseResponse2);
 		final var includeDrafts = true;
 
-		final var result = caseStatusService.filterResponses(responses, includeDrafts);
+		final var result = caseAggregator.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse2);
 	}
@@ -597,7 +600,7 @@ class CaseStatusServiceTest {
 		final var responses = List.of(caseResponse1, caseResponse2);
 		final var includeDrafts = true;
 
-		final var result = caseStatusService.filterResponses(responses, includeDrafts);
+		final var result = caseAggregator.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse1, caseResponse2);
 	}
@@ -613,7 +616,7 @@ class CaseStatusServiceTest {
 		final var responses = List.of(caseResponse1, caseResponse2);
 		final var includeDrafts = true;
 
-		final var result = caseStatusService.filterResponses(responses, includeDrafts);
+		final var result = caseAggregator.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().containsOnly(caseResponse1, caseResponse2);
 	}
@@ -631,7 +634,7 @@ class CaseStatusServiceTest {
 
 		final var responses = List.of(caseResponse1, caseResponse2);
 
-		final var result = caseStatusService.filterResponses(responses, includeDrafts);
+		final var result = caseAggregator.filterResponses(responses, includeDrafts);
 
 		assertThat(result).isNotNull().isEmpty();
 	}
@@ -648,7 +651,7 @@ class CaseStatusServiceTest {
 
 		final var responses = List.of(caseResponse1, caseResponse2);
 
-		final var result = caseStatusService.filterResponses(responses, includeDrafts);
+		final var result = caseAggregator.filterResponses(responses, includeDrafts);
 
 		assertThat(result)
 			.isNotNull()
