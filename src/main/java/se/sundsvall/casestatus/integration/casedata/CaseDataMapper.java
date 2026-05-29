@@ -12,35 +12,44 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 
-public final class CaseDataMapper {
+@Component
+public class CaseDataMapper {
 
 	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-	private CaseDataMapper() {}
+	private final StatusVocabulary statusVocabulary;
 
-	public static List<CaseStatusResponse> toCaseStatusResponses(final List<Errand> errands) {
+	public CaseDataMapper(final StatusVocabulary statusVocabulary) {
+		this.statusVocabulary = statusVocabulary;
+	}
 
+	public List<CaseStatusResponse> toCaseStatusResponses(final List<Errand> errands) {
 		return Optional.ofNullable(errands).orElse(emptyList()).stream()
-			.map(CaseDataMapper::toCaseStatusResponse)
+			.map(this::toCaseStatusResponse)
 			.toList();
 	}
 
-	public static CaseStatusResponse toCaseStatusResponse(final Errand errand) {
+	public CaseStatusResponse toCaseStatusResponse(final Errand errand) {
 		final var latestStatus = errand.getStatuses().stream()
 			.max(Comparator.comparing(Status::getCreated))
+			.orElse(null);
+
+		final var status = Optional.ofNullable(latestStatus)
+			.map(Status::getStatusType)
 			.orElse(null);
 
 		return CaseStatusResponse.builder()
 			.withCaseId(String.valueOf(errand.getId()))
 			.withCaseType(errand.getCaseType())
-			.withStatus(Optional.ofNullable(latestStatus)
-				.map(Status::getStatusType)
-				.orElse(null))
+			.withStatus(status)
+			.withExternalStatus(statusVocabulary.translateCaseManagementStatus(status))
 			.withLastStatusChange(Optional.ofNullable(latestStatus)
 				.map(Status::getCreated)
 				.map(dateTime -> dateTime.atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime())
@@ -61,9 +70,6 @@ public final class CaseDataMapper {
 
 	/**
 	 * Formats the timestamp to a predetermined format or returns null if the timestamp is null.
-	 *
-	 * @param  originalTimestamp The original timestamp.
-	 * @return                   The formatted timestamp or null if the timestamp is null.
 	 */
 	static String getTimestamp(final LocalDateTime originalTimestamp) {
 		return ofNullable(originalTimestamp)
@@ -73,14 +79,10 @@ public final class CaseDataMapper {
 
 	/**
 	 * Formats the timestamp to a predetermined format or returns null if the timestamp is null.
-	 *
-	 * @param  originalTimestamp The original timestamp.
-	 * @return                   The formatted timestamp or null if the timestamp is null.
 	 */
 	static String getTimestamp(final OffsetDateTime originalTimestamp) {
 		return ofNullable(originalTimestamp)
 			.map(DATE_TIME_FORMATTER::format)
 			.orElse(null);
-
 	}
 }

@@ -13,9 +13,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
-import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
-import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
+import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.verify;
@@ -29,7 +28,7 @@ import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 class CaseManagementMapperTest {
 
 	@Mock
-	private StatusesRepository statusesRepositoryMock;
+	private StatusVocabulary statusVocabularyMock;
 
 	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
@@ -71,14 +70,14 @@ class CaseManagementMapperTest {
 	void getStatus_1() {
 		final var originalStatus = "originalStatus";
 
-		when(statusesRepositoryMock.findByCaseManagementStatus(originalStatus)).thenReturn(Optional.empty());
+		when(statusVocabularyMock.findOepStatusForCaseManagementStatus(originalStatus)).thenReturn(Optional.empty());
 
 		final var result = caseManagementMapper.getStatus(originalStatus);
 
 		assertThat(result).isEqualTo(originalStatus);
-		verify(statusesRepositoryMock).findByCaseManagementStatus(originalStatus);
+		verify(statusVocabularyMock).findOepStatusForCaseManagementStatus(originalStatus);
 
-		verifyNoMoreInteractions(statusesRepositoryMock);
+		verifyNoMoreInteractions(statusVocabularyMock);
 		verifyNoInteractions(caseTypeRepositoryMock);
 	}
 
@@ -88,22 +87,15 @@ class CaseManagementMapperTest {
 	@Test
 	void getStatus_2() {
 		final var caseManagementStatus = "caseManagementStatus";
-		final var oepStatus = "openStatus";
-		final var externalStatus = "externalStatus";
-		final var statuses = StatusesEntity.builder()
-			.withCaseManagementStatus(caseManagementStatus)
-			.withOepStatus(oepStatus)
-			.withExternalStatus(externalStatus)
-			.build();
 
-		when(statusesRepositoryMock.findByCaseManagementStatus(caseManagementStatus)).thenReturn(Optional.of(statuses));
+		when(statusVocabularyMock.findOepStatusForCaseManagementStatus(caseManagementStatus)).thenReturn(Optional.of("openStatus"));
 
 		final var result = caseManagementMapper.getStatus(caseManagementStatus);
 
 		assertThat(result).isEqualTo("openStatus");
-		verify(statusesRepositoryMock).findByCaseManagementStatus(caseManagementStatus);
+		verify(statusVocabularyMock).findOepStatusForCaseManagementStatus(caseManagementStatus);
 
-		verifyNoMoreInteractions(statusesRepositoryMock);
+		verifyNoMoreInteractions(statusVocabularyMock);
 		verifyNoInteractions(caseTypeRepositoryMock);
 	}
 
@@ -113,17 +105,18 @@ class CaseManagementMapperTest {
 		final var result = caseManagementMapper.getStatus(null);
 
 		assertThat(result).isNull();
-		verifyNoInteractions(statusesRepositoryMock);
+		verifyNoInteractions(statusVocabularyMock);
 		verifyNoInteractions(caseTypeRepositoryMock);
 	}
 
 	@Test
 	void getExternalStatusWhenCMStatusIsNull() {
+		when(statusVocabularyMock.translateCaseManagementStatus(null)).thenReturn(null);
 
 		final var result = caseManagementMapper.getExternalStatus(null);
 
 		assertThat(result).isNull();
-		verifyNoInteractions(statusesRepositoryMock);
+		verify(statusVocabularyMock).translateCaseManagementStatus(null);
 		verifyNoInteractions(caseTypeRepositoryMock);
 	}
 
@@ -132,14 +125,14 @@ class CaseManagementMapperTest {
 
 		final var caseManagementStatus = "caseManagementStatus";
 
-		when(statusesRepositoryMock.findByCaseManagementStatus(caseManagementStatus)).thenReturn(Optional.empty());
+		when(statusVocabularyMock.translateCaseManagementStatus(caseManagementStatus)).thenReturn(DEFAULT_EXTERNAL_STATUS);
 
 		final var result = caseManagementMapper.getExternalStatus(caseManagementStatus);
 
 		assertThat(result).isEqualTo(DEFAULT_EXTERNAL_STATUS);
-		verify(statusesRepositoryMock).findByCaseManagementStatus(caseManagementStatus);
+		verify(statusVocabularyMock).translateCaseManagementStatus(caseManagementStatus);
 		verifyNoInteractions(caseTypeRepositoryMock);
-		verifyNoMoreInteractions(statusesRepositoryMock);
+		verifyNoMoreInteractions(statusVocabularyMock);
 	}
 
 	/**
@@ -180,7 +173,7 @@ class CaseManagementMapperTest {
 		assertThat(result).isEqualTo("serviceName");
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
-		verifyNoInteractions(statusesRepositoryMock);
+		verifyNoInteractions(statusVocabularyMock);
 	}
 
 	/**
@@ -200,7 +193,7 @@ class CaseManagementMapperTest {
 		assertThat(result).isEqualTo("description");
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
-		verifyNoInteractions(statusesRepositoryMock);
+		verifyNoInteractions(statusVocabularyMock);
 	}
 
 	/**
@@ -218,7 +211,7 @@ class CaseManagementMapperTest {
 		assertThat(result).isEqualTo(caseType);
 		verify(caseTypeRepositoryMock).findByEnumValueAndMunicipalityId(caseType, municipalityId);
 		verifyNoMoreInteractions(caseTypeRepositoryMock);
-		verifyNoInteractions(statusesRepositoryMock);
+		verifyNoInteractions(statusVocabularyMock);
 	}
 
 }

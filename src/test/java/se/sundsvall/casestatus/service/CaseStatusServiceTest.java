@@ -30,6 +30,7 @@ import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
+import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 import se.sundsvall.dept44.problem.Problem;
 
@@ -39,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -51,7 +53,7 @@ import static se.sundsvall.TestDataFactory.createErrand;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
 
 @SpringBootTest(classes = {
-	CaseStatusService.class, AsyncConfig.class
+	CaseStatusService.class, AsyncConfig.class, OpenEMapper.class
 }, webEnvironment = NONE)
 class CaseStatusServiceTest {
 
@@ -256,6 +258,7 @@ class CaseStatusServiceTest {
 		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand);
 		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusVocabularyMock).lookupBySupportManagementStatus(smStatus);
+		verify(statusVocabularyMock).translateOepStatus(nullable(String.class));
 
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock, supportManagementMapperMock, statusVocabularyMock);
 	}
@@ -296,6 +299,7 @@ class CaseStatusServiceTest {
 		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand);
 		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusVocabularyMock).lookupBySupportManagementStatus(null);
+		verify(statusVocabularyMock).translateOepStatus(nullable(String.class));
 
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseRepositoryMock, caseManagementMapperMock, supportManagementServiceMock, supportManagementMapperMock, statusVocabularyMock);
 	}
@@ -709,7 +713,6 @@ class CaseStatusServiceTest {
 			.thenReturn(Map.of(NAMESPACE_1, List.of(supportManagementErrand)));
 
 		when(statusVocabularyMock.lookupBySupportManagementStatus(smStatus)).thenReturn(statuses);
-		when(statusVocabularyMock.translateCaseManagementStatus(cmStatus)).thenReturn(externalStatus);
 		when(supportManagementServiceMock.getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, supportManagementErrand)).thenReturn(classificationDisplayName);
 
 		when(supportManagementMapperMock.toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse("SUPPORT_MANAGEMENT",
@@ -730,7 +733,6 @@ class CaseStatusServiceTest {
 		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, supportManagementErrand);
 		verify(supportManagementMapperMock).toCaseStatusResponse(supportManagementErrand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusVocabularyMock).lookupBySupportManagementStatus(smStatus);
-		verify(statusVocabularyMock).translateCaseManagementStatus(cmStatus);
 		verifyNoMoreInteractions(caseDataIntegrationMock, supportManagementServiceMock, statusVocabularyMock, supportManagementMapperMock);
 	}
 }

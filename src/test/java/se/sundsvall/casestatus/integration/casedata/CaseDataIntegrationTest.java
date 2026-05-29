@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.dept44.problem.Problem;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,9 @@ class CaseDataIntegrationTest {
 	@Mock
 	private CaseDataClient clientMock;
 
+	@Mock
+	private CaseDataMapper caseDataMapperMock;
+
 	@Captor
 	private ArgumentCaptor<String> filterCaptor;
 
@@ -44,7 +48,9 @@ class CaseDataIntegrationTest {
 		var propertyDesignation = "Körsbärsdalen 123";
 		var caseDataErrand = createCaseDataErrand();
 		var errandPage = new PageImpl<>(List.of(caseDataErrand));
+		var mappedResponse = CaseStatusResponse.builder().withCaseId("1").build();
 		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(String.class), any(PageRequest.class))).thenReturn(errandPage);
+		when(caseDataMapperMock.toCaseStatusResponses(List.of(caseDataErrand))).thenReturn(List.of(mappedResponse));
 
 		var result = caseDataIntegration.getCaseDataCaseByPropertyDesignation(MUNICIPALITY_ID, NAMESPACE, propertyDesignation);
 
@@ -52,9 +58,7 @@ class CaseDataIntegrationTest {
 
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(PROPERTY_DESIGNATION_FILTER.formatted(propertyDesignation));
-		assertThat(result).hasSize(1).allSatisfy(response -> {
-			assertThat(response).usingRecursiveAssertion().isEqualTo(CaseDataMapper.toCaseStatusResponse(caseDataErrand));
-		});
+		assertThat(result).containsExactly(mappedResponse);
 
 		verifyNoMoreInteractions(clientMock);
 	}
@@ -79,16 +83,16 @@ class CaseDataIntegrationTest {
 		var errandNumber = "Star Fighter 2000";
 		var caseDataErrand = createCaseDataErrand();
 		var errandPage = new PageImpl<>(List.of(caseDataErrand));
+		var mappedResponse = CaseStatusResponse.builder().withCaseId("1").build();
 		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(String.class), any(PageRequest.class))).thenReturn(errandPage);
+		when(caseDataMapperMock.toCaseStatusResponses(List.of(caseDataErrand))).thenReturn(List.of(mappedResponse));
 
 		var result = caseDataIntegration.getCaseDataCaseByErrandNumber(MUNICIPALITY_ID, NAMESPACE, errandNumber);
 
 		verify(clientMock).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), filterCaptor.capture(), any(PageRequest.class));
 		var filter = filterCaptor.getValue();
 		assertThat(filter).isEqualTo(ERRAND_NUMBER_FILTER.formatted(errandNumber));
-		assertThat(result).hasSize(1).allSatisfy(response -> {
-			assertThat(response).usingRecursiveAssertion().isEqualTo(CaseDataMapper.toCaseStatusResponse(caseDataErrand));
-		});
+		assertThat(result).containsExactly(mappedResponse);
 		verifyNoMoreInteractions(clientMock);
 	}
 

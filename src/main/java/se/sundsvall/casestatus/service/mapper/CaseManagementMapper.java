@@ -6,26 +6,24 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
-import se.sundsvall.casestatus.integration.db.StatusesRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
-import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
+import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static java.util.Optional.ofNullable;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 import static se.sundsvall.casestatus.util.Constants.UNKNOWN;
 
 @Component
 public final class CaseManagementMapper {
 
 	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-	private final StatusesRepository statusesRepository;
+	private final StatusVocabulary statusVocabulary;
 	private final CaseTypeRepository caseTypeRepository;
 
 	public CaseManagementMapper(
-		final StatusesRepository statusesRepository,
+		final StatusVocabulary statusVocabulary,
 		final CaseTypeRepository caseTypeRepository) {
-		this.statusesRepository = statusesRepository;
+		this.statusVocabulary = statusVocabulary;
 		this.caseTypeRepository = caseTypeRepository;
 	}
 
@@ -46,33 +44,23 @@ public final class CaseManagementMapper {
 	}
 
 	/**
-	 * Translates the CaseManagement ID to the corresponding OpenE ID or returns the original status if no mapping is found.
-	 *
-	 * @param  caseManagementStatus The original CaseManagement status.
-	 * @return                      The corresponding OpenE status or the original status if no mapping is found.
+	 * Translates the CaseManagement status to the corresponding OpenE status or returns the original status if no mapping
+	 * is found.
 	 */
 	String getStatus(final String caseManagementStatus) {
 		if (isBlank(caseManagementStatus)) {
 			return null;
 		}
-		return statusesRepository.findByCaseManagementStatus(caseManagementStatus)
-			.map(StatusesEntity::getOepStatus)
+		return statusVocabulary.findOepStatusForCaseManagementStatus(caseManagementStatus)
 			.orElse(caseManagementStatus);
 	}
 
 	/**
-	 * Translates the CaseManagement ID to the corresponding OpenE ID or returns the original status if no mapping is found.
-	 *
-	 * @param  caseManagementStatus The original CaseManagement status.
-	 * @return                      The external status or default status if no mapping is found.
+	 * Translates the CaseManagement status to the corresponding external status or returns the default status if no
+	 * mapping is found.
 	 */
 	String getExternalStatus(final String caseManagementStatus) {
-		if (isBlank(caseManagementStatus)) {
-			return null;
-		}
-		return statusesRepository.findByCaseManagementStatus(caseManagementStatus)
-			.map(StatusesEntity::getExternalStatus)
-			.orElse(DEFAULT_EXTERNAL_STATUS);
+		return statusVocabulary.translateCaseManagementStatus(caseManagementStatus);
 	}
 
 	/**
