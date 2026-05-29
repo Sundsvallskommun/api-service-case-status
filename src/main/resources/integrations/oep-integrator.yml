@@ -1,13 +1,13 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
   title: api-oep-integrator
   contact: { }
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.5"
+  version: "1.6"
 servers:
-  - url: http://localhost:53893
+  - url: http://localhost:50040
     description: Generated server url
 tags:
   - name: Instances
@@ -246,8 +246,6 @@ paths:
         content:
           multipart/form-data:
             schema:
-              required:
-                - request
               type: object
               properties:
                 request:
@@ -257,6 +255,8 @@ paths:
                   items:
                     type: string
                     format: binary
+              required:
+                - request
       responses:
         "201":
           description: Successful operation
@@ -962,6 +962,184 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/{instanceType}/cases/multisign/parties/{partyId}:
+    get:
+      tags:
+        - Cases
+      summary: Get cases waiting for multi-sign by citizen identifier
+      description: Get a list of case envelopes waiting for multi-sign signing for
+        the given citizen identifier
+      operationId: getMultisignCasesByPartyId
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality ID
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: instanceType
+          in: path
+          description: The instanceType where case belongs
+          required: true
+          schema:
+            $ref: "#/components/schemas/InstanceType"
+          example: INTERNAL
+        - name: partyId
+          in: path
+          description: The party ID
+          required: true
+          schema:
+            type: string
+          example: 5d68eb00-d8da-49a0-a6b5-8d395be34a5e
+        - name: fromDate
+          in: query
+          description: Filter cases on fromDate
+          required: false
+          schema:
+            type: string
+            format: date
+          example: 2024-01-01
+        - name: toDate
+          in: query
+          description: Filter cases on toDate
+          required: false
+          schema:
+            type: string
+            format: date
+          example: 2024-01-31
+        - name: status
+          in: query
+          description: Filter by status
+          required: false
+          schema:
+            type: string
+          example: Preliminär
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/{instanceType}/cases/multisign/users/{userId}:
+    get:
+      tags:
+        - Cases
+      summary: Get cases waiting for multi-sign by user ID
+      description: Get a list of case envelopes waiting for multi-sign signing for
+        the given AD user ID
+      operationId: getMultisignCasesByUserId
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality ID
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: instanceType
+          in: path
+          description: The instanceType where case belongs
+          required: true
+          schema:
+            $ref: "#/components/schemas/InstanceType"
+          example: INTERNAL
+        - name: userId
+          in: path
+          description: The AD user ID
+          required: true
+          schema:
+            type: string
+          example: joedoe
+        - name: fromDate
+          in: query
+          description: Filter cases on fromDate
+          required: false
+          schema:
+            type: string
+            format: date
+          example: 2024-01-01
+        - name: toDate
+          in: query
+          description: Filter cases on toDate
+          required: false
+          schema:
+            type: string
+            format: date
+          example: 2024-01-31
+        - name: status
+          in: query
+          description: Filter by status
+          required: false
+          schema:
+            type: string
+          example: Preliminär
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/{instanceType}/cases/parties/{partyId}:
     get:
       tags:
@@ -1152,227 +1330,101 @@ components:
     Problem:
       type: object
       properties:
-        status:
-          $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
         type:
           type: string
           format: uri
-        parameters:
-          type: object
-          additionalProperties:
-            type: object
-    StatusType:
-      type: object
-      properties:
-        reasonPhrase:
+        title:
           type: string
-        statusCode:
+        detail:
+          type: string
+        status:
           type: integer
           format: int32
     InstanceType:
       type: string
       description: InstanceType type. INTERNAL/EXTERNAL
-      example: INTERNAL
       enum:
         - INTERNAL
         - EXTERNAL
+      examples:
+        - INTERNAL
     CaseStatusChangeRequest:
       type: object
+      description: SetStatus request model
       properties:
         id:
           type: integer
-          description: The status ID
           format: int32
-          example: 123
+          description: The status ID
+          examples:
+            - "123"
         name:
           type: string
           description: The status name
-          example: Inskickat
+          examples:
+            - Inskickat
         principal:
           $ref: "#/components/schemas/Principal"
-      description: SetStatus request model
+          description: The principal
     Principal:
-      required:
-        - userId
       type: object
+      description: Principal model
       properties:
         name:
           type: string
           description: The name
-          example: John Doe
+          examples:
+            - John Doe
         userId:
-          minLength: 1
           type: string
           description: The user id
-          example: joh12doe
-      description: Principal model
+          examples:
+            - joh12doe
+          minLength: 1
+      required:
+        - userId
     ConstraintViolationProblem:
       type: object
       properties:
-        cause:
-          $ref: "#/components/schemas/ThrowableProblem"
-        stackTrace:
-          type: array
-          items:
-            type: object
-            properties:
-              classLoaderName:
-                type: string
-              moduleName:
-                type: string
-              moduleVersion:
-                type: string
-              methodName:
-                type: string
-              fileName:
-                type: string
-              lineNumber:
-                type: integer
-                format: int32
-              className:
-                type: string
-              nativeMethod:
-                type: boolean
         type:
           type: string
           format: uri
         status:
-          $ref: "#/components/schemas/StatusType"
+          type: integer
+          format: int32
         violations:
           type: array
           items:
             $ref: "#/components/schemas/Violation"
         title:
           type: string
-        message:
-          type: string
-        detail:
-          type: string
         instance:
           type: string
           format: uri
-        parameters:
-          type: object
-          additionalProperties:
-            type: object
-        suppressed:
-          type: array
-          items:
-            type: object
-            properties:
-              stackTrace:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    classLoaderName:
-                      type: string
-                    moduleName:
-                      type: string
-                    moduleVersion:
-                      type: string
-                    methodName:
-                      type: string
-                    fileName:
-                      type: string
-                    lineNumber:
-                      type: integer
-                      format: int32
-                    className:
-                      type: string
-                    nativeMethod:
-                      type: boolean
-              message:
-                type: string
-              localizedMessage:
-                type: string
-        localizedMessage:
+        causeAsProblem:
+          $ref: "#/components/schemas/ThrowableProblem"
+        detail:
           type: string
     ThrowableProblem:
       type: object
       properties:
-        cause:
-          $ref: "#/components/schemas/ThrowableProblem"
-        stackTrace:
-          type: array
-          items:
-            type: object
-            properties:
-              classLoaderName:
-                type: string
-              moduleName:
-                type: string
-              moduleVersion:
-                type: string
-              methodName:
-                type: string
-              fileName:
-                type: string
-              lineNumber:
-                type: integer
-                format: int32
-              className:
-                type: string
-              nativeMethod:
-                type: boolean
-        message:
+        type:
           type: string
-        status:
-          $ref: "#/components/schemas/StatusType"
+          format: uri
         title:
           type: string
+        status:
+          type: integer
+          format: int32
         detail:
           type: string
         instance:
           type: string
           format: uri
-        type:
-          type: string
-          format: uri
-        parameters:
-          type: object
-          additionalProperties:
-            type: object
-        suppressed:
-          type: array
-          items:
-            type: object
-            properties:
-              stackTrace:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    classLoaderName:
-                      type: string
-                    moduleName:
-                      type: string
-                    moduleVersion:
-                      type: string
-                    methodName:
-                      type: string
-                    fileName:
-                      type: string
-                    lineNumber:
-                      type: integer
-                      format: int32
-                    className:
-                      type: string
-                    nativeMethod:
-                      type: boolean
-              message:
-                type: string
-              localizedMessage:
-                type: string
-        localizedMessage:
-          type: string
+        causeAsProblem: { }
     Violation:
       type: object
       properties:
@@ -1382,281 +1434,340 @@ components:
           type: string
     CaseStatusChangeResponse:
       type: object
+      description: SetStatus response model
       properties:
         eventId:
           type: integer
-          description: Event id
           format: int32
-          example: 123
-      description: SetStatus response model
+          description: Event id
+          examples:
+            - "123"
     ExternalReference:
       type: object
+      description: ExternalReference model
       properties:
         key:
           type: string
           description: The external reference key
-          example: flowInstanceId
+          examples:
+            - flowInstanceId
         value:
           type: string
           description: The external reference value
-          example: "356746349"
-      description: ExternalReference model
+          examples:
+            - "356746349"
     Sender:
       type: object
+      description: "Sender model. The attributes in this object are mutually exclusive,\
+        \ meaning that only one of them can be set at a time."
       properties:
         userId:
           type: string
           description: The user ID of the sender. I.e. employee ID
-          example: joe01doe
+          examples:
+            - joe01doe
         administratorId:
           type: string
           description: The user ID of the case administrator. I.e. the employee ID
             of the administrative official.
-          example: joe01doe
+          examples:
+            - joe01doe
         partyId:
           type: string
           description: The party ID of the sender.
-          example: 582462d3-ae94-476f-96de-f495a927dea8
-      description: "Sender model. The attributes in this object are mutually exclusive,\
-        \ meaning that only one of them can be set at a time."
+          examples:
+            - 582462d3-ae94-476f-96de-f495a927dea8
     WebmessageRequest:
-      required:
-        - message
       type: object
+      description: Webmessage request model
       properties:
         sender:
           $ref: "#/components/schemas/Sender"
+          description: The sender
         message:
-          minLength: 1
           type: string
           description: The message
-          example: This is a message
+          examples:
+            - This is a message
+          minLength: 1
         externalReferences:
           type: array
           items:
             $ref: "#/components/schemas/ExternalReference"
-      description: Webmessage request model
-    ConfirmDeliveryRequest:
       required:
-        - caseId
-        - system
+        - message
+    ConfirmDeliveryRequest:
       type: object
+      description: ConfirmDelivery request model
       properties:
         caseId:
-          minLength: 1
           type: string
           description: The case id in the system that delivered the case. From Open-E
             Platforms perspective this is the 'external case id
-          example: caa230c6-abb4-4592-ad9a-34e263c2787d
+          examples:
+            - caa230c6-abb4-4592-ad9a-34e263c2787d
+          minLength: 1
         delivered:
           type: boolean
           description: If the case was delivered
-          example: true
+          examples:
+            - "true"
         logMessage:
           type: string
           description: Any log message
-          example: The case was delivered successfully
+          examples:
+            - The case was delivered successfully
         system:
-          minLength: 1
           type: string
           description: The system that delivered the case
-          example: ByggR
-      description: ConfirmDelivery request model
+          examples:
+            - ByggR
+          minLength: 1
+      required:
+        - caseId
+        - system
     Instance:
       type: object
+      description: Instance model
       properties:
         id:
           type: string
           description: InstanceType ID
+          examples:
+            - 123e4567-e89b-12d3-a456-426614174000
           readOnly: true
-          example: 123e4567-e89b-12d3-a456-426614174000
         integrationType:
           $ref: "#/components/schemas/IntegrationType"
+          description: Type of integration. SOAP/REST
+          examples:
+            - SOAP
         instanceType:
           $ref: "#/components/schemas/InstanceType"
+          description: InstanceType type. INTERNAL/EXTERNAL
+          examples:
+            - INTERNAL
         baseUrl:
           type: string
           description: Base URL of the instanceType
-          example: https://example.com
+          examples:
+            - https://example.com
         username:
           type: string
           description: Username for the instanceType
+          examples:
+            - user123
           writeOnly: true
-          example: user123
         password:
           type: string
           description: Password for the instanceType
+          examples:
+            - pass123
           writeOnly: true
-          example: pass123
         familyIds:
           type: array
           description: List with family IDs
-          example:
-            - family1
-            - family2
+          examples:
+            - "[\"family1\", \"family2\"]"
           items:
             type: string
-            description: List with family IDs
-            example: "[\"family1\",\"family2\"]"
         connectTimeout:
           type: integer
-          description: Connection timeout in seconds
           format: int32
-          example: 5
+          description: Connection timeout in seconds
+          examples:
+            - "5"
         readTimeout:
           type: integer
-          description: Read timeout in seconds
           format: int32
-          example: 60
-      description: Instance model
+          description: Read timeout in seconds
+          examples:
+            - "60"
     IntegrationType:
       type: string
       description: IntegrationType model
-      example: SOAP
       enum:
         - SOAP
         - REST
+      examples:
+        - SOAP
     Direction:
       type: string
       description: Direction model
-      example: INBOUND
       enum:
         - INBOUND
         - OUTBOUND
+      examples:
+        - INBOUND
     Webmessage:
       type: object
+      description: Webmessage model
       properties:
         id:
           type: integer
-          description: The webMessageCollector Id for the message
           format: int32
-          example: 1
+          description: The webMessageCollector Id for the message
+          examples:
+            - "1"
         direction:
           $ref: "#/components/schemas/Direction"
+          description: If the message is inbound or outbound. Inbound means coming
+            from open-E. Outbound means sent to open-E
+          examples:
+            - INBOUND
         municipalityId:
           type: string
           description: The municipality id
-          example: "2281"
+          examples:
+            - "2281"
         familyId:
           type: string
           description: What E-service the message was found in
-          example: "501"
+          examples:
+            - "501"
         externalCaseId:
           type: string
           description: 'The external caseID '
-          example: caa230c6-abb4-4592-ad9a-34e263c2787b
+          examples:
+            - caa230c6-abb4-4592-ad9a-34e263c2787b
         message:
           type: string
           description: 'The message '
-          example: Hello World
+          examples:
+            - Hello World
         messageId:
           type: string
           description: The unique messageId from openE for the message
-          example: "12"
+          examples:
+            - "12"
         sent:
           type: string
-          description: 'Time and date the message was sent '
           format: date-time
+          description: 'Time and date the message was sent '
+          examples:
+            - 2023-02-23T17:26:23
         username:
           type: string
           description: Username for the poster
-          example: te01st
+          examples:
+            - te01st
         firstName:
           type: string
           description: 'Firstname of the poster '
-          example: Test
+          examples:
+            - Test
         lastName:
           type: string
           description: Lastname of the poster
-          example: Testsson
+          examples:
+            - Testsson
         email:
           type: string
           description: Email for the poster
-          example: test@sundsvall.se
+          examples:
+            - test@sundsvall.se
         userId:
           type: string
           description: The userId for the poster
-          example: "123"
+          examples:
+            - "123"
         attachments:
           type: array
           items:
             $ref: "#/components/schemas/WebmessageAttachment"
+            description: List of attachments for the message
+            examples:
+              - "attachment1, attachment2"
         instance:
           type: string
           description: The instance of the message
-          example: external
-      description: Webmessage model
+          examples:
+            - external
     WebmessageAttachment:
       type: object
+      description: Webmessage attachment model
       properties:
         attachmentId:
           type: integer
-          description: The Id for the attachment
           format: int32
-          example: 1
+          description: The Id for the attachment
+          examples:
+            - "1"
         name:
           type: string
           description: The name of the file
-          example: file.txt
+          examples:
+            - file.txt
         extension:
           type: string
           description: The extension of the file
-          example: txt
+          examples:
+            - txt
         mimeType:
           type: string
           description: The mime type of the file
-          example: text/plain
-      description: Webmessage attachment model
-      example: "attachment1, attachment2"
+          examples:
+            - text/plain
     Case:
       type: object
+      description: Case model
       properties:
         flowInstanceId:
           type: string
           description: The flowInstanceId (caseId)
-          example: "109581"
+          examples:
+            - "109581"
         familyId:
           type: string
           description: The familyId
-          example: "832"
+          examples:
+            - "832"
         version:
           type: integer
-          description: Version of the case
           format: int32
-          example: 4
+          description: Version of the case
+          examples:
+            - "4"
         flowId:
           type: string
           description: The flowId
-          example: "2411"
+          examples:
+            - "2411"
         title:
           type: string
           description: The title of the case
-          example: Anmälan om sjukfrånvaro
+          examples:
+            - Anmälan om sjukfrånvaro
         status:
           $ref: "#/components/schemas/CaseStatus"
+          description: The case status
         created:
           type: string
-          description: The case create date
           format: date-time
+          description: The case create date
+          examples:
+            - 2023-11-15T11:55
         payload:
           type: string
           description: The payload of the case in xml
-          example: "<Values><sickNotePercentRow2><QueryID>66909</QueryID><Name><![CDATA[Omfattning\
+          examples:
+            - "<Values><sickNotePercentRow2><QueryID>66909</QueryID><Name><![CDATA[Omfattning\
             \ p* sjukfrånvaro enligt läkarintyg]]></Name><Value>50%</Value></sickNotePercentRow2><sickNotePeriodRow2><QueryID>66910</QueryID><Name><![CDATA[Sjukskrivningsperioden\
             \ from tom]]></Name><Datum_fran><![CDATA[2024-12-09]]></Datum_fran><Datum_till><![CDATA[2024-12-20]]></Datum_till></sickNotePeriodRow2></Values>"
-      description: Case model
     CaseStatus:
       type: object
+      description: Case status model
       properties:
         id:
           type: integer
-          description: The status ID
           format: int32
-          example: 123
+          description: The status ID
+          examples:
+            - "123"
         name:
           type: string
           description: The status name
-          example: Inskickat
+          examples:
+            - Inskickat
         newExternalMessagesDisallowed:
           type: boolean
           description: Whether new external messages are disallowed
@@ -1672,28 +1783,35 @@ components:
         status:
           type: string
           description: The status
-          example: ARCHIVED
-      description: Case status model
+          examples:
+            - ARCHIVED
     CaseEnvelope:
       type: object
+      description: Case envelope model
       properties:
         flowInstanceId:
           type: string
           description: The flowInstanceId (caseId)
-          example: "109581"
+          examples:
+            - "109581"
         created:
           type: string
-          description: The case create date
           format: date-time
+          description: The case create date
+          examples:
+            - 2023-11-15T11:55
         statusUpdated:
           type: string
-          description: The case status change date
           format: date-time
+          description: The case status change date
+          examples:
+            - 2023-11-16T12:01
         displayName:
           type: string
           description: The display name for the family the case belongs to
-          example: Kompiskortet
+          examples:
+            - Kompiskortet
         status:
           $ref: "#/components/schemas/CaseStatus"
-      description: Case envelope model
+          description: The case status
   securitySchemes: { }

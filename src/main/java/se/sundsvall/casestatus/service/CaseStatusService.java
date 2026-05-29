@@ -1,5 +1,6 @@
 package se.sundsvall.casestatus.service;
 
+import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
@@ -12,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -148,6 +150,7 @@ public class CaseStatusService {
 
 		final var cmFuture = getCaseManagementStatusesAsync(partyId, municipalityId);
 		final var oepFuture = getOepStatusesAsync(partyId, municipalityId);
+		final var multisignFuture = getOepMultisignStatusesAsync(partyId, municipalityId);
 
 		// Support Management depends on the party type (PRIVATE -> partyId, ENTERPRISE -> formatted org no)
 		final CompletableFuture<List<CaseStatusResponse>> supportFuture;
@@ -159,12 +162,24 @@ public class CaseStatusService {
 			return emptyList();
 		}
 
-		final var statuses = Stream.of(cmFuture, oepFuture, supportFuture)
-			.map(CompletableFuture::join)
+		// Multi-sign cases take precedence over the regular OeP result for the same externalCaseId.
+		final var multisignStatuses = multisignFuture.join();
+		final var multisignIds = multisignStatuses.stream()
+			.map(CaseStatusResponse::getExternalCaseId)
+			.filter(Objects::nonNull)
+			.collect(Collectors.toSet());
+
+		final var dedupedOepStatuses = oepFuture.join().stream()
+			.filter(response -> isNotOverriddenByMultisign(response, multisignIds))
+			.toList();
+
+		final var regularStatuses = Stream.of(cmFuture.join(), dedupedOepStatuses, supportFuture.join())
 			.flatMap(List::stream)
 			.toList();
 
-		return filterResponses(statuses, includeDrafts);
+		// Multi-sign cases bypass both the duplicate-OeP filter and the draft filter — they are actionable items.
+		return Stream.concat(filterResponses(regularStatuses, includeDrafts).stream(), multisignStatuses.stream())
+			.toList();
 	}
 
 	private void getSupportManagementStatuses(final String partyId, final String municipalityId, final List<CaseStatusResponse> statuses) {
@@ -264,15 +279,38 @@ public class CaseStatusService {
 
 	private CompletableFuture<List<CaseStatusResponse>> getOepStatusesAsync(final String partyId, final String municipalityId) {
 		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream()
-			.map(caseEnvelope -> {
-				final var caseStatusResponse = OpenEMapper.toCaseStatusResponse(caseEnvelope);
-				if (caseStatusResponse != null) {
-					caseStatusResponse.setExternalStatus(getExternalStatusByOepStatus(caseEnvelope.getStatus()));
-				}
-				return caseStatusResponse;
-
-			})
+			.map(this::toCaseStatusResponseWithExternalStatus)
+			.filter(Objects::nonNull)
 			.toList(), mdcAwareExecutor);
+	}
+
+	private CompletableFuture<List<CaseStatusResponse>> getOepMultisignStatusesAsync(final String partyId, final String municipalityId) {
+		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream()
+			.map(this::toCaseStatusResponseWithExternalStatus)
+			.filter(Objects::nonNull)
+			.toList(), mdcAwareExecutor);
+	}
+
+	private CaseStatusResponse toCaseStatusResponseWithExternalStatus(final CaseEnvelope envelope) {
+		final var response = OpenEMapper.toCaseStatusResponse(envelope);
+		if (response == null) {
+			return null;
+		}
+		response.setExternalStatus(getExternalStatusByOepStatus(envelope.getStatus()));
+		return response;
+	}
+
+	/**
+	 * Returns true when a regular OeP response should be kept, i.e. it is not shadowed by a multi-sign entry for the same
+	 * flow instance. Multi-sign cases take precedence over the regular OeP listing because they represent an actionable
+	 * state (awaiting signature) that the consumer must surface. Responses without an externalCaseId cannot be matched as
+	 * duplicates and are always kept.
+	 */
+	private boolean isNotOverriddenByMultisign(final CaseStatusResponse response, final Set<String> multisignIds) {
+		if (response.getExternalCaseId() == null) {
+			return true;
+		}
+		return !multisignIds.contains(response.getExternalCaseId());
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> getSupportManagementStatusesAsync(final String externalIdOrOrgNo, final String municipalityId) {

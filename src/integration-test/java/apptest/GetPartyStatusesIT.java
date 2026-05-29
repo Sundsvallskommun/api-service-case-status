@@ -16,8 +16,10 @@ class GetPartyStatusesIT extends AbstractAppTest {
 
 	/**
 	 * Test scenario where the party represents a private individual. Four cases are found in CaseManagement (one is a
-	 * draft),
-	 * one case is found in OpenE and one case is found in SupportManagement.
+	 * draft), one case is found in OpenE, one case is found in SupportManagement and two cases are found in OpenE awaiting
+	 * multi-sign signing. One of the multi-sign cases shares its flowInstanceId with the regular OpenE case — verifies
+	 * that the multi-sign entry wins the dedup. The other multi-sign case has a draft-like status — verifies that
+	 * multi-sign cases bypass the draft filter even when includeDrafts is the default false.
 	 */
 	@Test
 	void test1_successful_private() {

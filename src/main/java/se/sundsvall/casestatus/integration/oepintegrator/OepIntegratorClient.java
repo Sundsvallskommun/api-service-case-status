@@ -66,6 +66,13 @@ public interface OepIntegratorClient {
 		@PathVariable String partyId,
 		@RequestParam(required = false) Boolean includeStatus);
 
+	@GetMapping(path = "{municipalityId}/{instanceType}/cases/multisign/parties/{partyId}", produces = APPLICATION_JSON_VALUE)
+	List<CaseEnvelope> getMultisignCasesByPartyId(
+		@PathVariable String municipalityId,
+		@PathVariable InstanceType instanceType,
+		@PathVariable String partyId,
+		@RequestParam(required = false) Boolean includeStatus);
+
 	@GetMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/pdf", produces = ALL_VALUE)
 	ResponseEntity<InputStreamResource> getCasePdfByFlowInstanceId(
 		@PathVariable String municipalityId,

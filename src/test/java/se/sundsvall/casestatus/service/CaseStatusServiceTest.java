@@ -402,12 +402,13 @@ class CaseStatusServiceTest {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId);
 		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand);
 		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusesRepositoryMock).findBySupportManagementStatus(smStatus);
 		verify(statusesRepositoryMock).findByOepStatus(oepStatus);
-		verify(mdcExecutorSpy, times(3)).execute(any());
+		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock, statusesRepositoryMock);
 	}
 
@@ -435,7 +436,8 @@ class CaseStatusServiceTest {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(mdcExecutorSpy, times(3)).execute(any());
+		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -459,7 +461,8 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(mdcExecutorSpy, times(3)).execute(any());
+		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -487,7 +490,7 @@ class CaseStatusServiceTest {
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
-		verify(mdcExecutorSpy, times(3)).execute(any());
+		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementMapperMock, caseManagementIntegrationMock);
 	}
 
@@ -513,8 +516,57 @@ class CaseStatusServiceTest {
 
 		verify(partyIntegrationMock).getLegalIdByPartyId(MUNICIPALITY_ID, partyId);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(mdcExecutorSpy, times(3)).execute(any());
+		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
+	}
+
+	/**
+	 * Multi-sign cases share the same flowInstanceId as a regular OeP case (the same flow instance is also waiting for
+	 * signature). The multi-sign entry should win and the regular OeP entry should be dropped before filterResponses
+	 * runs.
+	 */
+	@Test
+	void getCaseStatusesForParty_multisignDeduplicatesRegularOepCase() {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "sharedFlowInstanceId";
+		final var includeDrafts = true;
+
+		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.ENTERPRISE, partyId));
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("regular").status(new CaseStatus().name("regularStatus")).flowInstanceId(flowInstanceId)));
+		when(openEIntegrationMock.getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("multisign").status(new CaseStatus().name("multisignStatus")).flowInstanceId(flowInstanceId)));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
+
+		assertThat(result).isNotNull().hasSize(1);
+		assertThat(result.getFirst().getExternalCaseId()).isEqualTo(flowInstanceId);
+		assertThat(result.getFirst().getCaseType()).isEqualTo("multisign");
+		assertThat(result.getFirst().getStatus()).isEqualTo("multisignStatus");
+	}
+
+	/**
+	 * Multi-sign cases are actionable items and must bypass the draft filter, even when includeDrafts=false.
+	 */
+	@Test
+	void getCaseStatusesForParty_multisignBypassesDraftFilter() {
+		final var partyId = "somePartyId";
+		final var includeDrafts = false;
+
+		when(partyIntegrationMock.getLegalIdByPartyId(MUNICIPALITY_ID, partyId)).thenReturn(Map.of(PartyType.ENTERPRISE, partyId));
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(emptyList());
+		when(openEIntegrationMock.getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("multisign").status(new CaseStatus().name("Utkast")).flowInstanceId("multisignFlowInstanceId")));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
+
+		assertThat(result).isNotNull().hasSize(1);
+		assertThat(result.getFirst().getExternalCaseId()).isEqualTo("multisignFlowInstanceId");
+		assertThat(result.getFirst().getStatus()).isEqualTo("Utkast");
 	}
 
 	/**
