@@ -1,7 +1,6 @@
 package se.sundsvall.casestatus.service;
 
 import generated.client.oep_integrator.CaseEnvelope;
-import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.supportmanagement.Errand;
@@ -24,8 +23,6 @@ import se.sundsvall.casestatus.configuration.AsyncConfig;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
-import se.sundsvall.casestatus.integration.db.StatusesRepository;
-import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
@@ -38,7 +35,6 @@ import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -46,7 +42,6 @@ import static org.springframework.util.StringUtils.hasText;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toCasePdfResponse;
 import static se.sundsvall.casestatus.service.mapper.OpenEMapper.toOepStatusResponse;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
-import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
@@ -64,7 +59,7 @@ public class CaseStatusService {
 	private final CaseManagementMapper caseManagementMapper;
 	private final CaseDataIntegration caseDataIntegration;
 	private final SupportManagementMapper supportManagementMapper;
-	private final StatusesRepository statusesRepository;
+	private final StatusVocabulary statusVocabulary;
 	private final Executor mdcAwareExecutor;
 
 	public CaseStatusService(final CaseManagementIntegration caseManagementIntegration,
@@ -75,7 +70,7 @@ public class CaseStatusService {
 		final CaseManagementMapper caseManagementMapper,
 		final CaseDataIntegration caseDataIntegration,
 		final SupportManagementMapper supportManagementMapper,
-		final StatusesRepository statusesRepository,
+		final StatusVocabulary statusVocabulary,
 		final @Qualifier(AsyncConfig.MDC_EXECUTOR) Executor mdcAwareExecutor) {
 
 		this.caseManagementIntegration = caseManagementIntegration;
@@ -86,7 +81,7 @@ public class CaseStatusService {
 		this.caseManagementMapper = caseManagementMapper;
 		this.caseDataIntegration = caseDataIntegration;
 		this.supportManagementMapper = supportManagementMapper;
-		this.statusesRepository = statusesRepository;
+		this.statusVocabulary = statusVocabulary;
 		this.mdcAwareExecutor = mdcAwareExecutor;
 	}
 
@@ -95,8 +90,7 @@ public class CaseStatusService {
 			.map(CaseStatusDTO::getStatus)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, CASE_NOT_FOUND.formatted(externalCaseId)));
 
-		final var oepStatus = statusesRepository.findByCaseManagementStatus(cmStatus)
-			.map(StatusesEntity::getOepStatus)
+		final var oepStatus = statusVocabulary.findOepStatusForCaseManagementStatus(cmStatus)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "Could not find matching open-E status for status %s".formatted(cmStatus)));
 
 		return toOepStatusResponse(oepStatus);
@@ -188,7 +182,7 @@ public class CaseStatusService {
 				.map(errand -> supportManagementMapper.toCaseStatusResponse(
 					errand,
 					namespace,
-					getStatusesBySupportManagementStatus(errand.getStatus()),
+					statusVocabulary.lookupBySupportManagementStatus(errand.getStatus()),
 					getSupportManagementClassificationName(municipalityId, namespace, errand)))
 				.forEach(statuses::add));
 	}
@@ -257,7 +251,7 @@ public class CaseStatusService {
 					.map(errand -> supportManagementMapper.toCaseStatusResponse(
 						errand,
 						namespace,
-						getStatusesBySupportManagementStatus(errand.getStatus()),
+						statusVocabulary.lookupBySupportManagementStatus(errand.getStatus()),
 						getSupportManagementClassificationName(municipalityId, namespace, errand)));
 			})
 			.toList();
@@ -296,7 +290,7 @@ public class CaseStatusService {
 		if (response == null) {
 			return null;
 		}
-		response.setExternalStatus(getExternalStatusByOepStatus(envelope.getStatus()));
+		response.setExternalStatus(statusVocabulary.translateOepStatus(envelope.getStatus()));
 		return response;
 	}
 
@@ -324,7 +318,7 @@ public class CaseStatusService {
 					.map(errand -> supportManagementMapper.toCaseStatusResponse(
 						errand,
 						namespace,
-						getStatusesBySupportManagementStatus(errand.getStatus()),
+						statusVocabulary.lookupBySupportManagementStatus(errand.getStatus()),
 						getSupportManagementClassificationName(municipalityId, namespace, errand)));
 			})
 			.toList(), mdcAwareExecutor);
@@ -334,55 +328,24 @@ public class CaseStatusService {
 		return supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand);
 	}
 
-	private StatusesEntity getStatusesBySupportManagementStatus(final String supportManagementStatus) {
-		if (isBlank(supportManagementStatus)) {
-			return StatusesEntity.builder()
-				.build();
-		}
-		return statusesRepository.findBySupportManagementStatus(supportManagementStatus).orElse(StatusesEntity.builder()
-			.withSupportManagementStatus(supportManagementStatus)
-			.withExternalStatus(DEFAULT_EXTERNAL_STATUS)
-			.build());
-	}
-
-	private String getExternalStatusByOepStatus(final CaseStatus oepStatus) {
-		if (oepStatus == null || isBlank(oepStatus.getStatus())) {
-			return null;
-		}
-		return statusesRepository.findByOepStatus(oepStatus.getStatus()).stream()
-			.map(StatusesEntity::getExternalStatus)
-			.filter(Objects::nonNull)
-			.filter(org.springframework.util.StringUtils::hasText)
-			.findFirst()
-			.orElse(DEFAULT_EXTERNAL_STATUS);
-	}
-
 	private List<CaseStatusResponse> addExternalStatusesByCaseManagementStatus(final List<CaseStatusResponse> statusResponses) {
-
 		return statusResponses.stream()
-			.map(response -> {
-				if (hasText(response.getStatus())) {
-					final var externalStatus = statusesRepository.findByCaseManagementStatus(response.getStatus())
-						.map(StatusesEntity::getExternalStatus)
-						.orElse(DEFAULT_EXTERNAL_STATUS);
-					response.setExternalStatus(externalStatus);
-				}
-				return response;
-			}).toList();
+			.map(this::addExternalStatusByCaseManagementStatus)
+			.toList();
 	}
 
-	private CaseStatusResponse addExternalStatusByOepStatus(final CaseStatusResponse caseStatusResponse) {
-
-		if (hasText(caseStatusResponse.getStatus())) {
-			final var externalStatus = statusesRepository.findByOepStatus(caseStatusResponse.getStatus()).stream()
-				.map(StatusesEntity::getExternalStatus)
-				.filter(Objects::nonNull)
-				.filter(org.springframework.util.StringUtils::hasText)
-				.findFirst()
-				.orElse(DEFAULT_EXTERNAL_STATUS);
-			caseStatusResponse.setExternalStatus(externalStatus);
+	private CaseStatusResponse addExternalStatusByCaseManagementStatus(final CaseStatusResponse response) {
+		if (hasText(response.getStatus())) {
+			response.setExternalStatus(statusVocabulary.translateCaseManagementStatus(response.getStatus()));
 		}
-		return caseStatusResponse;
+		return response;
+	}
+
+	private CaseStatusResponse addExternalStatusByOepStatus(final CaseStatusResponse response) {
+		if (hasText(response.getStatus())) {
+			response.setExternalStatus(statusVocabulary.translateOepStatus(response.getStatus()));
+		}
+		return response;
 	}
 
 	private Predicate<CaseStatusResponse> draftFilter(boolean includeDrafts) {
