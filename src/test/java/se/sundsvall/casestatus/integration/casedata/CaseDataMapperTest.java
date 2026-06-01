@@ -7,14 +7,29 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static se.sundsvall.TestDataFactory.createCaseDataErrand;
+import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 
+@ExtendWith(MockitoExtension.class)
 class CaseDataMapperTest {
+
+	@Mock
+	private StatusVocabulary statusVocabulary;
+
+	@InjectMocks
+	private CaseDataMapper caseDataMapper;
 
 	private static Stream<Arguments> getTimestampArgumentProvider() {
 		return Stream.of(
@@ -27,12 +42,13 @@ class CaseDataMapperTest {
 		final var errand1 = createCaseDataErrand();
 		final var errand2 = createCaseDataErrand();
 		final var errands = List.of(errand1, errand2);
+		when(statusVocabulary.translateCaseManagementStatus(any())).thenReturn(DEFAULT_EXTERNAL_STATUS);
 
-		final var result = CaseDataMapper.toCaseStatusResponses(errands);
+		final var result = caseDataMapper.toCaseStatusResponses(errands);
 
 		assertThat(result).hasSize(2).satisfies(e -> {
-			assertThat(e.getFirst()).usingRecursiveComparison().isEqualTo(CaseDataMapper.toCaseStatusResponse(errand1));
-			assertThat(e.getLast()).usingRecursiveComparison().isEqualTo(CaseDataMapper.toCaseStatusResponse(errand2));
+			assertThat(e.getFirst()).usingRecursiveComparison().isEqualTo(caseDataMapper.toCaseStatusResponse(errand1));
+			assertThat(e.getLast()).usingRecursiveComparison().isEqualTo(caseDataMapper.toCaseStatusResponse(errand2));
 		});
 	}
 
@@ -42,12 +58,14 @@ class CaseDataMapperTest {
 		final var latestStatus = errand.getStatuses().stream()
 			.max(Comparator.comparing(Status::getCreated))
 			.orElse(null);
+		when(statusVocabulary.translateCaseManagementStatus(latestStatus.getStatusType())).thenReturn("externalStatus");
 
-		final var result = CaseDataMapper.toCaseStatusResponse(errand);
+		final var result = caseDataMapper.toCaseStatusResponse(errand);
 
 		assertThat(result.getCaseId()).isEqualTo(String.valueOf(errand.getId()));
 		assertThat(result.getCaseType()).isEqualTo(errand.getCaseType());
 		assertThat(result.getStatus()).isEqualTo(latestStatus.getStatusType());
+		assertThat(result.getExternalStatus()).isEqualTo("externalStatus");
 		assertThat(result.getLastStatusChange()).isEqualTo(CaseDataMapper.getTimestamp(latestStatus.getCreated().atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()));
 		assertThat(result.getFirstSubmitted()).isNull();
 		assertThat(result.getSystem()).isEqualTo("CASE_DATA");

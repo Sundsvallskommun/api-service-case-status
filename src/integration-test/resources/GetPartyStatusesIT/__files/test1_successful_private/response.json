@@ -34,13 +34,13 @@
 	},
 	{
 		"caseId": "4999",
-		"caseType": "Anmälan om sjukfrånvaro",
+		"caseType": "Anmälan om sjukfrånvaro (medsignering)",
 		"errandNumber": "4999",
 		"externalCaseId": "4999",
-		"externalStatus": "Inskickat",
-		"firstSubmitted": "2025-02-27 11:16",
-		"lastStatusChange": "2025-03-06 09:10",
-		"status": "Inskickat",
+		"externalStatus": "Handläggning pågår",
+		"firstSubmitted": "2025-03-10 08:00",
+		"lastStatusChange": "2025-03-10 08:00",
+		"status": "Väntar på signering",
 		"system": "OPEN_E_PLATFORM"
 	},
 	{
@@ -53,5 +53,16 @@
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Pågående",
 		"system": "ECOS"
+	},
+	{
+		"caseId": "5101",
+		"caseType": "Bygglovsansökan med medsökande",
+		"errandNumber": "5101",
+		"externalCaseId": "5101",
+		"externalStatus": "Handläggning pågår",
+		"firstSubmitted": "2025-04-10 08:00",
+		"lastStatusChange": "2025-04-10 08:00",
+		"status": "Utkast",
+		"system": "OPEN_E_PLATFORM"
 	}
 ]
