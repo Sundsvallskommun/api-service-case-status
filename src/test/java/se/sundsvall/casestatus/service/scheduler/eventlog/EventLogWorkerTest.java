@@ -446,6 +446,34 @@ class EventLogWorkerTest {
 	}
 
 	@Test
+	void updateOepCase_nullMetadataValuesAreFilteredOut() {
+		final String municipalityId = "testMunicipalityId";
+		final var statusValue = "SomeStatus";
+		final var externalCaseId = "ext-123";
+		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
+
+		when(eventPageMock.getContent()).thenReturn(
+			List.of(new Event().logKey("12345").metadata(List.of(
+				new Metadata().key("Status").value(statusValue),
+				new Metadata().key("ExternalCaseId").value(externalCaseId),
+				new Metadata().key("NullValueKey").value(null),
+				new Metadata().key(null).value("NullKeyValue")))));
+		when(eventPageMock.hasNext()).thenReturn(false);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString()))
+			.thenReturn(eventPageMock);
+		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue)).thenReturn(Optional.of(statuses));
+
+		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
+
+		assertThat(result).isTrue();
+		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId),
+			any(CaseStatusChangeRequest.class));
+		verifyNoInteractions(messagingIntegrationMock);
+	}
+
+	@Test
 	void updateOepCase_failureContinuesProcessing() {
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue1 = "Status1";
