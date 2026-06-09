@@ -50,6 +50,8 @@ import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
 @SpringBootTest(classes = Application.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class EventLogWorkerTest {
 
+	private static final OffsetDateTime FIXED_TIMESTAMP = OffsetDateTime.parse("2026-01-01T12:00:00+01:00");
+
 	@MockitoBean
 	private StatusesRepository statusesRepositoryMock;
 
@@ -84,7 +86,7 @@ class EventLogWorkerTest {
 		final var caseId1 = "case-1";
 		final var caseId2 = "case-2";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(List.of(
@@ -119,7 +121,7 @@ class EventLogWorkerTest {
 	void testUpdateSupportManagementStatusesWithEmptyLogKeys() {
 		final String municipalityId = "testMunicipalityId";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
 		when(eventPageMock.getContent()).thenReturn(emptyList());
 		when(eventPageMock.hasNext()).thenReturn(false);
@@ -141,7 +143,7 @@ class EventLogWorkerTest {
 	void updateSupportManagementStatusesWithoutCaseId() {
 		final String municipalityId = "testMunicipalityId";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
 		when(eventPageMock.getContent()).thenReturn(
 			List.of(new Event().logKey("1").metadata(List.of(new Metadata().key("Status").value("SomeStatus"),
@@ -163,7 +165,7 @@ class EventLogWorkerTest {
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
 		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey("1")
 			.metadata(List.of(new Metadata().key("Status").value(internalStatus),
@@ -187,7 +189,7 @@ class EventLogWorkerTest {
 		final var internalStatus = "SomeInternalStatus";
 		final var caseId = "case-1";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey("1")
@@ -217,7 +219,7 @@ class EventLogWorkerTest {
 		final var internalStatus = "SomeInternalStatus";
 		final var caseId = "case-1";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey("1")
@@ -240,7 +242,7 @@ class EventLogWorkerTest {
 	void updateSupportManagementStatusesWithInvalidChannel() {
 		final String municipalityId = "testMunicipalityId";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
 		when(eventPageMock.getContent()).thenReturn(
 			List.of(new Event().logKey("1").metadata(List.of(new Metadata().key("Status").value("SomeStatus"),
@@ -261,7 +263,7 @@ class EventLogWorkerTest {
 		final var statusValue = "SomeStatus";
 		final var externalCaseId = "ext-123";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(
@@ -289,7 +291,7 @@ class EventLogWorkerTest {
 	void updateOepCase_noEvents() {
 		final String municipalityId = "testMunicipalityId";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
 		when(eventPageMock.getContent()).thenReturn(emptyList());
 		when(eventPageMock.hasNext()).thenReturn(false);
@@ -309,7 +311,7 @@ class EventLogWorkerTest {
 		final var statusValue = "SomeStatus";
 		final var externalCaseId = "ext-123";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(
@@ -337,7 +339,7 @@ class EventLogWorkerTest {
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue = "UnknownStatus";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
 		when(eventPageMock.getContent()).thenReturn(
 			List.of(new Event().logKey("12345").metadata(List.of(new Metadata().key("Status").value(statusValue),
@@ -359,7 +361,7 @@ class EventLogWorkerTest {
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue = "SomeStatus";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		when(eventPageMock.getContent()).thenReturn(List
@@ -382,7 +384,7 @@ class EventLogWorkerTest {
 		final var statusValue = "SomeStatus";
 		final var externalCaseId = "ext-123";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
 
 		@SuppressWarnings("unchecked")
@@ -417,7 +419,7 @@ class EventLogWorkerTest {
 		final var externalCaseId1 = "ext-1";
 		final var externalCaseId2 = "ext-2";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses1 = StatusesEntity.builder().withOepStatus("OepStatus1").build();
 		final var statuses2 = StatusesEntity.builder().withOepStatus("OepStatus2").build();
 
@@ -446,6 +448,34 @@ class EventLogWorkerTest {
 	}
 
 	@Test
+	void updateOepCase_nullMetadataValuesAreFilteredOut() {
+		final String municipalityId = "testMunicipalityId";
+		final var statusValue = "SomeStatus";
+		final var externalCaseId = "ext-123";
+		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
+		final var statuses = StatusesEntity.builder().withOepStatus("NewOepStatus").build();
+
+		when(eventPageMock.getContent()).thenReturn(
+			List.of(new Event().logKey("12345").metadata(List.of(
+				new Metadata().key("Status").value(statusValue),
+				new Metadata().key("ExternalCaseId").value(externalCaseId),
+				new Metadata().key("NullValueKey").value(null),
+				new Metadata().key(null).value("NullKeyValue")))));
+		when(eventPageMock.hasNext()).thenReturn(false);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString()))
+			.thenReturn(eventPageMock);
+		when(statusesRepositoryMock.findByCaseManagementStatus(statusValue)).thenReturn(Optional.of(statuses));
+
+		final var result = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformationEntity, consumerMock);
+
+		assertThat(result).isTrue();
+		verify(oepIntegratorClientMock).setStatus(eq(municipalityId), eq(InstanceType.EXTERNAL), eq(externalCaseId),
+			any(CaseStatusChangeRequest.class));
+		verifyNoInteractions(messagingIntegrationMock);
+	}
+
+	@Test
 	void updateOepCase_failureContinuesProcessing() {
 		final String municipalityId = "testMunicipalityId";
 		final var statusValue1 = "Status1";
@@ -453,7 +483,7 @@ class EventLogWorkerTest {
 		final var externalCaseId1 = "ext-1";
 		final var externalCaseId2 = "ext-2";
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
-			.withLastSuccessfulExecution(OffsetDateTime.now()).build();
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 		final var statuses1 = StatusesEntity.builder().withOepStatus("OepStatus1").build();
 		final var statuses2 = StatusesEntity.builder().withOepStatus("OepStatus2").build();
 

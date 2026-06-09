@@ -24,7 +24,7 @@ import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.util.EnvironmentUtil;
 import se.sundsvall.dept44.requestid.RequestId;
 
-import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.slf4j.LoggerFactory.getLogger;
 import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
@@ -178,7 +178,9 @@ public class EventLogWorker {
 	}
 
 	private Map<String, String> toMetadataMap(final Event event) {
-		return event.getMetadata().stream().collect(toMap(Metadata::getKey, Metadata::getValue));
+		return event.getMetadata().stream()
+			.filter(metadata -> metadata.getKey() != null && metadata.getValue() != null)
+			.collect(toUnmodifiableMap(Metadata::getKey, Metadata::getValue));
 	}
 
 	private InstanceType getInstanceType(final String channel) {
