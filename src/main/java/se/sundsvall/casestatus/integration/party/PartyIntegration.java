@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 @Component
 public class PartyIntegration {
@@ -33,7 +34,7 @@ public class PartyIntegration {
 		}
 		final var partyId = client.getPartyIdByLegalId(municipalityId, ENTERPRISE, legalId);
 		if (partyId.isEmpty()) {
-			LOG.info("No partyId found for the given organization number");
+			LOG.info("No partyId found for organization number {}", sanitizeForLogging(legalId));
 		}
 		return partyId;
 	}
