@@ -1,21 +1,15 @@
 package se.sundsvall.casestatus.integration.party;
 
-import generated.se.sundsvall.party.PartyType;
-import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import se.sundsvall.dept44.problem.Problem;
 
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
-import static generated.se.sundsvall.party.PartyType.PRIVATE;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 @Component
 public class PartyIntegration {
 
-	static final String INVALID_PARTY_ID = "Invalid partyId: %s";
-	static final String INVALID_LEGAL_ID = "Invalid legalId: %s";
 	private static final Logger LOG = LoggerFactory.getLogger(PartyIntegration.class);
 
 	private final PartyClient client;
@@ -24,33 +18,23 @@ public class PartyIntegration {
 		this.client = client;
 	}
 
-	public Map<PartyType, String> getLegalIdByPartyId(final String municipalityId, final String partyId) {
-		final var personalNumber = client.getLegalIdByPartyId(municipalityId, PRIVATE, partyId);
-		if (personalNumber.isPresent()) {
-			LOG.debug("Found personal number for partyId: {}", partyId);
-			return Map.of(PRIVATE, personalNumber.get());
+	/**
+	 * Looks up the partyId for an organization number. Accepts both formatted (123456-1235) and unformatted input since
+	 * the lookup is done on digits only.
+	 *
+	 * @param  municipalityId     the municipality id
+	 * @param  organizationNumber the organization number to look up
+	 * @return                    the partyId, or an empty Optional when the organization number is unknown to Party
+	 */
+	public Optional<String> getPartyIdByOrganizationNumber(final String municipalityId, final String organizationNumber) {
+		final var legalId = organizationNumber.replaceAll("\\D", "");
+		if (legalId.isEmpty()) {
+			return Optional.empty();
 		}
-
-		final var organizationNumber = client.getLegalIdByPartyId(municipalityId, ENTERPRISE, partyId);
-		if (organizationNumber.isPresent()) {
-			LOG.debug("Found organization number for partyId: {}", partyId);
-			return Map.of(ENTERPRISE, organizationNumber.get());
+		final var partyId = client.getPartyIdByLegalId(municipalityId, ENTERPRISE, legalId);
+		if (partyId.isEmpty()) {
+			LOG.info("No partyId found for the given organization number");
 		}
-
-		throw Problem.valueOf(BAD_REQUEST, INVALID_PARTY_ID.formatted(partyId));
-	}
-
-	public Map<PartyType, String> getPartyIdByLegalId(final String municipalityId, final String legalId) {
-		final var personalNumber = client.getPartyIdByLegalId(municipalityId, PRIVATE, legalId);
-		if (personalNumber.isPresent()) {
-			return Map.of(PRIVATE, personalNumber.get());
-		}
-
-		final var organizationNumber = client.getPartyIdByLegalId(municipalityId, ENTERPRISE, legalId);
-		if (organizationNumber.isPresent()) {
-			return Map.of(ENTERPRISE, organizationNumber.get());
-		}
-
-		throw Problem.valueOf(BAD_REQUEST, INVALID_LEGAL_ID.formatted(legalId));
+		return partyId;
 	}
 }

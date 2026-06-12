@@ -23,13 +23,10 @@ import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 
-import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
-import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
-import static se.sundsvall.casestatus.util.FormattingUtil.getFormattedOrganizationNumber;
 
 /**
  * Aggregates {@link CaseStatusResponse} entries across all backing systems (CaseManagement, OeP, SupportManagement and
@@ -75,21 +72,12 @@ public class CaseAggregator {
 	}
 
 	public List<CaseStatusResponse> aggregateForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
-		final var partyResult = partyIntegration.getLegalIdByPartyId(municipalityId, partyId);
-
 		final var cmFuture = caseManagementByPartyAsync(partyId, municipalityId);
 		final var oepFuture = oepByPartyAsync(partyId, municipalityId);
 		final var multisignFuture = oepMultisignByPartyAsync(partyId, municipalityId);
 
-		// Support Management depends on the party type (PRIVATE -> partyId, ENTERPRISE -> formatted org no)
-		final CompletableFuture<List<CaseStatusResponse>> supportFuture;
-		if (partyResult.containsKey(PRIVATE)) {
-			supportFuture = supportManagementByExternalIdAsync(partyId, municipalityId);
-		} else if (partyResult.containsKey(ENTERPRISE)) {
-			supportFuture = supportManagementByExternalIdAsync(getFormattedOrganizationNumber(partyResult.get(ENTERPRISE)), municipalityId);
-		} else {
-			return emptyList();
-		}
+		// SupportManagement stores partyId in stakeholders.externalId for both private persons and enterprises
+		final var supportFuture = supportManagementByExternalIdAsync(partyId, municipalityId);
 
 		return runPipeline(List.of(cmFuture, oepFuture, supportFuture), multisignFuture, includeDrafts);
 	}
@@ -97,7 +85,7 @@ public class CaseAggregator {
 	public List<CaseStatusResponse> aggregateForOrg(final String organizationNumber, final String municipalityId) {
 		final var cmFuture = caseManagementByOrgAsync(organizationNumber, municipalityId);
 		final var localOpenEFuture = localOpenEByOrgAsync(organizationNumber, municipalityId);
-		final var supportFuture = supportManagementByExternalIdAsync(getFormattedOrganizationNumber(organizationNumber), municipalityId);
+		final var supportFuture = supportManagementByOrganizationNumberAsync(organizationNumber, municipalityId);
 
 		// Org flow has no multi-sign source and preserves the historical "no draft filtering" behavior.
 		return runPipeline(List.of(cmFuture, localOpenEFuture, supportFuture), CompletableFuture.completedFuture(emptyList()), true);
@@ -208,9 +196,20 @@ public class CaseAggregator {
 			.toList(), mdcAwareExecutor);
 	}
 
-	private CompletableFuture<List<CaseStatusResponse>> supportManagementByExternalIdAsync(final String externalIdOrOrgNo, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, externalIdOrOrgNo)),
+	private CompletableFuture<List<CaseStatusResponse>> supportManagementByExternalIdAsync(final String partyId, final String municipalityId) {
+		return CompletableFuture.supplyAsync(() -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)),
 			mdcAwareExecutor);
+	}
+
+	/**
+	 * SupportManagement stores partyId (not organization number) in stakeholders.externalId, so the organization number
+	 * must be translated via Party before searching. An organization number unknown to Party yields no SupportManagement
+	 * matches while the other sources still contribute.
+	 */
+	private CompletableFuture<List<CaseStatusResponse>> supportManagementByOrganizationNumberAsync(final String organizationNumber, final String municipalityId) {
+		return CompletableFuture.supplyAsync(() -> partyIntegration.getPartyIdByOrganizationNumber(municipalityId, organizationNumber)
+			.map(partyId -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)))
+			.orElse(emptyList()), mdcAwareExecutor);
 	}
 
 	public List<CaseStatusResponse> mapSupportManagementErrands(final String municipalityId, final Map<String, List<Errand>> errandsByNamespace) {

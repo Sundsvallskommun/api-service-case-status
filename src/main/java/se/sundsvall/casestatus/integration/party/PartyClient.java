@@ -17,12 +17,6 @@ import static se.sundsvall.casestatus.integration.party.configuration.PartyConfi
 @CircuitBreaker(name = CLIENT_ID)
 public interface PartyClient {
 
-	@GetMapping("/{municipalityId}/{type}/{partyId}/legalId")
-	Optional<String> getLegalIdByPartyId(
-		@PathVariable String municipalityId,
-		@PathVariable PartyType type,
-		@PathVariable String partyId);
-
 	@GetMapping("/{municipalityId}/{type}/{legalId}/partyId")
 	Optional<String> getPartyIdByLegalId(
 		@PathVariable String municipalityId,

@@ -1,0 +1,13 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/party/2281/ENTERPRISE/1234561235/partyId"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "text/plain"
+		},
+		"body": "d7af5f83-166a-468b-ab86-da8ca30ea97c",
+		"status": 200
+	}
+}
