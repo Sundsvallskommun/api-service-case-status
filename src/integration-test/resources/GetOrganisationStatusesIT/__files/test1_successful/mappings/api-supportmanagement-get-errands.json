@@ -3,7 +3,7 @@
 		"method": "GET",
 		"queryParameters": {
 			"filter": {
-				"equalTo": "stakeholders.externalId:'123456-1235' and stakeholders.role:'PRIMARY'"
+				"equalTo": "stakeholders.externalId:'d7af5f83-166a-468b-ab86-da8ca30ea97c' and stakeholders.role:'PRIMARY'"
 			}
 		},
 		"urlPattern": "/supportmanagement/2281/MYNAMESPACE/errands.*"

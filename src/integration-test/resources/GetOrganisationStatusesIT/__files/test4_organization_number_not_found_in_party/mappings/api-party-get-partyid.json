@@ -1,0 +1,12 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/party/2281/ENTERPRISE/1234561231/partyId"
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/problem+json"
+		},
+		"status": 404
+	}
+}

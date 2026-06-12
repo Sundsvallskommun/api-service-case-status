@@ -6,24 +6,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import se.sundsvall.dept44.problem.Problem;
 
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
-import static generated.se.sundsvall.party.PartyType.PRIVATE;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
-import static se.sundsvall.casestatus.integration.party.PartyIntegration.INVALID_LEGAL_ID;
-import static se.sundsvall.casestatus.integration.party.PartyIntegration.INVALID_PARTY_ID;
 
 @ExtendWith(MockitoExtension.class)
 class PartyIntegrationTest {
 
 	private static final String PARTY_ID = "partyId";
 	private static final String MUNICIPALITY_ID = "municipalityId";
-	private static final String LEGAL_ID = "legalId";
 
 	@Mock
 	private PartyClient partyClientMock;
@@ -32,78 +27,43 @@ class PartyIntegrationTest {
 	private PartyIntegration partyIntegration;
 
 	@Test
-	void getLegalIdByPartyIdPrivateFound() {
-		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID)).thenReturn(Optional.of(LEGAL_ID));
+	void getPartyIdByOrganizationNumberFound() {
+		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, "2120002411")).thenReturn(Optional.of(PARTY_ID));
 
-		final var result = partyIntegration.getLegalIdByPartyId(MUNICIPALITY_ID, PARTY_ID);
+		final var result = partyIntegration.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, "2120002411");
 
-		assertThat(result).containsOnlyKeys(PRIVATE).containsEntry(PRIVATE, LEGAL_ID);
-		verify(partyClientMock).getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID);
+		assertThat(result).contains(PARTY_ID);
+		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, "2120002411");
 		verifyNoMoreInteractions(partyClientMock);
 	}
 
 	@Test
-	void getLegalIdByPartyIdEnterpriseFound() {
-		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID)).thenReturn(Optional.empty());
-		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, ENTERPRISE, PARTY_ID)).thenReturn(Optional.of(LEGAL_ID));
+	void getPartyIdByOrganizationNumberStripsFormatting() {
+		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, "2120002411")).thenReturn(Optional.of(PARTY_ID));
 
-		final var result = partyIntegration.getLegalIdByPartyId(MUNICIPALITY_ID, PARTY_ID);
+		final var result = partyIntegration.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, "212000-2411");
 
-		assertThat(result).containsOnlyKeys(ENTERPRISE).containsEntry(ENTERPRISE, LEGAL_ID);
-		verify(partyClientMock).getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID);
-		verify(partyClientMock).getLegalIdByPartyId(MUNICIPALITY_ID, ENTERPRISE, PARTY_ID);
+		assertThat(result).contains(PARTY_ID);
+		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, "2120002411");
 		verifyNoMoreInteractions(partyClientMock);
 	}
 
 	@Test
-	void getPartyIdByLegalIdBadRequest() {
-		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID)).thenReturn(Optional.empty());
-		when(partyClientMock.getLegalIdByPartyId(MUNICIPALITY_ID, ENTERPRISE, PARTY_ID)).thenReturn(Optional.empty());
+	void getPartyIdByOrganizationNumberWithoutDigits() {
+		final var result = partyIntegration.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, "no-digits-here");
 
-		assertThatThrownBy(() -> partyIntegration.getLegalIdByPartyId(MUNICIPALITY_ID, PARTY_ID))
-			.isInstanceOf(Problem.class)
-			.hasMessageContaining(INVALID_PARTY_ID.formatted(PARTY_ID));
-
-		verify(partyClientMock).getLegalIdByPartyId(MUNICIPALITY_ID, PRIVATE, PARTY_ID);
-		verify(partyClientMock).getLegalIdByPartyId(MUNICIPALITY_ID, ENTERPRISE, PARTY_ID);
-		verifyNoMoreInteractions(partyClientMock);
+		assertThat(result).isEmpty();
+		verifyNoInteractions(partyClientMock);
 	}
 
 	@Test
-	void getPartyIdByLegalIdPrivateFound() {
-		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID)).thenReturn(Optional.of(PARTY_ID));
+	void getPartyIdByOrganizationNumberNotFound() {
+		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, "2120002411")).thenReturn(Optional.empty());
 
-		final var result = partyIntegration.getPartyIdByLegalId(MUNICIPALITY_ID, LEGAL_ID);
+		final var result = partyIntegration.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, "2120002411");
 
-		assertThat(result).containsOnlyKeys(PRIVATE).containsEntry(PRIVATE, PARTY_ID);
-		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID);
-		verifyNoMoreInteractions(partyClientMock);
-	}
-
-	@Test
-	void getPartyIdByLegalIdEnterpriseFound() {
-		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID)).thenReturn(Optional.empty());
-		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, LEGAL_ID)).thenReturn(Optional.of(PARTY_ID));
-
-		final var result = partyIntegration.getPartyIdByLegalId(MUNICIPALITY_ID, LEGAL_ID);
-
-		assertThat(result).containsOnlyKeys(ENTERPRISE).containsEntry(ENTERPRISE, PARTY_ID);
-		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID);
-		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, LEGAL_ID);
-		verifyNoMoreInteractions(partyClientMock);
-	}
-
-	@Test
-	void getLegalIdByPartyIdBadRequest() {
-		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID)).thenReturn(Optional.empty());
-		when(partyClientMock.getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, LEGAL_ID)).thenReturn(Optional.empty());
-
-		assertThatThrownBy(() -> partyIntegration.getPartyIdByLegalId(MUNICIPALITY_ID, LEGAL_ID))
-			.isInstanceOf(Problem.class)
-			.hasMessageContaining(INVALID_LEGAL_ID.formatted(LEGAL_ID));
-
-		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, PRIVATE, LEGAL_ID);
-		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, LEGAL_ID);
+		assertThat(result).isEmpty();
+		verify(partyClientMock).getPartyIdByLegalId(MUNICIPALITY_ID, ENTERPRISE, "2120002411");
 		verifyNoMoreInteractions(partyClientMock);
 	}
 

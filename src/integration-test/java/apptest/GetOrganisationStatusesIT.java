@@ -23,6 +23,8 @@ class GetOrganisationStatusesIT extends AbstractAppTest {
 
 	private static final String EMPTY_PATH = "/" + MUNICIPALITY_ID + "/1234561232/statuses";
 
+	private static final String UNKNOWN_PARTY_PATH = "/" + MUNICIPALITY_ID + "/1234561231/statuses";
+
 	@BeforeEach
 	void setUp() {
 		stubForAccessToken();
@@ -52,6 +54,16 @@ class GetOrganisationStatusesIT extends AbstractAppTest {
 	void test3_not_found_in_casemanagement_and_no_match_in_casestatus_db() {
 		setupCall()
 			.withServicePath(EMPTY_PATH)
+			.withHttpMethod(HttpMethod.GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("expected-response.json")
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test4_organization_number_not_found_in_party() {
+		setupCall()
+			.withServicePath(UNKNOWN_PARTY_PATH)
 			.withHttpMethod(HttpMethod.GET)
 			.withExpectedResponseStatus(OK)
 			.withExpectedResponse("expected-response.json")
