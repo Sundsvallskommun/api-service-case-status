@@ -441,6 +441,7 @@ class CaseStatusServiceTest {
 
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId);
 		verify(supportManagementServiceMock).getClassificationDisplayName(MUNICIPALITY_ID, NAMESPACE_1, errand);
 		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
@@ -474,6 +475,7 @@ class CaseStatusServiceTest {
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
@@ -497,6 +499,7 @@ class CaseStatusServiceTest {
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
@@ -544,6 +547,7 @@ class CaseStatusServiceTest {
 
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(mdcExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
 	}
@@ -592,6 +596,49 @@ class CaseStatusServiceTest {
 		assertThat(result).isNotNull().hasSize(1);
 		assertThat(result.getFirst().getExternalCaseId()).isEqualTo("multisignFlowInstanceId");
 		assertThat(result.getFirst().getStatus()).isEqualTo("Utkast");
+	}
+
+	/**
+	 * Unsubmitted (saved but not yet submitted) Open-E cases are drafts and must surface when includeDrafts=true.
+	 */
+	@Test
+	void getCaseStatusesForParty_unsubmittedIncludedWhenDraftsRequested() {
+		final var partyId = "somePartyId";
+		final var includeDrafts = true;
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(emptyList());
+		when(openEIntegrationMock.getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("unsubmitted").status(new CaseStatus().name("Utkast")).flowInstanceId("unsubmittedFlowInstanceId")));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
+
+		assertThat(result).isNotNull().hasSize(1);
+		assertThat(result.getFirst().getExternalCaseId()).isEqualTo("unsubmittedFlowInstanceId");
+		assertThat(result.getFirst().getStatus()).isEqualTo("Utkast");
+
+		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+	}
+
+	/**
+	 * Unsubmitted Open-E cases are drafts and must be filtered out when includeDrafts=false, unlike multi-sign cases
+	 * which bypass the draft filter.
+	 */
+	@Test
+	void getCaseStatusesForParty_unsubmittedFilteredWhenDraftsExcluded() {
+		final var partyId = "somePartyId";
+		final var includeDrafts = false;
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(emptyList());
+		when(openEIntegrationMock.getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("unsubmitted").status(new CaseStatus().name("Utkast")).flowInstanceId("unsubmittedFlowInstanceId")));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
+
+		assertThat(result).isNotNull().isEmpty();
+
+		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 	}
 
 	/**

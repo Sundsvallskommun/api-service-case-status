@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.6"
+  version: "1.7"
 servers:
   - url: http://localhost:50040
     description: Generated server url
@@ -1192,6 +1192,138 @@ paths:
           schema:
             type: string
           example: Preliminär
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/{instanceType}/cases/unsubmitted/parties/{partyId}:
+    get:
+      tags:
+        - Cases
+      summary: Get unsubmitted cases by citizen identifier
+      description: Get a list of case envelopes that are saved but not yet submitted
+        for the given citizen identifier
+      operationId: getUnsubmittedCasesByPartyId
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality ID
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: instanceType
+          in: path
+          description: The instanceType where case belongs
+          required: true
+          schema:
+            $ref: "#/components/schemas/InstanceType"
+          example: INTERNAL
+        - name: partyId
+          in: path
+          description: The party ID
+          required: true
+          schema:
+            type: string
+          example: 5d68eb00-d8da-49a0-a6b5-8d395be34a5e
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/{instanceType}/cases/unsubmitted/users/{userId}:
+    get:
+      tags:
+        - Cases
+      summary: Get unsubmitted cases by user ID
+      description: Get a list of case envelopes that are saved but not yet submitted
+        for the given AD user ID
+      operationId: getUnsubmittedCasesByUserId
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality ID
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: instanceType
+          in: path
+          description: The instanceType where case belongs
+          required: true
+          schema:
+            $ref: "#/components/schemas/InstanceType"
+          example: INTERNAL
+        - name: userId
+          in: path
+          description: The AD user ID
+          required: true
+          schema:
+            type: string
+          example: joedoe
         - name: includeStatus
           in: query
           description: Should response include status

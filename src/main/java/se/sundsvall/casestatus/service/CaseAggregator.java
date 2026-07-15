@@ -175,8 +175,18 @@ public class CaseAggregator {
 			.toList(), mdcAwareExecutor);
 	}
 
+	/**
+	 * Fetches this party's Open-E cases: both submitted cases and cases that are saved but not yet submitted (drafts).
+	 * The two OeP reads run sequentially in a single task rather than as separate parallel calls, keeping the number of
+	 * concurrent first-use decodes on the OeP client bounded (the Feign message-converter setup is only reliably
+	 * initialized after the first decode). Unsubmitted cases are drafts and only surface when {@code includeDrafts} is
+	 * true — the shared draft filter in {@link #filterResponses} gates them. includeStatus is requested so the mapper can
+	 * populate a status (envelopes without a status are dropped).
+	 */
 	private CompletableFuture<List<CaseStatusResponse>> oepByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream()
+		return CompletableFuture.supplyAsync(() -> Stream.concat(
+			oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream(),
+			oepIntegratorClient.getUnsubmittedCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream())
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
 			.toList(), mdcAwareExecutor);
