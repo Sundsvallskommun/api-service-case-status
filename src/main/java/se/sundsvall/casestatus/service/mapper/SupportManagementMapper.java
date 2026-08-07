@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 
+import static java.util.Collections.emptySet;
 import static java.util.Objects.isNull;
 import static java.util.Optional.empty;
 import static se.sundsvall.casestatus.util.Constants.DATE_TIME_FORMAT;
@@ -19,18 +20,24 @@ public class SupportManagementMapper {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
 
+	/**
+	 * Returns the caseId external tag, but only for errands that originate from Open-E (identified by the presence of a
+	 * familyId tag). Errands from other origins have no external case id.
+	 */
 	public static Optional<String> getExternalCaseId(final Errand errand) {
-		final boolean familyIdExists = errand.getExternalTags().stream()
+		final var externalTags = Optional.ofNullable(errand.getExternalTags()).orElse(emptySet());
+
+		final var familyIdExists = externalTags.stream()
 			.anyMatch(tag -> "familyId".equalsIgnoreCase(tag.getKey()));
 
-		if (familyIdExists) {
-			return errand.getExternalTags().stream()
-				.filter(tag -> "caseId".equalsIgnoreCase(tag.getKey()))
-				.findFirst()
-				.map(ExternalTag::getValue);
+		if (!familyIdExists) {
+			return empty();
 		}
 
-		return empty();
+		return externalTags.stream()
+			.filter(tag -> "caseId".equalsIgnoreCase(tag.getKey()))
+			.findFirst()
+			.map(ExternalTag::getValue);
 	}
 
 	public CaseStatusResponse toCaseStatusResponse(final Errand errand, final String namespace, StatusesEntity statuses, String classificationName) {

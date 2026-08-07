@@ -5,14 +5,12 @@ import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.eventlog.Event;
 import generated.se.sundsvall.eventlog.Metadata;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.integration.db.StatusesRepository;
@@ -22,13 +20,16 @@ import se.sundsvall.casestatus.integration.eventlog.EventlogClient;
 import se.sundsvall.casestatus.integration.messaging.MessagingIntegration;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
 import se.sundsvall.casestatus.service.util.EnvironmentUtil;
+import se.sundsvall.casestatus.util.PaginationUtil;
 import se.sundsvall.dept44.requestid.RequestId;
 
+import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toUnmodifiableMap;
 import static org.slf4j.LoggerFactory.getLogger;
 import static se.sundsvall.casestatus.util.Constants.EXTERNAL_CHANNEL_E_SERVICE;
 import static se.sundsvall.casestatus.util.Constants.INTERNAL_CHANNEL_E_SERVICE;
 import static se.sundsvall.casestatus.util.Constants.VALID_CHANNELS;
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
 
 @Component
 public class EventLogWorker {
@@ -164,23 +165,26 @@ public class EventLogWorker {
 		}
 	}
 
+	/**
+	 * Reads every page of events matching the filter. The walk is bounded - this runs unattended under a ShedLock lock,
+	 * where an unbounded loop would spin until the heap is exhausted rather than fail visibly.
+	 */
 	private List<Event> fetchAllEvents(final String municipalityId, final String filterString) {
-		int pageNumber = 0;
-		Page<Event> response;
-		final var allEvents = new ArrayList<Event>();
-		do {
-			response = eventlogClient.getEvents(municipalityId, PageRequest.of(pageNumber, 100), filterString);
-			allEvents.addAll(response.getContent());
-			pageNumber++;
-		} while (response.hasNext());
+		final var allEvents = PaginationUtil.fetchAllPages(
+			pageNumber -> eventlogClient.getEvents(municipalityId, PageRequest.of(pageNumber, PaginationUtil.PAGE_SIZE), filterString),
+			"events for municipalityId: %s".formatted(sanitizeForLogging(municipalityId)));
 
 		return allEvents.stream().distinct().toList();
 	}
 
+	/**
+	 * Flattens the event metadata to a key/value map. Duplicate keys keep the first occurrence rather than aborting the
+	 * whole scheduler run.
+	 */
 	private Map<String, String> toMetadataMap(final Event event) {
-		return event.getMetadata().stream()
+		return Optional.ofNullable(event.getMetadata()).orElse(emptyList()).stream()
 			.filter(metadata -> metadata.getKey() != null && metadata.getValue() != null)
-			.collect(toUnmodifiableMap(Metadata::getKey, Metadata::getValue));
+			.collect(toUnmodifiableMap(Metadata::getKey, Metadata::getValue, (first, _) -> first));
 	}
 
 	private InstanceType getInstanceType(final String channel) {

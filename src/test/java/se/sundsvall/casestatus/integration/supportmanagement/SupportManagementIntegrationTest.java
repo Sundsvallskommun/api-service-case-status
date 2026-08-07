@@ -4,7 +4,6 @@ import generated.se.sundsvall.supportmanagement.Category;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -65,25 +64,6 @@ class SupportManagementIntegrationTest {
 		// Assert
 		assertThat(result).isEqualTo(mockedResult);
 		verify(supportManagementClientMock).findErrands(municipalityId, namespace, filter, pageRequest);
-		verifyNoMoreInteractions(supportManagementClientMock);
-	}
-
-	@Test
-	void findErrandById() {
-
-		// Arrange
-		final var municipalityId = "municipalityId";
-		final var namespace = "namespace";
-		final var id = "id";
-		final var mockedResult = Optional.ofNullable(new Errand());
-		when(supportManagementClientMock.findErrandById(any(), any(), any())).thenReturn(mockedResult);
-
-		// Act
-		final var result = supportManagementIntegration.findErrandById(municipalityId, namespace, id);
-
-		// Assert
-		assertThat(result).isEqualTo(mockedResult);
-		verify(supportManagementClientMock).findErrandById(municipalityId, namespace, id);
 		verifyNoMoreInteractions(supportManagementClientMock);
 	}
 

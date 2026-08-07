@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -683,6 +685,17 @@ class CaseStatusServiceTest {
 	@Test
 	void getErrandStatuses_noRequestParameters() {
 		assertThatThrownBy(() -> caseStatusService.getErrandStatuses(MUNICIPALITY_ID, null, null))
+			.isInstanceOf(Problem.class)
+			.hasMessage("Bad Request: Either propertyDesignation or errandNumber must be provided");
+		verifyNoInteractions(caseDataIntegrationMock, supportManagementServiceMock);
+	}
+
+	@ParameterizedTest
+	@CsvSource(value = {
+		"'',''", "' ',' '", "'',", ",''", "' ',"
+	})
+	void getErrandStatuses_blankRequestParameters(final String propertyDesignation, final String errandNumber) {
+		assertThatThrownBy(() -> caseStatusService.getErrandStatuses(MUNICIPALITY_ID, propertyDesignation, errandNumber))
 			.isInstanceOf(Problem.class)
 			.hasMessage("Bad Request: Either propertyDesignation or errandNumber must be provided");
 		verifyNoInteractions(caseDataIntegrationMock, supportManagementServiceMock);

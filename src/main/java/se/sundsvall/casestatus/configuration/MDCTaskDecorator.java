@@ -21,7 +21,10 @@ public class MDCTaskDecorator implements TaskDecorator {
 		@Override
 		public void run() {
 			try {
-				MDC.setContextMap(contextMap);
+				// getCopyOfContextMap() returns null when the submitting thread has no MDC context
+				if (contextMap != null) {
+					MDC.setContextMap(contextMap);
+				}
 				runnable.run();
 			} finally {
 				MDC.clear();
