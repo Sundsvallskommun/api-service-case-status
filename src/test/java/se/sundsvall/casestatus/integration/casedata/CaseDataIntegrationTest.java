@@ -117,6 +117,7 @@ class CaseDataIntegrationTest {
 		verifyNoMoreInteractions(clientMock);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Test
 	void getCaseDataCaseByPropertyDesignation_readsAllPages() {
 		var propertyDesignation = "Körsbärsdalen 123";
