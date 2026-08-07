@@ -23,6 +23,7 @@ import se.sundsvall.dept44.test.extension.ResourceLoaderExtension;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
@@ -110,6 +111,60 @@ class CaseStatusCacheWorkerTest {
 			verify(oepIntegratorClientMock, times(4)).getCase(any(), any(), any());
 			verify(oepIntegratorClientMock, times(4)).getCaseStatus(any(), any(), any());
 			verifyNoMoreInteractions(oepIntegratorClientMock);
+		}
+	}
+
+	@Test
+	void cacheStatusesForFamilyID_NoStatusDocument(@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML) {
+
+		final var familyId = FamilyId.ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR;
+		final var municipalityId = familyId.getMunicipalityId();
+		final var instanceType = InstanceType.EXTERNAL;
+		ReflectionTestUtils.setField(caseStatusCacheWorker, "jobName", "cache_job");
+
+		final var caseStatusCacheMock = Mockito.mock(CaseStatusCache.class);
+		when(caseStatusCacheMock.isProduction()).thenReturn(false);
+
+		try (final var mockedContextUtil = Mockito.mockStatic(ContextUtil.class)) {
+			mockedContextUtil.when(() -> ContextUtil.getBean(CaseStatusCache.class)).thenReturn(caseStatusCacheMock);
+
+			when(oepIntegratorClientMock.getCases(municipalityId, instanceType, familyId.getValue())).thenReturn(List.of(new CaseEnvelope().flowInstanceId("someFlowInstanceId")));
+			when(oepIntegratorClientMock.getCase(municipalityId, instanceType, "someFlowInstanceId")).thenReturn(new ModelCase().payload(getErrandXML));
+			when(oepIntegratorClientMock.getCaseStatus(any(), any(), any())).thenReturn(null);
+
+			caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
+
+			// Caching nothing at all must reach the health indicator - otherwise the cache goes stale while health stays green
+			verify(dept44HealthUtility).setHealthIndicatorUnhealthy("cache_job", "Unable to cache any errand for familyId: " + familyId);
+			verifyNoMoreInteractions(caseRepositoryMock);
+		}
+	}
+
+	@Test
+	void cacheStatusesForFamilyID_PartialSuccessKeepsHealthGreen(@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML) {
+
+		final var familyId = FamilyId.ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR;
+		final var municipalityId = familyId.getMunicipalityId();
+		final var instanceType = InstanceType.EXTERNAL;
+		ReflectionTestUtils.setField(caseStatusCacheWorker, "jobName", "cache_job");
+
+		final var caseStatusCacheMock = Mockito.mock(CaseStatusCache.class);
+		when(caseStatusCacheMock.isProduction()).thenReturn(false);
+
+		try (final var mockedContextUtil = Mockito.mockStatic(ContextUtil.class)) {
+			mockedContextUtil.when(() -> ContextUtil.getBean(CaseStatusCache.class)).thenReturn(caseStatusCacheMock);
+
+			when(oepIntegratorClientMock.getCases(municipalityId, instanceType, familyId.getValue()))
+				.thenReturn(List.of(new CaseEnvelope().flowInstanceId("cached"), new CaseEnvelope().flowInstanceId("skipped")));
+			when(oepIntegratorClientMock.getCase(municipalityId, instanceType, "cached")).thenReturn(new ModelCase().payload(getErrandXML));
+			when(oepIntegratorClientMock.getCase(municipalityId, instanceType, "skipped")).thenReturn(null);
+			when(oepIntegratorClientMock.getCaseStatus(municipalityId, instanceType, "cached")).thenReturn(new CaseStatus());
+
+			caseStatusCacheWorker.cacheStatusesForFamilyId(familyId);
+
+			// One skipped errand is expected noise and must not flip the indicator
+			verify(caseRepositoryMock).save(any());
+			verifyNoInteractions(dept44HealthUtility);
 		}
 	}
 

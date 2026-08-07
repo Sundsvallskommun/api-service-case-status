@@ -80,6 +80,37 @@ class EventLogWorkerTest {
 	private Consumer<String> consumerMock;
 
 	@Test
+	void fetchAllEventsStopsAtPageLimit() {
+		// This runs unattended under a ShedLock lock - a service that keeps reporting further pages must not spin
+		final String municipalityId = "testMunicipalityId";
+		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
+
+		when(eventPageMock.getContent()).thenReturn(List.of(new Event().logKey("1")));
+		when(eventPageMock.hasNext()).thenReturn(true);
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(eventPageMock);
+
+		eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
+
+		verify(eventlogClientMock, times(100)).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
+	}
+
+	@Test
+	void fetchAllEventsStopsOnNullPage() {
+		final String municipalityId = "testMunicipalityId";
+		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
+			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
+
+		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString())).thenReturn(null);
+
+		final var result = eventLogWorker.updateSupportManagementStatuses(executionInformationEntity, consumerMock);
+
+		assertThat(result).isTrue();
+		verify(eventlogClientMock).getEvents(eq(municipalityId), any(PageRequest.class), anyString());
+		verifyNoInteractions(oepIntegratorClientMock);
+	}
+
+	@Test
 	void updateSupportManagementStatuses() {
 		final String municipalityId = "testMunicipalityId";
 		final var internalStatus = "SomeInternalStatus";
@@ -123,8 +154,8 @@ class EventLogWorkerTest {
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
 			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
+		// An empty page ends the walk without consulting hasNext()
 		when(eventPageMock.getContent()).thenReturn(emptyList());
-		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString()))
 			.thenReturn(eventPageMock);
 
@@ -293,8 +324,8 @@ class EventLogWorkerTest {
 		final var executionInformationEntity = ExecutionInformationEntity.builder().withMunicipalityId(municipalityId)
 			.withLastSuccessfulExecution(FIXED_TIMESTAMP).build();
 
+		// An empty page ends the walk without consulting hasNext()
 		when(eventPageMock.getContent()).thenReturn(emptyList());
-		when(eventPageMock.hasNext()).thenReturn(false);
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString()))
 			.thenReturn(eventPageMock);
 
@@ -395,8 +426,8 @@ class EventLogWorkerTest {
 				new Metadata().key("ExternalCaseId").value(externalCaseId)))));
 		when(eventPageMock.hasNext()).thenReturn(true);
 
+		// The empty second page ends the walk without consulting hasNext()
 		when(secondPageMock.getContent()).thenReturn(emptyList());
-		when(secondPageMock.hasNext()).thenReturn(false);
 
 		when(eventlogClientMock.getEvents(eq(municipalityId), any(PageRequest.class), anyString()))
 			.thenReturn(eventPageMock).thenReturn(secondPageMock);

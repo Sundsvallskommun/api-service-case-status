@@ -176,14 +176,15 @@ public class CaseAggregator {
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> oepByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream()
+		// The OeP client dismisses 404 responses, which yields a null list
+		return CompletableFuture.supplyAsync(() -> ofNullable(oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
 			.toList(), mdcAwareExecutor);
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> oepMultisignByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream()
+		return CompletableFuture.supplyAsync(() -> ofNullable(oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
 			.toList(), mdcAwareExecutor);

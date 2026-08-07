@@ -24,7 +24,7 @@ public class CaseManagementIntegration {
 
 	public Optional<CaseStatusDTO> getCaseStatusForExternalId(final String externalCaseId, final String municipalityId) {
 		try {
-			return Optional.of(client.getCaseStatusForExternalCaseId(municipalityId, externalCaseId));
+			return Optional.ofNullable(client.getCaseStatusForExternalCaseId(municipalityId, externalCaseId));
 		} catch (final Exception e) {
 			LOG.info("Unable to get case status for external id {}", sanitizeForLogging(externalCaseId), e);
 			return empty();

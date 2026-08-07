@@ -3,7 +3,6 @@ package se.sundsvall.casestatus.integration.oepintegrator;
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.CaseStatus;
 import generated.client.oep_integrator.CaseStatusChangeRequest;
-import generated.client.oep_integrator.ConfirmDeliveryRequest;
 import generated.client.oep_integrator.InstanceType;
 import generated.client.oep_integrator.ModelCase;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -13,7 +12,6 @@ import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,13 +24,6 @@ import static se.sundsvall.casestatus.integration.oepintegrator.configuration.Oe
 @FeignClient(name = CLIENT_ID, url = "${integration.oep-integrator.base-url}", configuration = OepIntegratorConfiguration.class, dismiss404 = true)
 @CircuitBreaker(name = CLIENT_ID)
 public interface OepIntegratorClient {
-
-	@PostMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/delivery", consumes = APPLICATION_JSON_VALUE, produces = ALL_VALUE)
-	ResponseEntity<Void> confirmDelivery(
-		@PathVariable String municipalityId,
-		@PathVariable InstanceType instanceType,
-		@PathVariable String flowInstanceId,
-		@RequestBody final ConfirmDeliveryRequest confirmDeliveryRequest);
 
 	@PutMapping(value = "{municipalityId}/{instanceType}/cases/{flowInstanceId}/status", consumes = APPLICATION_JSON_VALUE, produces = ALL_VALUE)
 	ResponseEntity<Void> setStatus(

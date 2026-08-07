@@ -1,7 +1,6 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
 import generated.client.oep_integrator.CaseStatus;
-import generated.client.oep_integrator.ModelCase;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import se.sundsvall.dept44.test.annotation.resource.Load;
@@ -18,10 +17,10 @@ class MapperTest {
 	void toCompanyCaseEntity(
 		@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML) {
 
-		final var errandDoc = new ModelCase().payload(getErrandXML);
+		final var payload = Mapper.parsePayload(getErrandXML);
 		final var errandStatusDoc = new CaseStatus().name("Inskickat");
 
-		final var result = Mapper.toCompanyCaseEntity(errandStatusDoc, errandDoc, "someOrganisationNumber", "2281");
+		final var result = Mapper.toCompanyCaseEntity(errandStatusDoc, payload, null, "someOrganisationNumber", "2281");
 
 		assertThat(result)
 			.isNotNull()
@@ -37,42 +36,20 @@ class MapperTest {
 	}
 
 	@Test
-	void toPrivateCaseEntity(@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML) {
+	void toCompanyCaseEntityWhenPayloadIsEmpty() {
 
-		final var errandDoc = new ModelCase().payload(getErrandXML);
+		final var payload = Mapper.parsePayload("<FlowInstance></FlowInstance>");
 		final var errandStatusDoc = new CaseStatus().name("Inskickat");
 
-		final var result = Mapper.toPrivateCaseEntity(errandStatusDoc, errandDoc, "somePersonId", "2281");
+		final var result = Mapper.toCompanyCaseEntity(errandStatusDoc, payload, "contentType", "someOrganisationNumber", "2281");
 
-		assertThat(result)
-			.isNotNull()
-			.hasNoNullFieldsOrPropertiesExcept("organisationNumber", "sysStartTime", "sysEndtime", "contentType");
+		assertThat(result).isNotNull();
 		assertThat(result.getStatus()).isEqualTo("Inskickat");
-		assertThat(result.getFirstSubmitted()).isEqualTo("2022-01-20 11:29");
-		assertThat(result.getFlowInstanceId()).isEqualTo("2101");
-		assertThat(result.getFamilyId()).isEqualTo("381");
-		assertThat(result.getErrandType()).isEqualTo("�ndring eller avslut av tillst�ndspliktig f�rs�ljning av tobaksvaror - anm�lan");
-		assertThat(result.getLastStatusChange()).isEqualTo("2022-01-20 11:29");
-		assertThat(result.getPersonId()).isEqualTo("somePersonId");
+		assertThat(result.getFlowInstanceId()).isNull();
+		assertThat(result.getFamilyId()).isNull();
+		assertThat(result.getErrandType()).isNull();
+		assertThat(result.getFirstSubmitted()).isNull();
+		assertThat(result.getLastStatusChange()).isNull();
+		assertThat(result.getOrganisationNumber()).isEqualTo("someOrganisationNumber");
 	}
-
-	@Test
-	void toCacheUnknowCaseStatus(@Load(value = "/xml/getErrand_ANDRINGAVSLUTFORSALJNINGTOBAKSVAROR.xml") final String getErrandXML) {
-
-		final var errandDoc = new ModelCase().payload(getErrandXML);
-		final var errandStatusDoc = new CaseStatus().name("Inskickat");
-
-		final var result = Mapper.toUnknownCaseEntity(errandStatusDoc, errandDoc, "2281");
-
-		assertThat(result)
-			.isNotNull()
-			.hasNoNullFieldsOrPropertiesExcept("sysStartTime", "sysEndtime", "organisationNumber", "personId", "contentType");
-		assertThat(result.getStatus()).isEqualTo("Inskickat");
-		assertThat(result.getFirstSubmitted()).isEqualTo("2022-01-20 11:29");
-		assertThat(result.getFlowInstanceId()).isEqualTo("2101");
-		assertThat(result.getFamilyId()).isEqualTo("381");
-		assertThat(result.getErrandType()).isEqualTo("�ndring eller avslut av tillst�ndspliktig f�rs�ljning av tobaksvaror - anm�lan");
-		assertThat(result.getLastStatusChange()).isEqualTo("2022-01-20 11:29");
-	}
-
 }

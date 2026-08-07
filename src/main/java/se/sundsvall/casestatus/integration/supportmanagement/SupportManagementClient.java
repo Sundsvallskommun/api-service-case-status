@@ -5,7 +5,6 @@ import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,10 +36,4 @@ interface SupportManagementClient {
 		@PathVariable String namespace,
 		@RequestParam String filter,
 		PageRequest pageRequest);
-
-	@GetMapping(path = "/{municipalityId}/{namespace}/errands/{errandId}")
-	Optional<Errand> findErrandById(
-		@PathVariable String municipalityId,
-		@PathVariable String namespace,
-		@PathVariable String errandId);
 }
