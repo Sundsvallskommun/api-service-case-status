@@ -1,10 +1,13 @@
 package se.sundsvall.casestatus.service.scheduler.cache;
 
 import generated.client.oep_integrator.CaseStatus;
-import generated.client.oep_integrator.ModelCase;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
 import us.codecraft.xsoup.Xsoup;
 
+import static java.util.Optional.ofNullable;
 import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
 
 public final class Mapper {
@@ -17,35 +20,35 @@ public final class Mapper {
 
 	private Mapper() {}
 
-	private static CaseEntity buildCaseEntity(final CaseStatus caseStatus, final ModelCase oepCase, final String id, final String municipalityId, final boolean isPrivate) {
-		final CaseEntity.CaseEntityBuilder builder = CaseEntity.builder()
+	/**
+	 * Parses an Open-E case payload. The payload is XML and must be parsed with the XML parser - jsoup's HTML parser
+	 * discards the CDATA sections the payload wraps most of its text values in.
+	 */
+	public static Document parsePayload(final String payload) {
+		return Jsoup.parse(payload, "", Parser.xmlParser());
+	}
+
+	public static CaseEntity toCompanyCaseEntity(final CaseStatus caseStatus, final Document payload, final String contentType, final String organisationNumber, final String municipalityId) {
+		return CaseEntity.builder()
 			.withStatus(caseStatus.getName())
-			.withContentType(oepCase.getTitle())
-			.withFlowInstanceId(Xsoup.select(oepCase.getPayload(), XPATH_FLOW_INSTANCE_ID_VALUE).get())
-			.withFamilyId(Xsoup.select(oepCase.getPayload(), XPATH_FAMILY_ID_VALUE).get())
-			.withErrandType(Xsoup.select(oepCase.getPayload(), XPATH_ERRAND_TYPE_VALUE).get().trim())
-			.withFirstSubmitted(formatDateTime(Xsoup.select(oepCase.getPayload(), XPATH_FIRST_SUBMITTED_VALUE).get()))
-			.withLastStatusChange(formatDateTime(Xsoup.select(oepCase.getPayload(), XPATH_LAST_STATUS_CHANGE_VALUE).get()))
-			.withMunicipalityId(municipalityId);
-
-		if (isPrivate) {
-			builder.withPersonId(id.replace("\"", ""));
-		} else {
-			builder.withOrganisationNumber(id);
-		}
-
-		return builder.build();
+			.withContentType(contentType)
+			.withFlowInstanceId(select(payload, XPATH_FLOW_INSTANCE_ID_VALUE))
+			.withFamilyId(select(payload, XPATH_FAMILY_ID_VALUE))
+			.withErrandType(select(payload, XPATH_ERRAND_TYPE_VALUE))
+			.withFirstSubmitted(formatDateTime(select(payload, XPATH_FIRST_SUBMITTED_VALUE)))
+			.withLastStatusChange(formatDateTime(select(payload, XPATH_LAST_STATUS_CHANGE_VALUE)))
+			.withMunicipalityId(municipalityId)
+			.withOrganisationNumber(organisationNumber)
+			.build();
 	}
 
-	public static CaseEntity toCompanyCaseEntity(final CaseStatus caseStatus, final ModelCase oepCase, final String organisationNumber, final String municipalityId) {
-		return buildCaseEntity(caseStatus, oepCase, organisationNumber, municipalityId, false);
-	}
-
-	public static CaseEntity toPrivateCaseEntity(final CaseStatus caseStatus, final ModelCase oepCase, final String personId, final String municipalityId) {
-		return buildCaseEntity(caseStatus, oepCase, personId, municipalityId, true);
-	}
-
-	public static CaseEntity toUnknownCaseEntity(final CaseStatus caseStatus, final ModelCase oepCase, final String municipalityId) {
-		return buildCaseEntity(caseStatus, oepCase, null, municipalityId, false);
+	/**
+	 * Evaluates the given XPath against the case payload. CDATA wrapped values carry the surrounding whitespace of the
+	 * enclosing element, so the result is trimmed. Returns null when the payload does not contain the element.
+	 */
+	private static String select(final Document payload, final String xPath) {
+		return ofNullable(Xsoup.select(payload, xPath).get())
+			.map(String::trim)
+			.orElse(null);
 	}
 }

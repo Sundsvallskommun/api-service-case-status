@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.integration.casedata;
 
 import generated.se.sundsvall.casedata.Status;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.Comparator;
 import java.util.List;
@@ -81,4 +82,43 @@ class CaseDataMapperTest {
 		assertThat(result).isEqualTo(expected);
 	}
 
+	@Test
+	void toCaseStatusResponseWithoutStatuses() {
+		final var errand = createCaseDataErrand().statuses(null).facilities(null);
+
+		final var result = caseDataMapper.toCaseStatusResponse(errand);
+
+		assertThat(result.getStatus()).isNull();
+		assertThat(result.getLastStatusChange()).isNull();
+		assertThat(result.getPropertyDesignations()).isEmpty();
+	}
+
+	@Test
+	void toCaseStatusResponseWithStatusMissingCreated() {
+		final var statusWithoutCreated = new Status().statusType("Ärende inkommit");
+		final var latestStatus = new Status().statusType("Beslutad").created(OffsetDateTime.parse("2025-03-04T00:07:12Z"));
+		final var errand = createCaseDataErrand().statuses(List.of(statusWithoutCreated, latestStatus));
+		when(statusVocabulary.translateCaseManagementStatus("Beslutad")).thenReturn("externalStatus");
+
+		final var result = caseDataMapper.toCaseStatusResponse(errand);
+
+		assertThat(result.getStatus()).isEqualTo("Beslutad");
+		assertThat(result.getExternalStatus()).isEqualTo("externalStatus");
+	}
+
+	@Test
+	void toCaseStatusResponseWhenNoStatusHasCreated() {
+		final var errand = createCaseDataErrand().statuses(List.of(new Status().statusType("Ärende inkommit")));
+		when(statusVocabulary.translateCaseManagementStatus("Ärende inkommit")).thenReturn("externalStatus");
+
+		final var result = caseDataMapper.toCaseStatusResponse(errand);
+
+		assertThat(result.getStatus()).isEqualTo("Ärende inkommit");
+		assertThat(result.getLastStatusChange()).isNull();
+	}
+
+	@Test
+	void toCaseStatusResponsesWithNullInput() {
+		assertThat(caseDataMapper.toCaseStatusResponses(null)).isEmpty();
+	}
 }

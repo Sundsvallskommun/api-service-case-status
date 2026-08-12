@@ -262,6 +262,9 @@ paths:
         required: false
         schema:
           type: string
+          maxLength: 255
+          minLength: 0
+          pattern: "[^*\\p{Cntrl}]*"
         example: Körsbärsdalen 123
       - name: errandNumber
         in: query
@@ -269,6 +272,9 @@ paths:
         required: false
         schema:
           type: string
+          maxLength: 255
+          minLength: 0
+          pattern: "[^*\\p{Cntrl}]*"
         example: Number 123
       responses:
         "200":

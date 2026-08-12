@@ -20,9 +20,12 @@ import se.sundsvall.dept44.problem.Problem;
 import static org.springframework.http.HttpStatus.*;
 import static org.springframework.util.StringUtils.hasText;
 import static se.sundsvall.casestatus.util.Constants.CASE_NOT_FOUND;
+import static se.sundsvall.casestatus.util.FilterUtil.escapeFilterValue;
 
 @Service
 public class CaseStatusService {
+
+	static final String ERRAND_NUMBER_FILTER = "errandNumber:'%s'";
 
 	private final CaseManagementIntegration caseManagementIntegration;
 	private final OepIntegratorClient oepIntegratorClient;
@@ -100,7 +103,7 @@ public class CaseStatusService {
 		if (hasText(propertyDesignation) && hasText(errandNumber)) {
 			throw Problem.valueOf(BAD_REQUEST, "Both propertyDesignation and errandNumber cannot be provided at the same time");
 		}
-		if (propertyDesignation == null && errandNumber == null) {
+		if (!hasText(propertyDesignation) && !hasText(errandNumber)) {
 			throw Problem.valueOf(BAD_REQUEST, "Either propertyDesignation or errandNumber must be provided");
 		}
 
@@ -110,7 +113,7 @@ public class CaseStatusService {
 				.toList();
 		}
 
-		final var filterString = "errandNumber:'%s'".formatted(errandNumber);
+		final var filterString = ERRAND_NUMBER_FILTER.formatted(escapeFilterValue(errandNumber));
 		final var supportManagementCases = supportManagementService.getSupportManagementCases(municipalityId, filterString);
 		final var caseStatusResponses = caseAggregator.mapSupportManagementErrands(municipalityId, supportManagementCases);
 		final var caseDataCases = caseDataIntegration.getNamespaces().stream()

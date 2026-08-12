@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -36,6 +38,15 @@ import static org.springframework.http.ResponseEntity.ok;
 })))
 @ApiResponse(responseCode = "500", description = "Internal Server error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class CaseStatusResource {
+
+	/**
+	 * Search terms are embedded in a spring-filter expression by the integrations. The wildcard of the like operator is
+	 * rejected here rather than escaped - it is a valid character inside a filter literal, and allowing it would let a
+	 * single request match every errand in every namespace.
+	 */
+	static final String SEARCH_TERM_PATTERN = "[^*\\p{Cntrl}]*";
+	static final String SEARCH_TERM_MESSAGE = "must not contain wildcards or control characters";
+	static final int SEARCH_TERM_MAX_LENGTH = 255;
 
 	private final CaseStatusService service;
 
@@ -103,8 +114,10 @@ class CaseStatusResource {
 	@GetMapping(path = "/errands/statuses", produces = APPLICATION_JSON_VALUE)
 	ResponseEntity<List<CaseStatusResponse>> getErrandStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@Parameter(name = "propertyDesignation", description = "Property designation to find cases for", example = "Körsbärsdalen 123") @RequestParam(required = false) final String propertyDesignation,
-		@Parameter(name = "errandNumber", description = "Errand number to find cases for", example = "Number 123") @RequestParam(required = false) final String errandNumber) {
+		@Parameter(name = "propertyDesignation", description = "Property designation to find cases for", example = "Körsbärsdalen 123") @RequestParam(required = false) @Size(max = SEARCH_TERM_MAX_LENGTH) @Pattern(regexp = SEARCH_TERM_PATTERN,
+			message = SEARCH_TERM_MESSAGE) final String propertyDesignation,
+		@Parameter(name = "errandNumber", description = "Errand number to find cases for", example = "Number 123") @RequestParam(required = false) @Size(max = SEARCH_TERM_MAX_LENGTH) @Pattern(regexp = SEARCH_TERM_PATTERN,
+			message = SEARCH_TERM_MESSAGE) final String errandNumber) {
 
 		return ok(service.getErrandStatuses(municipalityId, propertyDesignation, errandNumber));
 	}

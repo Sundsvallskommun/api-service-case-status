@@ -4,7 +4,6 @@ import generated.se.sundsvall.supportmanagement.Category;
 import generated.se.sundsvall.supportmanagement.Errand;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,10 +25,6 @@ public class SupportManagementIntegration {
 
 	public Page<Errand> findErrands(final String municipalityId, final String namespace, final String filter, PageRequest pageRequest) {
 		return client.findErrands(municipalityId, namespace, filter, pageRequest);
-	}
-
-	public Optional<Errand> findErrandById(final String municipalityId, final String namespace, final String errandId) {
-		return client.findErrandById(municipalityId, namespace, errandId);
 	}
 
 	@Cacheable("supportmanagement-categories")

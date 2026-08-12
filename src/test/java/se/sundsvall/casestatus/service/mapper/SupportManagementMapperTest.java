@@ -176,4 +176,31 @@ class SupportManagementMapperTest {
 		assertThat(response.getLastStatusChange()).isNull();
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
 	}
+
+	@Test
+	void toCaseStatusResponseWithoutExternalTags() {
+
+		// Arrange
+		final var statuses = StatusesEntity.builder().withSupportManagementStatus("someStatus").build();
+		final var errand = new Errand()
+			.id("errandId")
+			.classification(new Classification().type("type"))
+			.status("someStatus")
+			.created(OffsetDateTime.parse("2023-01-01T10:00:00Z"))
+			.externalTags(null);
+
+		// Act
+		final var response = supportManagementMapper.toCaseStatusResponse(errand, "namespace", statuses, "classificationDisplayName");
+
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getExternalCaseId()).isNull();
+	}
+
+	@Test
+	void getExternalCaseIdWithoutFamilyIdTag() {
+		final var errand = new Errand().addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
+
+		assertThat(SupportManagementMapper.getExternalCaseId(errand)).isEmpty();
+	}
 }

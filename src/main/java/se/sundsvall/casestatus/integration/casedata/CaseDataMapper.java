@@ -37,8 +37,10 @@ public class CaseDataMapper {
 	}
 
 	public CaseStatusResponse toCaseStatusResponse(final Errand errand) {
-		final var latestStatus = errand.getStatuses().stream()
-			.max(Comparator.comparing(Status::getCreated))
+		// A status may lack a created timestamp; treat it as the oldest instead of failing the whole mapping
+		final var latestStatus = Optional.ofNullable(errand.getStatuses()).orElse(emptyList()).stream()
+			.filter(Objects::nonNull)
+			.max(Comparator.comparing(Status::getCreated, Comparator.nullsFirst(Comparator.naturalOrder())))
 			.orElse(null);
 
 		final var status = Optional.ofNullable(latestStatus)
@@ -61,9 +63,11 @@ public class CaseDataMapper {
 			.withErrandNumber(errand.getErrandNumber())
 			.withNamespace(errand.getNamespace())
 			.withPropertyDesignations(Optional.ofNullable(errand.getFacilities()).orElse(emptyList()).stream()
+				.filter(Objects::nonNull)
 				.map(Facility::getAddress)
 				.filter(Objects::nonNull)
 				.map(Address::getPropertyDesignation)
+				.filter(Objects::nonNull)
 				.toList())
 			.build();
 	}

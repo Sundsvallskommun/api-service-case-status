@@ -187,8 +187,9 @@ public class CaseAggregator {
 	 * without a status are dropped).
 	 */
 	private CompletableFuture<List<CaseStatusResponse>> oepByPartyAsync(final String partyId, final String municipalityId, final boolean includeDrafts) {
+		// The OeP client dismisses 404 responses, which yields a null list
 		return CompletableFuture.supplyAsync(() -> Stream.concat(
-			oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream(),
+			ofNullable(oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream(),
 			unsubmittedCasesByPartyId(partyId, municipalityId, includeDrafts).stream())
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
@@ -199,11 +200,11 @@ public class CaseAggregator {
 		if (!includeDrafts) {
 			return emptyList();
 		}
-		return oepIntegratorClient.getUnsubmittedCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true);
+		return ofNullable(oepIntegratorClient.getUnsubmittedCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList());
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> oepMultisignByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream()
+		return CompletableFuture.supplyAsync(() -> ofNullable(oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
 			.toList(), mdcAwareExecutor);

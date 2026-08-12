@@ -12,6 +12,4 @@ public interface CaseRepository extends JpaRepository<CaseEntity, String> {
 	Optional<CaseEntity> findByFlowInstanceIdAndMunicipalityId(String flowInstanceId, String municipalityId);
 
 	List<CaseEntity> findByOrganisationNumberAndMunicipalityId(String organisationNumber, String municipalityId);
-
-	List<CaseEntity> findByPersonIdAndMunicipalityId(String personId, String municipalityId);
 }

@@ -2,8 +2,10 @@ package se.sundsvall.casestatus.service.util;
 
 import java.time.LocalDateTime;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 import se.sundsvall.casestatus.util.FormattingUtil;
 
@@ -45,4 +47,22 @@ class FormattingUtilTest {
 
 	}
 
+	@Test
+	void formatDateTime_LocalDateTime_Null() {
+		assertThat(FormattingUtil.formatDateTime((LocalDateTime) null)).isNull();
+	}
+
+	@ParameterizedTest
+	@NullAndEmptySource
+	@ValueSource(strings = {
+		" ", "\n\t"
+	})
+	void formatDateTime_String_NullOrBlank(final String input) {
+		assertThat(FormattingUtil.formatDateTime(input)).isNull();
+	}
+
+	@Test
+	void formatDateTime_String_SurroundingWhitespaceIsIgnored() {
+		assertThat(FormattingUtil.formatDateTime("\n  2023-10-01T12:00  ")).isEqualTo("2023-10-01 12:00");
+	}
 }
