@@ -1,5 +1,6 @@
 package se.sundsvall.casestatus.service;
 
+import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.supportmanagement.Errand;
 import java.util.List;
@@ -73,7 +74,7 @@ public class CaseAggregator {
 
 	public List<CaseStatusResponse> aggregateForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		final var cmFuture = caseManagementByPartyAsync(partyId, municipalityId);
-		final var oepFuture = oepByPartyAsync(partyId, municipalityId);
+		final var oepFuture = oepByPartyAsync(partyId, municipalityId, includeDrafts);
 		final var multisignFuture = oepMultisignByPartyAsync(partyId, municipalityId);
 
 		// SupportManagement stores partyId in stakeholders.externalId for both private persons and enterprises
@@ -176,20 +177,29 @@ public class CaseAggregator {
 	}
 
 	/**
-	 * Fetches this party's Open-E cases: both submitted cases and cases that are saved but not yet submitted (drafts).
-	 * The two OeP reads run sequentially in a single task rather than as separate parallel calls, keeping the number of
+	 * Fetches this party's Open-E cases: submitted cases always, and cases that are saved but not yet submitted only when
+	 * {@code includeDrafts} is true. Unsubmitted cases are drafts by definition, so they are gated at the call site
+	 * rather than by the status-name based draft filter in {@link #filterResponses} — that saves a round-trip on the
+	 * default path and keeps the outcome independent of how the Open-E flow happens to name its draft status. When both
+	 * reads are made they run sequentially in a single task rather than as separate parallel calls, keeping the number of
 	 * concurrent first-use decodes on the OeP client bounded (the Feign message-converter setup is only reliably
-	 * initialized after the first decode). Unsubmitted cases are drafts and only surface when {@code includeDrafts} is
-	 * true — the shared draft filter in {@link #filterResponses} gates them. includeStatus is requested so the mapper can
-	 * populate a status (envelopes without a status are dropped).
+	 * initialized after the first decode). includeStatus is requested so the mapper can populate a status (envelopes
+	 * without a status are dropped).
 	 */
-	private CompletableFuture<List<CaseStatusResponse>> oepByPartyAsync(final String partyId, final String municipalityId) {
+	private CompletableFuture<List<CaseStatusResponse>> oepByPartyAsync(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		return CompletableFuture.supplyAsync(() -> Stream.concat(
 			oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream(),
-			oepIntegratorClient.getUnsubmittedCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true).stream())
+			unsubmittedCasesByPartyId(partyId, municipalityId, includeDrafts).stream())
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
 			.toList(), mdcAwareExecutor);
+	}
+
+	private List<CaseEnvelope> unsubmittedCasesByPartyId(final String partyId, final String municipalityId, final boolean includeDrafts) {
+		if (!includeDrafts) {
+			return emptyList();
+		}
+		return oepIntegratorClient.getUnsubmittedCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true);
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> oepMultisignByPartyAsync(final String partyId, final String municipalityId) {

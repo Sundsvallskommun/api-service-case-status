@@ -40,6 +40,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -621,24 +622,22 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Unsubmitted Open-E cases are drafts and must be filtered out when includeDrafts=false, unlike multi-sign cases
-	 * which bypass the draft filter.
+	 * Unsubmitted Open-E cases are drafts by definition and are therefore not even fetched when includeDrafts=false,
+	 * unlike multi-sign cases which are fetched and bypass the draft filter.
 	 */
 	@Test
-	void getCaseStatusesForParty_unsubmittedFilteredWhenDraftsExcluded() {
+	void getCaseStatusesForParty_unsubmittedNotFetchedWhenDraftsExcluded() {
 		final var partyId = "somePartyId";
 		final var includeDrafts = false;
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(emptyList());
-		when(openEIntegrationMock.getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
-			.thenReturn(List.of(new CaseEnvelope().displayName("unsubmitted").status(new CaseStatus().name("Utkast")).flowInstanceId("unsubmittedFlowInstanceId")));
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts);
 
 		assertThat(result).isNotNull().isEmpty();
 
-		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+		verify(openEIntegrationMock, never()).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 	}
 
 	/**
