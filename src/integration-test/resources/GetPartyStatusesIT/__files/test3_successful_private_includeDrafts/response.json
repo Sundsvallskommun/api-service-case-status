@@ -65,5 +65,16 @@
 		"namespace": "the-greatest-namespace",
 		"status": "Utkast",
 		"system": "CASE_DATA"
+	},
+	{
+		"caseId": "5300",
+		"caseType": "Ansökan om bygglov (utkast)",
+		"errandNumber": "5300",
+		"externalCaseId": "5300",
+		"externalStatus": "Handläggning pågår",
+		"firstSubmitted": "2025-05-01 09:00",
+		"lastStatusChange": "2025-05-01 09:00",
+		"status": "Utkast",
+		"system": "OPEN_E_PLATFORM"
 	}
 ]
