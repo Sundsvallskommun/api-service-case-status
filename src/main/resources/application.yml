@@ -38,6 +38,13 @@ spring:
     cache-names: supportmanagement-namespace-configs, supportmanagement-categories
     caffeine:
       spec: maximumSize=1000,expireAfterWrite=86400s
+  task:
+    execution:
+      pool:
+        core-size: 5
+        max-size: 20
+        queue-capacity: 50
+      thread-name-prefix: MDC-Async-
   security:
     oauth2:
       client:
