@@ -1,6 +1,7 @@
 package se.sundsvall.casestatus.service.scheduler.eventlog;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.function.Consumer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -40,7 +41,7 @@ public class EventLogScheduler {
 	public void updateCaseManagementStatuses() {
 		final var unhealthyConsumer = createUnhealtyConsumer(CASE_MANAGEMENT_JOB_NAME);
 
-		final var startTime = OffsetDateTime.now();
+		final var startTime = OffsetDateTime.now(ZoneId.systemDefault());
 		final var executionInformation = executionInformationRepository.findByMunicipalityIdAndServiceName(municipalityId, CASE_MANAGEMENT).orElse(initiateExecutionInfo(municipalityId, CASE_MANAGEMENT));
 
 		final var success = eventLogWorker.updateOepCase(CASE_MANAGEMENT, executionInformation, unhealthyConsumer);
@@ -59,7 +60,7 @@ public class EventLogScheduler {
 	public void updateCaseDataStatuses() {
 		final var unhealthyConsumer = createUnhealtyConsumer(CASE_DATA_JOB_NAME);
 
-		final var startTime = OffsetDateTime.now();
+		final var startTime = OffsetDateTime.now(ZoneId.systemDefault());
 		final var executionInformation = executionInformationRepository.findByMunicipalityIdAndServiceName(municipalityId, CASE_DATA).orElse(initiateExecutionInfo(municipalityId, CASE_DATA));
 
 		final var success = eventLogWorker.updateOepCase(CASE_DATA, executionInformation, unhealthyConsumer);
@@ -78,7 +79,7 @@ public class EventLogScheduler {
 	public void updateSupportManagementStatuses() {
 		final var unhealthyConsumer = createUnhealtyConsumer(SUPPORT_MANAGEMENT_JOB_NAME);
 
-		final var startTime = OffsetDateTime.now();
+		final var startTime = OffsetDateTime.now(ZoneId.systemDefault());
 		final var executionInformation = executionInformationRepository.findByMunicipalityIdAndServiceName(municipalityId, SUPPORT_MANAGEMENT).orElse(initiateExecutionInfo(municipalityId, SUPPORT_MANAGEMENT));
 
 		final var success = eventLogWorker.updateSupportManagementStatuses(executionInformation, unhealthyConsumer);
@@ -93,7 +94,7 @@ public class EventLogScheduler {
 		return ExecutionInformationEntity.builder()
 			.withMunicipalityId(municipalityId)
 			.withServiceName(serviceName)
-			.withLastSuccessfulExecution(OffsetDateTime.now())
+			.withLastSuccessfulExecution(OffsetDateTime.now(ZoneId.systemDefault()))
 			.build();
 	}
 
