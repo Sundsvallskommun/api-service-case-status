@@ -16,13 +16,14 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.configuration.AsyncConfig;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
@@ -33,6 +34,7 @@ import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
+import se.sundsvall.dept44.async.MdcTaskDecoratorConfiguration;
 import se.sundsvall.dept44.problem.Problem;
 
 import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
@@ -48,6 +50,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.NONE;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
@@ -55,8 +58,11 @@ import static se.sundsvall.TestDataFactory.createErrand;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
 
 @SpringBootTest(classes = {
-	CaseStatusService.class, AsyncConfig.class, OpenEMapper.class, CaseAggregator.class
+	CaseStatusService.class, OpenEMapper.class, CaseAggregator.class
 }, webEnvironment = NONE)
+@ImportAutoConfiguration({
+	TaskExecutionAutoConfiguration.class, MdcTaskDecoratorConfiguration.class
+})
 class CaseStatusServiceTest {
 
 	private static final String EXTERNAL_CASE_ID = "someExternalCaseId";
@@ -93,8 +99,8 @@ class CaseStatusServiceTest {
 	private SupportManagementMapper supportManagementMapperMock;
 
 	@MockitoSpyBean
-	@Qualifier(AsyncConfig.MDC_EXECUTOR)
-	private Executor mdcExecutorSpy;
+	@Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME)
+	private Executor taskExecutorSpy;
 
 	@Autowired
 	private CaseStatusService caseStatusService;
@@ -450,7 +456,7 @@ class CaseStatusServiceTest {
 		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusVocabularyMock).lookupBySupportManagementStatus(smStatus);
 		verify(statusVocabularyMock).translateOepStatus(any(CaseStatus.class));
-		verify(mdcExecutorSpy, times(4)).execute(any());
+		verify(taskExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock, statusVocabularyMock);
 	}
 
@@ -479,7 +485,7 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(mdcExecutorSpy, times(4)).execute(any());
+		verify(taskExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -503,7 +509,7 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(mdcExecutorSpy, times(4)).execute(any());
+		verify(taskExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -527,7 +533,7 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementMapperMock).toCaseStatusResponse(caseStatus, MUNICIPALITY_ID);
-		verify(mdcExecutorSpy, times(4)).execute(any());
+		verify(taskExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, caseManagementMapperMock, caseManagementIntegrationMock);
 	}
 
@@ -551,7 +557,7 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(mdcExecutorSpy, times(4)).execute(any());
+		verify(taskExecutorSpy, times(4)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
 	}
 

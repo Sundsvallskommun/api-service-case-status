@@ -15,7 +15,6 @@ import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.configuration.AsyncConfig;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
@@ -27,6 +26,7 @@ import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
+import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 
 /**
@@ -48,7 +48,7 @@ public class CaseAggregator {
 	private final SupportManagementService supportManagementService;
 	private final SupportManagementMapper supportManagementMapper;
 	private final StatusVocabulary statusVocabulary;
-	private final Executor mdcAwareExecutor;
+	private final Executor taskExecutor;
 
 	public CaseAggregator(final PartyIntegration partyIntegration,
 		final CaseManagementIntegration caseManagementIntegration,
@@ -59,7 +59,7 @@ public class CaseAggregator {
 		final SupportManagementService supportManagementService,
 		final SupportManagementMapper supportManagementMapper,
 		final StatusVocabulary statusVocabulary,
-		final @Qualifier(AsyncConfig.MDC_EXECUTOR) Executor mdcAwareExecutor) {
+		final @Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME) Executor taskExecutor) {
 		this.partyIntegration = partyIntegration;
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.caseManagementMapper = caseManagementMapper;
@@ -69,7 +69,7 @@ public class CaseAggregator {
 		this.supportManagementService = supportManagementService;
 		this.supportManagementMapper = supportManagementMapper;
 		this.statusVocabulary = statusVocabulary;
-		this.mdcAwareExecutor = mdcAwareExecutor;
+		this.taskExecutor = taskExecutor;
 	}
 
 	public List<CaseStatusResponse> aggregateForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
@@ -167,13 +167,13 @@ public class CaseAggregator {
 	private CompletableFuture<List<CaseStatusResponse>> caseManagementByPartyAsync(final String partyId, final String municipalityId) {
 		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.toList(), mdcAwareExecutor);
+			.toList(), taskExecutor);
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> caseManagementByOrgAsync(final String organizationNumber, final String municipalityId) {
 		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.toList(), mdcAwareExecutor);
+			.toList(), taskExecutor);
 	}
 
 	/**
@@ -193,7 +193,7 @@ public class CaseAggregator {
 			unsubmittedCasesByPartyId(partyId, municipalityId, includeDrafts).stream())
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), mdcAwareExecutor);
+			.toList(), taskExecutor);
 	}
 
 	private List<CaseEnvelope> unsubmittedCasesByPartyId(final String partyId, final String municipalityId, final boolean includeDrafts) {
@@ -207,19 +207,19 @@ public class CaseAggregator {
 		return CompletableFuture.supplyAsync(() -> ofNullable(oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), mdcAwareExecutor);
+			.toList(), taskExecutor);
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> localOpenEByOrgAsync(final String organizationNumber, final String municipalityId) {
 		return CompletableFuture.supplyAsync(() -> caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), mdcAwareExecutor);
+			.toList(), taskExecutor);
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> supportManagementByExternalIdAsync(final String partyId, final String municipalityId) {
 		return CompletableFuture.supplyAsync(() -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)),
-			mdcAwareExecutor);
+			taskExecutor);
 	}
 
 	/**
@@ -230,7 +230,7 @@ public class CaseAggregator {
 	private CompletableFuture<List<CaseStatusResponse>> supportManagementByOrganizationNumberAsync(final String organizationNumber, final String municipalityId) {
 		return CompletableFuture.supplyAsync(() -> partyIntegration.getPartyIdByOrganizationNumber(municipalityId, organizationNumber)
 			.map(partyId -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)))
-			.orElse(emptyList()), mdcAwareExecutor);
+			.orElse(emptyList()), taskExecutor);
 	}
 
 	public List<CaseStatusResponse> mapSupportManagementErrands(final String municipalityId, final Map<String, List<Errand>> errandsByNamespace) {
