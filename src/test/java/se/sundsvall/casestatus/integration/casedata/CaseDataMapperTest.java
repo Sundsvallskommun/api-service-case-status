@@ -17,6 +17,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
+import static java.time.Month.MARCH;
+import static java.time.Month.MAY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -34,8 +36,8 @@ class CaseDataMapperTest {
 
 	private static Stream<Arguments> getTimestampArgumentProvider() {
 		return Stream.of(
-			Arguments.of(LocalDateTime.of(2025, 3, 4, 0, 7, 12), "2025-03-04 00:07"),
-			Arguments.of(LocalDateTime.of(2026, 5, 12, 0, 8, 32), "2026-05-12 00:08"));
+			Arguments.of(LocalDateTime.of(2025, MARCH, 4, 0, 7, 12), "2025-03-04 00:07"),
+			Arguments.of(LocalDateTime.of(2026, MAY, 12, 0, 8, 32), "2026-05-12 00:08"));
 	}
 
 	@Test
