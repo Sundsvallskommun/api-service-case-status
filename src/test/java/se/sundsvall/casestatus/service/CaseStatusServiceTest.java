@@ -824,4 +824,87 @@ class CaseStatusServiceTest {
 		verify(statusVocabularyMock).lookupBySupportManagementStatus(smStatus);
 		verifyNoMoreInteractions(caseDataIntegrationMock, supportManagementServiceMock, statusVocabularyMock, supportManagementMapperMock);
 	}
+
+	/**
+	 * A failing source must not fail the whole aggregate - the remaining sources still contribute. Regression tests for
+	 * the party flow, where only CaseManagement used to degrade gracefully.
+	 */
+	@Test
+	void getCaseStatusesForPartyDegradesWhenOpenEFails() {
+		final var partyId = "somePartyId";
+		final var caseStatus = createCaseStatusDTO(BYGGR);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(List.of(caseStatus));
+		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenThrow(new RuntimeException("Open-E is down"));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
+
+		assertThat(result).isNotNull().hasSize(1);
+		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+	}
+
+	@Test
+	void getCaseStatusesForPartyDegradesWhenMultisignFails() {
+		final var partyId = "somePartyId";
+		final var caseStatus = createCaseStatusDTO(BYGGR);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(List.of(caseStatus));
+		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
+		when(openEIntegrationMock.getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenThrow(new RuntimeException("Open-E is down"));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
+
+		assertThat(result).isNotNull().hasSize(1);
+		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
+	}
+
+	@Test
+	void getCaseStatusesForPartyDegradesWhenSupportManagementFails() {
+		final var partyId = "somePartyId";
+		final var caseStatus = createCaseStatusDTO(BYGGR);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(List.of(caseStatus));
+		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
+		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId)).thenThrow(new RuntimeException("SupportManagement is down"));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
+
+		assertThat(result).isNotNull().hasSize(1);
+		verify(supportManagementServiceMock).getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId);
+	}
+
+	/**
+	 * Same guarantee for the organization flow, whose sources are the local Open-E cache and Party -> SupportManagement.
+	 */
+	@Test
+	void getCaseStatusesDegradesWhenLocalOpenECacheFails() {
+		final var organizationNumber = "someOrganizationId";
+		final var caseStatus = createCaseStatusDTO(BYGGR);
+
+		when(caseManagementIntegrationMock.getCaseStatusForOrganizationNumber(organizationNumber, MUNICIPALITY_ID)).thenReturn(List.of(caseStatus));
+		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
+		when(caseRepositoryMock.findByOrganisationNumberAndMunicipalityId(organizationNumber, MUNICIPALITY_ID)).thenThrow(new RuntimeException("Database is down"));
+
+		final var result = caseStatusService.getCaseStatuses(organizationNumber, MUNICIPALITY_ID);
+
+		assertThat(result).isNotNull().hasSize(1);
+		verify(caseRepositoryMock).findByOrganisationNumberAndMunicipalityId(organizationNumber, MUNICIPALITY_ID);
+	}
+
+	@Test
+	void getCaseStatusesDegradesWhenPartyFails() {
+		final var organizationNumber = "someOrganizationId";
+		final var caseStatus = createCaseStatusDTO(BYGGR);
+
+		when(caseManagementIntegrationMock.getCaseStatusForOrganizationNumber(organizationNumber, MUNICIPALITY_ID)).thenReturn(List.of(caseStatus));
+		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
+		when(partyIntegrationMock.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, organizationNumber)).thenThrow(new RuntimeException("Party is down"));
+
+		final var result = caseStatusService.getCaseStatuses(organizationNumber, MUNICIPALITY_ID);
+
+		assertThat(result).isNotNull().hasSize(1);
+		verify(partyIntegrationMock).getPartyIdByOrganizationNumber(MUNICIPALITY_ID, organizationNumber);
+	}
+
 }

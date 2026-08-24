@@ -10,8 +10,11 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
@@ -36,6 +39,8 @@ import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
  */
 @Component
 public class CaseAggregator {
+
+	private static final Logger LOG = LoggerFactory.getLogger(CaseAggregator.class);
 
 	private static final Set<String> DRAFT_STATUSES = Set.of("utkast");
 
@@ -164,16 +169,33 @@ public class CaseAggregator {
 		return response -> includeDrafts || !DRAFT_STATUSES.contains(ofNullable(response.getStatus()).orElse("").toLowerCase());
 	}
 
+	/**
+	 * Runs one source on the shared task executor and degrades it to an empty contribution when it fails, so that a
+	 * single unavailable backing system produces a partial result instead of failing the whole aggregate.
+	 * {@link se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration} already does this for its
+	 * own calls; this applies the same behavior to every remaining source.
+	 */
+	private CompletableFuture<List<CaseStatusResponse>> sourceAsync(final String source, final Supplier<List<CaseStatusResponse>> supplier) {
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				return supplier.get();
+			} catch (final Exception e) {
+				LOG.warn("Unable to fetch case statuses from {}, excluding it from the aggregated result", source, e);
+				return emptyList();
+			}
+		}, taskExecutor);
+	}
+
 	private CompletableFuture<List<CaseStatusResponse>> caseManagementByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+		return sourceAsync("CaseManagement", () -> caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.toList(), taskExecutor);
+			.toList());
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> caseManagementByOrgAsync(final String organizationNumber, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
+		return sourceAsync("CaseManagement", () -> caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.toList(), taskExecutor);
+			.toList());
 	}
 
 	/**
@@ -188,12 +210,12 @@ public class CaseAggregator {
 	 */
 	private CompletableFuture<List<CaseStatusResponse>> oepByPartyAsync(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		// The OeP client dismisses 404 responses, which yields a null list
-		return CompletableFuture.supplyAsync(() -> Stream.concat(
+		return sourceAsync("Open-E", () -> Stream.concat(
 			ofNullable(oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream(),
 			unsubmittedCasesByPartyId(partyId, municipalityId, includeDrafts).stream())
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), taskExecutor);
+			.toList());
 	}
 
 	private List<CaseEnvelope> unsubmittedCasesByPartyId(final String partyId, final String municipalityId, final boolean includeDrafts) {
@@ -204,22 +226,22 @@ public class CaseAggregator {
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> oepMultisignByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> ofNullable(oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
+		return sourceAsync("Open-E (multi-sign)", () -> ofNullable(oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), taskExecutor);
+			.toList());
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> localOpenEByOrgAsync(final String organizationNumber, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
+		return sourceAsync("Open-E (local cache)", () -> caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), taskExecutor);
+			.toList());
 	}
 
 	private CompletableFuture<List<CaseStatusResponse>> supportManagementByExternalIdAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)),
-			taskExecutor);
+		return sourceAsync("SupportManagement",
+			() -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)));
 	}
 
 	/**
@@ -228,9 +250,9 @@ public class CaseAggregator {
 	 * matches while the other sources still contribute.
 	 */
 	private CompletableFuture<List<CaseStatusResponse>> supportManagementByOrganizationNumberAsync(final String organizationNumber, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> partyIntegration.getPartyIdByOrganizationNumber(municipalityId, organizationNumber)
+		return sourceAsync("Party/SupportManagement", () -> partyIntegration.getPartyIdByOrganizationNumber(municipalityId, organizationNumber)
 			.map(partyId -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)))
-			.orElse(emptyList()), taskExecutor);
+			.orElse(emptyList()));
 	}
 
 	public List<CaseStatusResponse> mapSupportManagementErrands(final String municipalityId, final Map<String, List<Errand>> errandsByNamespace) {
