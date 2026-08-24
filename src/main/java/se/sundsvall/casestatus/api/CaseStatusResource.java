@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.api.model.CaseStatusesResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.service.CaseStatusService;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
@@ -91,7 +92,7 @@ class CaseStatusResource {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	})
 	@GetMapping(path = "/{organizationNumber}/statuses", produces = APPLICATION_JSON_VALUE)
-	ResponseEntity<List<CaseStatusResponse>> getOrganisationStatuses(
+	ResponseEntity<CaseStatusesResponse> getOrganisationStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable final String organizationNumber) {
 		return ok(service.getCaseStatuses(organizationNumber, municipalityId));
@@ -101,7 +102,7 @@ class CaseStatusResource {
 		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	})
 	@GetMapping(path = "/party/{partyId}/statuses", produces = APPLICATION_JSON_VALUE)
-	ResponseEntity<List<CaseStatusResponse>> getPartyStatuses(
+	ResponseEntity<CaseStatusesResponse> getPartyStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable @ValidUuid final String partyId,
 		@Parameter(name = "includeDrafts", description = "Include draft statuses", example = "true") @RequestParam(defaultValue = "false") boolean includeDrafts) {

@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "4.3"
+  version: "5.0"
 servers:
 - url: http://localhost:51236
   description: Generated server url
@@ -35,9 +35,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CaseStatusResponse"
+                $ref: "#/components/schemas/CaseStatusesResponse"
         "400":
           description: Bad request
           content:
@@ -225,9 +223,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CaseStatusResponse"
+                $ref: "#/components/schemas/CaseStatusesResponse"
         "400":
           description: Bad request
           content:
@@ -379,6 +375,45 @@ components:
           type: string
         message:
           type: string
+    CaseStatusesResponse:
+      type: object
+      description: "The merged cases from all sources, with the fetch status per source.\
+        \ A source that is UNAVAILABLE contributed nothing to 'cases', so the list\
+        \ is incomplete whenever any source is not OK."
+      properties:
+        cases:
+          type: array
+          items:
+            $ref: "#/components/schemas/CaseStatusResponse"
+            description: The merged cases from the sources that answered
+        sources:
+          type: array
+          items:
+            $ref: "#/components/schemas/SourceStatus"
+            description: The fetch status per case source
+    SourceStatus:
+      type: object
+      description: The fetch status for one case source. When a source is UNAVAILABLE
+        its cases are missing from the response - consumers must not present a degraded
+        response as the complete set of the citizen's cases.
+      properties:
+        source:
+          type: string
+          description: The source system
+          enum:
+          - CASE_MANAGEMENT
+          - OPEN_E_PLATFORM
+          - SUPPORT_MANAGEMENT
+          examples:
+          - CASE_MANAGEMENT
+        status:
+          type: string
+          description: The fetch status of the source
+          enum:
+          - OK
+          - UNAVAILABLE
+          examples:
+          - OK
     CaseStatusResponse:
       type: object
       description: Case status response

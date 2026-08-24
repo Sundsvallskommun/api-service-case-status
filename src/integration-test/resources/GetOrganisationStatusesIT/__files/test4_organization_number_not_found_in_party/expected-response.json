@@ -1,1 +1,17 @@
-[]
+{
+	"cases": [],
+	"sources": [
+		{
+			"source": "CASE_MANAGEMENT",
+			"status": "OK"
+		},
+		{
+			"source": "OPEN_E_PLATFORM",
+			"status": "OK"
+		},
+		{
+			"source": "SUPPORT_MANAGEMENT",
+			"status": "OK"
+		}
+	]
+}

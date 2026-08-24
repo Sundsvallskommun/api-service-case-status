@@ -1,34 +1,50 @@
-[
-	{
-		"caseId": "string",
-		"caseType": "Nybyggnad - test",
-		"externalCaseId": "string",
-		"firstSubmitted": "2022-09-01 10:48",
-		"lastStatusChange": "2022-09-01 10:48",
-		"status": "Pågående",
-		"externalStatus": "Handläggning pågår",
-		"system": "BYGGR"
-	},
-	{
-		"caseId": "100757",
-		"caseType": "Ansökan - strandskyddsdispens",
-		"errandNumber": "100757",
-		"externalCaseId": "100757",
-		"firstSubmitted": "2022-05-11 14:24",
-		"lastStatusChange": "2022-05-11 14:24",
-		"status": "Inskickat",
-		"externalStatus": "Inskickat",
-		"system": "OPEN_E_PLATFORM"
-	},
-	{
-		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
-		"caseType": "Frågor om öppettider",
-		"errandNumber": "KC-23030013",
-		"firstSubmitted": "2023-03-14 11:21",
-		"lastStatusChange": "2023-03-14 13:27",
-		"namespace": "MYNAMESPACE",
-		"status": "Klart",
-		"externalStatus": "Avslutat",
-		"system": "SUPPORT_MANAGEMENT"
-	}
-]
+{
+	"cases": [
+		{
+			"caseId": "string",
+			"caseType": "Nybyggnad - test",
+			"externalCaseId": "string",
+			"firstSubmitted": "2022-09-01 10:48",
+			"lastStatusChange": "2022-09-01 10:48",
+			"status": "Pågående",
+			"externalStatus": "Handläggning pågår",
+			"system": "BYGGR"
+		},
+		{
+			"caseId": "100757",
+			"caseType": "Ansökan - strandskyddsdispens",
+			"errandNumber": "100757",
+			"externalCaseId": "100757",
+			"firstSubmitted": "2022-05-11 14:24",
+			"lastStatusChange": "2022-05-11 14:24",
+			"status": "Inskickat",
+			"externalStatus": "Inskickat",
+			"system": "OPEN_E_PLATFORM"
+		},
+		{
+			"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+			"caseType": "Frågor om öppettider",
+			"errandNumber": "KC-23030013",
+			"firstSubmitted": "2023-03-14 11:21",
+			"lastStatusChange": "2023-03-14 13:27",
+			"namespace": "MYNAMESPACE",
+			"status": "Klart",
+			"externalStatus": "Avslutat",
+			"system": "SUPPORT_MANAGEMENT"
+		}
+	],
+	"sources": [
+		{
+			"source": "CASE_MANAGEMENT",
+			"status": "OK"
+		},
+		{
+			"source": "OPEN_E_PLATFORM",
+			"status": "OK"
+		},
+		{
+			"source": "SUPPORT_MANAGEMENT",
+			"status": "OK"
+		}
+	]
+}

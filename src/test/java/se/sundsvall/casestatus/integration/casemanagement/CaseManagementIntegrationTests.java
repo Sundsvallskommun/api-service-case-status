@@ -7,13 +7,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import se.sundsvall.dept44.exception.ClientProblem;
 import se.sundsvall.dept44.problem.Problem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
 class CaseManagementIntegrationTests {
@@ -70,10 +74,26 @@ class CaseManagementIntegrationTests {
 		verifyNoMoreInteractions(mockCaseManagementClient);
 	}
 
+	/**
+	 * Failures propagate rather than being swallowed into an empty list, so that CaseAggregator can tell an unreachable
+	 * CaseManagement apart from one that simply has no cases for the organization.
+	 */
 	@Test
 	void getCaseStatusForOrganizationNumber_error() {
+		final var problem = Problem.builder().build();
 		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(MUNICIPALITY_ID, ORGANIZATION_NUMBER))
-			.thenThrow(Problem.builder().build());
+			.thenThrow(problem);
+
+		assertThatThrownBy(() -> caseManagementIntegration.getCaseStatusForOrganizationNumber(ORGANIZATION_NUMBER, MUNICIPALITY_ID))
+			.isSameAs(problem);
+
+		verify(mockCaseManagementClient).getCaseStatusForOrganizationNumber(MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	@Test
+	void getCaseStatusForOrganizationNumber_null() {
+		when(mockCaseManagementClient.getCaseStatusForOrganizationNumber(MUNICIPALITY_ID, ORGANIZATION_NUMBER)).thenReturn(null);
 
 		final var result = caseManagementIntegration.getCaseStatusForOrganizationNumber(ORGANIZATION_NUMBER, MUNICIPALITY_ID);
 
@@ -99,8 +119,52 @@ class CaseManagementIntegrationTests {
 
 	@Test
 	void getCaseStatusForPartyId_error() {
+		final var problem = Problem.builder().build();
 		when(mockCaseManagementClient.getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER))
-			.thenThrow(Problem.builder().build());
+			.thenThrow(problem);
+
+		assertThatThrownBy(() -> caseManagementIntegration.getCaseStatusForPartyId(ORGANIZATION_NUMBER, MUNICIPALITY_ID))
+			.isSameAs(problem);
+
+		verify(mockCaseManagementClient).getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	/**
+	 * CaseManagement answers 404, not an empty list, when there are no cases — that must read as "nothing to contribute"
+	 * rather than as a failed source.
+	 */
+	@Test
+	void getCaseStatusForPartyId_noCases() {
+		when(mockCaseManagementClient.getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER))
+			.thenThrow(new ClientProblem(NOT_FOUND, "No cases found"));
+
+		final var result = caseManagementIntegration.getCaseStatusForPartyId(ORGANIZATION_NUMBER, MUNICIPALITY_ID);
+
+		assertThat(result).isNotNull().isEmpty();
+
+		verify(mockCaseManagementClient).getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	/**
+	 * Any other 4xx means we sent a request CaseManagement rejected, which is our defect and must not be hidden.
+	 */
+	@Test
+	void getCaseStatusForPartyId_clientErrorPropagates() {
+		final var problem = new ClientProblem(BAD_REQUEST, "Bad request");
+		when(mockCaseManagementClient.getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER)).thenThrow(problem);
+
+		assertThatThrownBy(() -> caseManagementIntegration.getCaseStatusForPartyId(ORGANIZATION_NUMBER, MUNICIPALITY_ID))
+			.isSameAs(problem);
+
+		verify(mockCaseManagementClient).getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	@Test
+	void getCaseStatusForPartyId_null() {
+		when(mockCaseManagementClient.getCaseStatusForPartyId(MUNICIPALITY_ID, ORGANIZATION_NUMBER)).thenReturn(null);
 
 		final var result = caseManagementIntegration.getCaseStatusForPartyId(ORGANIZATION_NUMBER, MUNICIPALITY_ID);
 

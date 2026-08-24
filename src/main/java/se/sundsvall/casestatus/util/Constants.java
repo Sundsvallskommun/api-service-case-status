@@ -21,5 +21,10 @@ public final class Constants {
 	public static final Set<String> VALID_CHANNELS = Set.of(EXTERNAL_CHANNEL_E_SERVICE, INTERNAL_CHANNEL_E_SERVICE);
 	public static final String DEFAULT_EXTERNAL_STATUS = "Handläggning pågår";
 
+	// Source identifiers reported in CaseStatusesResponse.sources
+	public static final String SOURCE_CASE_MANAGEMENT = "CASE_MANAGEMENT";
+	public static final String SOURCE_OPEN_E_PLATFORM = "OPEN_E_PLATFORM";
+	public static final String SOURCE_SUPPORT_MANAGEMENT = "SUPPORT_MANAGEMENT";
+
 	private Constants() {}
 }
