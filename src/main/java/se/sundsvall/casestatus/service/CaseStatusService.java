@@ -8,7 +8,6 @@ import java.util.stream.Stream;
 import org.springframework.stereotype.Service;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.api.model.CaseStatusesResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
@@ -92,11 +91,11 @@ public class CaseStatusService {
 		}
 	}
 
-	public CaseStatusesResponse getCaseStatuses(final String organizationNumber, final String municipalityId) {
+	public AggregatedCases getCaseStatuses(final String organizationNumber, final String municipalityId) {
 		return caseAggregator.aggregateForOrg(organizationNumber, municipalityId);
 	}
 
-	public CaseStatusesResponse getCaseStatusesForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
+	public AggregatedCases getCaseStatusesForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		return caseAggregator.aggregateForParty(partyId, municipalityId, includeDrafts);
 	}
 

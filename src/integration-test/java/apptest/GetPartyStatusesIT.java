@@ -2,7 +2,10 @@ package apptest;
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
@@ -59,4 +62,21 @@ class GetPartyStatusesIT extends AbstractAppTest {
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
+
+	/**
+	 * Test scenario where Open-E does not answer. The remaining sources still contribute, the request succeeds instead of
+	 * failing outright, and the response names Open-E as unavailable so the caller can tell that the case list is
+	 * incomplete rather than empty.
+	 */
+	@Test
+	void test4_open_e_unavailable() {
+		setupCall()
+			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponseHeader(UNAVAILABLE_SOURCES_HEADER, List.of(SOURCE_OPEN_E_PLATFORM))
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
 }

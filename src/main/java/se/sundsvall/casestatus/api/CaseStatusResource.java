@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.api;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -18,8 +19,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.api.model.CaseStatusesResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
+import se.sundsvall.casestatus.service.AggregatedCases;
 import se.sundsvall.casestatus.service.CaseStatusService;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.dept44.common.validators.annotation.ValidUuid;
@@ -29,6 +30,7 @@ import se.sundsvall.dept44.problem.violations.ConstraintViolationProblem;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
+import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
 
 @RestController
 @Validated
@@ -89,24 +91,47 @@ class CaseStatusResource {
 	}
 
 	@Operation(summary = "Get organization statuses", responses = {
-		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+		@ApiResponse(responseCode = "200",
+			description = "Successful Operation",
+			useReturnTypeSchema = true,
+			headers = @Header(name = UNAVAILABLE_SOURCES_HEADER,
+				description = "Comma separated list of sources that did not answer, whose cases are therefore missing from the response. Absent when every source contributed.",
+				schema = @Schema(type = "string")))
 	})
 	@GetMapping(path = "/{organizationNumber}/statuses", produces = APPLICATION_JSON_VALUE)
-	ResponseEntity<CaseStatusesResponse> getOrganisationStatuses(
+	ResponseEntity<List<CaseStatusResponse>> getOrganisationStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable final String organizationNumber) {
-		return ok(service.getCaseStatuses(organizationNumber, municipalityId));
+		return toResponse(service.getCaseStatuses(organizationNumber, municipalityId));
 	}
 
 	@Operation(summary = "Get all statuses connected to a partyId", responses = {
-		@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+		@ApiResponse(responseCode = "200",
+			description = "Successful Operation",
+			useReturnTypeSchema = true,
+			headers = @Header(name = UNAVAILABLE_SOURCES_HEADER,
+				description = "Comma separated list of sources that did not answer, whose cases are therefore missing from the response. Absent when every source contributed.",
+				schema = @Schema(type = "string")))
 	})
 	@GetMapping(path = "/party/{partyId}/statuses", produces = APPLICATION_JSON_VALUE)
-	ResponseEntity<CaseStatusesResponse> getPartyStatuses(
+	ResponseEntity<List<CaseStatusResponse>> getPartyStatuses(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Parameter(name = "partyId", description = "PartyId to find cases for", example = "123e4567-e89b-12d3-a456-426614174000") @PathVariable @ValidUuid final String partyId,
 		@Parameter(name = "includeDrafts", description = "Include draft statuses", example = "true") @RequestParam(defaultValue = "false") boolean includeDrafts) {
-		return ok(service.getCaseStatusesForParty(partyId, municipalityId, includeDrafts));
+		return toResponse(service.getCaseStatusesForParty(partyId, municipalityId, includeDrafts));
+	}
+
+	/**
+	 * The body stays a plain list of cases; a partial result is signalled with a header instead, so that subscribers that
+	 * ignore the header keep working exactly as before.
+	 */
+	private static ResponseEntity<List<CaseStatusResponse>> toResponse(final AggregatedCases aggregatedCases) {
+		if (aggregatedCases.unavailableSources().isEmpty()) {
+			return ok(aggregatedCases.cases());
+		}
+		return ok()
+			.header(UNAVAILABLE_SOURCES_HEADER, String.join(",", aggregatedCases.unavailableSources()))
+			.body(aggregatedCases.cases());
 	}
 
 	@Operation(summary = "Get errand statuses by errandNumber or propertyDesignation", responses = {

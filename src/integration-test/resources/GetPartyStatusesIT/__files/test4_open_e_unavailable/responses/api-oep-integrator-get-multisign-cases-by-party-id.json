@@ -1,0 +1,32 @@
+[
+	{
+		"flowInstanceId": "5101",
+		"created": "2025-04-10T08:00:00",
+		"statusUpdated": "2025-04-10T08:00:00",
+		"displayName": "Bygglovsansökan med medsökande",
+		"status": {
+			"id": 10999,
+			"name": "Utkast",
+			"newExternalMessagesDisallowed": false,
+			"addExternalMessage": false,
+			"addInternalMessage": false,
+			"isRestrictedAdminDeletable": false,
+			"status": "DRAFT"
+		}
+	},
+	{
+		"flowInstanceId": "4999",
+		"created": "2025-03-10T08:00:00",
+		"statusUpdated": "2025-03-10T08:00:00",
+		"displayName": "Anmälan om sjukfrånvaro (medsignering)",
+		"status": {
+			"id": 10500,
+			"name": "Väntar på signering",
+			"newExternalMessagesDisallowed": false,
+			"addExternalMessage": false,
+			"addInternalMessage": false,
+			"isRestrictedAdminDeletable": false,
+			"status": "AWAITING_SIGNATURE"
+		}
+	}
+]

@@ -22,8 +22,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.api.model.CaseStatusesResponse;
-import se.sundsvall.casestatus.api.model.SourceStatus;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
@@ -31,15 +29,13 @@ import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
-import se.sundsvall.dept44.exception.ServerProblem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
-import static se.sundsvall.casestatus.api.model.SourceStatus.STATUS_OK;
-import static se.sundsvall.casestatus.api.model.SourceStatus.STATUS_UNAVAILABLE;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
@@ -96,7 +92,7 @@ public class CaseAggregator {
 		this.taskExecutor = taskExecutor;
 	}
 
-	public CaseStatusesResponse aggregateForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
+	public AggregatedCases aggregateForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		final var cmFuture = caseManagementByPartyAsync(partyId, municipalityId);
 		final var oepFuture = oepByPartyAsync(partyId, municipalityId, includeDrafts);
 		final var multisignFuture = oepMultisignByPartyAsync(partyId, municipalityId);
@@ -107,12 +103,12 @@ public class CaseAggregator {
 		final var multisignResult = multisignFuture.join();
 		final var primaryResults = Stream.of(cmFuture, oepFuture, supportFuture).map(CompletableFuture::join).toList();
 
-		return toResponse(
+		return toResult(
 			runPipeline(primaryResults, multisignResult.responses(), includeDrafts),
 			Stream.concat(primaryResults.stream(), Stream.of(multisignResult)).toList());
 	}
 
-	public CaseStatusesResponse aggregateForOrg(final String organizationNumber, final String municipalityId) {
+	public AggregatedCases aggregateForOrg(final String organizationNumber, final String municipalityId) {
 		final var cmFuture = caseManagementByOrgAsync(organizationNumber, municipalityId);
 		final var localOpenEFuture = localOpenEByOrgAsync(organizationNumber, municipalityId);
 		final var supportFuture = supportManagementByOrganizationNumberAsync(organizationNumber, municipalityId);
@@ -120,7 +116,7 @@ public class CaseAggregator {
 		final var results = Stream.of(cmFuture, localOpenEFuture, supportFuture).map(CompletableFuture::join).toList();
 
 		// Org flow has no multi-sign source and preserves the historical "no draft filtering" behavior.
-		return toResponse(runPipeline(results, emptyList(), true), results);
+		return toResult(runPipeline(results, emptyList(), true), results);
 	}
 
 	/**
@@ -143,43 +139,36 @@ public class CaseAggregator {
 	}
 
 	/**
-	 * Only failures that mean "the backing system did not answer" degrade a source: a 5xx response, an open circuit
-	 * breaker, a connect/read failure, or the local cache being unreachable. Anything else propagates and fails the
-	 * request — in particular a 4xx, which means we sent a request the source rejected, and any programming error. Those
-	 * are our defects, and reporting them to the citizen as a merely unavailable source would hide them.
+	 * Only a failure of the call itself degrades a source: any problem response from the source, an open circuit breaker,
+	 * a connect/read failure, or the local cache being unreachable. Anything else — a NullPointerException, a mapper bug,
+	 * any defect of ours — propagates and fails the request rather than being reported as somebody else's outage.
+	 *
+	 * <p>
+	 * A 4xx is included here even though it means we sent a request the source rejected. That is our defect, but this is
+	 * a citizen-facing endpoint: turning it into a 500 would deny someone their case list over a bug that costs them
+	 * nothing to route around. It is logged at WARN and named in the unavailable-sources header instead.
+	 * </p>
 	 */
 	private static boolean isSourceUnavailable(final RuntimeException e) {
-		return e instanceof ServerProblem
+		return e instanceof ThrowableProblem
 			|| e instanceof CallNotPermittedException
 			|| e instanceof RetryableException
 			|| e instanceof DataAccessException;
 	}
 
-	private static CaseStatusesResponse toResponse(final List<CaseStatusResponse> cases, final List<SourceResult> results) {
-		final var sources = results.stream()
+	/**
+	 * A source counts as unavailable when any fetch made against it failed — Open-E is read more than once per request,
+	 * and a partial Open-E answer is still an incomplete one.
+	 */
+	private static AggregatedCases toResult(final List<CaseStatusResponse> cases, final List<SourceResult> results) {
+		final var unavailableSources = results.stream()
 			.collect(groupingBy(SourceResult::source, LinkedHashMap::new, toList()))
 			.entrySet().stream()
-			.map(entry -> SourceStatus.builder()
-				.withSource(entry.getKey())
-				.withStatus(statusOf(entry.getValue()))
-				.build())
+			.filter(entry -> !entry.getValue().stream().allMatch(SourceResult::ok))
+			.map(Map.Entry::getKey)
 			.toList();
 
-		return CaseStatusesResponse.builder()
-			.withCases(cases)
-			.withSources(sources)
-			.build();
-	}
-
-	/**
-	 * A source is only OK when every fetch made against it succeeded — Open-E is read more than once per request, and a
-	 * partial Open-E answer is still an incomplete one.
-	 */
-	private static String statusOf(final List<SourceResult> results) {
-		if (results.stream().allMatch(SourceResult::ok)) {
-			return STATUS_OK;
-		}
-		return STATUS_UNAVAILABLE;
+		return new AggregatedCases(cases, unavailableSources);
 	}
 
 	/**

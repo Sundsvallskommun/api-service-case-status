@@ -25,7 +25,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.api.model.SourceStatus;
 import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
@@ -61,9 +60,6 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
 import static se.sundsvall.TestDataFactory.createErrand;
-import static se.sundsvall.casestatus.api.model.SourceStatus.STATUS_OK;
-import static se.sundsvall.casestatus.api.model.SourceStatus.STATUS_UNAVAILABLE;
-import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_SUPPORT_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
@@ -273,7 +269,7 @@ class CaseStatusServiceTest {
 		when(statusVocabularyMock.lookupBySupportManagementStatus(smStatus)).thenReturn(statuses);
 
 		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT_SYSTEM, "1234567890"));
-		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).getCases();
+		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).cases();
 
 		assertThat(result).isNotNull().hasSize(4);
 
@@ -319,7 +315,7 @@ class CaseStatusServiceTest {
 		when(statusVocabularyMock.lookupBySupportManagementStatus(null)).thenReturn(statuses);
 
 		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse(SUPPORT_MANAGEMENT_SYSTEM, "1234567890"));
-		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).getCases();
+		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).cases();
 
 		assertThat(result).isNotNull().hasSize(4);
 
@@ -379,7 +375,7 @@ class CaseStatusServiceTest {
 		when(partyIntegrationMock.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, "someOrganizationId"))
 			.thenReturn(Optional.of("somePartyId"));
 
-		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).getCases();
+		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -406,7 +402,7 @@ class CaseStatusServiceTest {
 		when(partyIntegrationMock.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, "someOrganizationId"))
 			.thenReturn(Optional.empty());
 
-		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).getCases();
+		final var result = caseStatusService.getCaseStatuses("someOrganizationId", MUNICIPALITY_ID).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -453,7 +449,7 @@ class CaseStatusServiceTest {
 		when(supportManagementMapperMock.toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId)).thenReturn(errandMap);
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(3);
 
@@ -487,7 +483,7 @@ class CaseStatusServiceTest {
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("BYGGR", "1234567890"));
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(2);
 
@@ -512,7 +508,7 @@ class CaseStatusServiceTest {
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -538,7 +534,7 @@ class CaseStatusServiceTest {
 		when(caseManagementMapperMock.toCaseStatusResponse(caseStatus, MUNICIPALITY_ID)).thenReturn(createCaseStatusResponse("CASEDATA", "1234567890"));
 
 		// act
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -561,7 +557,7 @@ class CaseStatusServiceTest {
 
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 
@@ -590,7 +586,7 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
 			.thenReturn(List.of(new CaseEnvelope().displayName("multisign").status(new CaseStatus().name("multisignStatus")).flowInstanceId(flowInstanceId)));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 		assertThat(result.getFirst().getExternalCaseId()).isEqualTo(flowInstanceId);
@@ -611,7 +607,7 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
 			.thenReturn(List.of(new CaseEnvelope().displayName("multisign").status(new CaseStatus().name("Utkast")).flowInstanceId("multisignFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 		assertThat(result.getFirst().getExternalCaseId()).isEqualTo("multisignFlowInstanceId");
@@ -631,7 +627,7 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
 			.thenReturn(List.of(new CaseEnvelope().displayName("unsubmitted").status(new CaseStatus().name("Utkast")).flowInstanceId("unsubmittedFlowInstanceId")));
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().hasSize(1);
 		assertThat(result.getFirst().getExternalCaseId()).isEqualTo("unsubmittedFlowInstanceId");
@@ -652,7 +648,7 @@ class CaseStatusServiceTest {
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(emptyList());
 
-		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).getCases();
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, includeDrafts).cases();
 
 		assertThat(result).isNotNull().isEmpty();
 
@@ -838,7 +834,7 @@ class CaseStatusServiceTest {
 
 	/**
 	 * A source that does not answer must not fail the whole aggregate: the remaining sources still contribute, and the
-	 * source is reported as UNAVAILABLE so the caller can tell a partial result from a complete one.
+	 * source is named in the result so the caller can tell a partial result from a complete one.
 	 */
 	@Test
 	void getCaseStatusesForPartyReportsOpenEUnavailable() {
@@ -850,18 +846,15 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
 			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "Open-E is down"));
 
-		final var response = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
 
-		assertThat(response.getCases()).hasSize(1);
-		assertThat(response.getSources()).containsExactlyInAnyOrder(
-			sourceStatus(SOURCE_CASE_MANAGEMENT, STATUS_OK),
-			sourceStatus(SOURCE_OPEN_E_PLATFORM, STATUS_UNAVAILABLE),
-			sourceStatus(SOURCE_SUPPORT_MANAGEMENT, STATUS_OK));
+		assertThat(result.cases()).hasSize(1);
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_OPEN_E_PLATFORM);
 	}
 
 	/**
-	 * Open-E is read more than once per request. A partial Open-E answer is still incomplete, so the source is reported
-	 * UNAVAILABLE even though the main fetch succeeded.
+	 * Open-E is read more than once per request. A partial Open-E answer is still incomplete, so the source counts as
+	 * unavailable even though the main fetch succeeded.
 	 */
 	@Test
 	void getCaseStatusesForPartyReportsOpenEUnavailableWhenOnlyMultisignFails() {
@@ -870,9 +863,9 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
 			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "Open-E is down"));
 
-		final var response = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
 
-		assertThat(response.getSources()).contains(sourceStatus(SOURCE_OPEN_E_PLATFORM, STATUS_UNAVAILABLE));
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_OPEN_E_PLATFORM);
 	}
 
 	@Test
@@ -885,10 +878,10 @@ class CaseStatusServiceTest {
 		when(supportManagementServiceMock.getSupportManagementCasesByExternalId(MUNICIPALITY_ID, partyId))
 			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "SupportManagement is down"));
 
-		final var response = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
 
-		assertThat(response.getCases()).hasSize(1);
-		assertThat(response.getSources()).contains(sourceStatus(SOURCE_SUPPORT_MANAGEMENT, STATUS_UNAVAILABLE));
+		assertThat(result.cases()).hasSize(1);
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_SUPPORT_MANAGEMENT);
 	}
 
 	/**
@@ -904,10 +897,10 @@ class CaseStatusServiceTest {
 		when(caseRepositoryMock.findByOrganisationNumberAndMunicipalityId(organizationNumber, MUNICIPALITY_ID))
 			.thenThrow(new DataAccessResourceFailureException("Database is down"));
 
-		final var response = caseStatusService.getCaseStatuses(organizationNumber, MUNICIPALITY_ID);
+		final var result = caseStatusService.getCaseStatuses(organizationNumber, MUNICIPALITY_ID);
 
-		assertThat(response.getCases()).hasSize(1);
-		assertThat(response.getSources()).contains(sourceStatus(SOURCE_OPEN_E_PLATFORM, STATUS_UNAVAILABLE));
+		assertThat(result.cases()).hasSize(1);
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_OPEN_E_PLATFORM);
 	}
 
 	/**
@@ -924,40 +917,46 @@ class CaseStatusServiceTest {
 		when(partyIntegrationMock.getPartyIdByOrganizationNumber(MUNICIPALITY_ID, organizationNumber))
 			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "Party is down"));
 
-		final var response = caseStatusService.getCaseStatuses(organizationNumber, MUNICIPALITY_ID);
+		final var result = caseStatusService.getCaseStatuses(organizationNumber, MUNICIPALITY_ID);
 
-		assertThat(response.getCases()).hasSize(1);
-		assertThat(response.getSources()).contains(sourceStatus(SOURCE_SUPPORT_MANAGEMENT, STATUS_UNAVAILABLE));
+		assertThat(result.cases()).hasSize(1);
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_SUPPORT_MANAGEMENT);
 	}
 
 	@Test
-	void getCaseStatusesForPartyReportsEverySourceOkWhenNothingFails() {
-		final var partyId = "somePartyId";
+	void getCaseStatusesForPartyReportsNothingUnavailableWhenEverySourceAnswers() {
+		final var result = caseStatusService.getCaseStatusesForParty("somePartyId", MUNICIPALITY_ID, true);
 
-		final var response = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
-
-		assertThat(response.getSources()).containsExactlyInAnyOrder(
-			sourceStatus(SOURCE_CASE_MANAGEMENT, STATUS_OK),
-			sourceStatus(SOURCE_OPEN_E_PLATFORM, STATUS_OK),
-			sourceStatus(SOURCE_SUPPORT_MANAGEMENT, STATUS_OK));
+		assertThat(result.unavailableSources()).isEmpty();
 	}
 
 	/**
-	 * A 4xx means we sent a request the source rejected — our defect, not an outage. It must surface rather than be
-	 * reported to the citizen as a merely unavailable source.
+	 * A 4xx means we sent a request the source rejected — our defect, but not a reason to deny a citizen their case list.
+	 * It degrades the source like any other failed call; the defect is visible in the log and in the reported source.
 	 */
 	@Test
-	void getCaseStatusesForPartyPropagatesClientError() {
+	void getCaseStatusesForPartyDegradesOnClientError() {
 		final var partyId = "somePartyId";
 
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
 			.thenThrow(new ClientProblem(BAD_REQUEST, "Bad request to Open-E"));
 
-		assertThatThrownBy(() -> caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true))
-			.hasRootCauseInstanceOf(ClientProblem.class);
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true);
+
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_OPEN_E_PLATFORM);
 	}
 
-	private static SourceStatus sourceStatus(final String source, final String status) {
-		return SourceStatus.builder().withSource(source).withStatus(status).build();
+	/**
+	 * A defect of ours is not somebody else's outage and must not be reported as one.
+	 */
+	@Test
+	void getCaseStatusesForPartyPropagatesProgrammingErrors() {
+		final var partyId = "somePartyId";
+
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenThrow(new IllegalStateException("mapper blew up"));
+
+		assertThatThrownBy(() -> caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true))
+			.hasRootCauseInstanceOf(IllegalStateException.class);
 	}
 }

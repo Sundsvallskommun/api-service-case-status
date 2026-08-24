@@ -17,9 +17,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
-import se.sundsvall.casestatus.api.model.CaseStatusesResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
-import se.sundsvall.casestatus.api.model.SourceStatus;
+import se.sundsvall.casestatus.service.AggregatedCases;
 import se.sundsvall.casestatus.service.CaseStatusService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,10 +29,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static se.sundsvall.casestatus.api.model.SourceStatus.STATUS_OK;
-import static se.sundsvall.casestatus.api.model.SourceStatus.STATUS_UNAVAILABLE;
-import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
 
 @ActiveProfiles("junit")
 @AutoConfigureWebTestClient
@@ -135,17 +132,14 @@ class CaseStatusResourceTests {
 
 	@Test
 	void getOrganisationStatuses() {
-		when(mockCaseStatusService.getCaseStatuses(any(String.class), any(String.class))).thenReturn(CaseStatusesResponse.builder()
-			.withCases(List.of(CaseStatusResponse.builder()
-				.withCaseId("someId")
-				.withExternalCaseId("someExternalCaseId")
-				.withStatus("someStatus")
-				.withCaseType("someCaseType")
-				.withFirstSubmitted("someFirstSubmittedValue")
-				.withLastStatusChange("someLastStatusChangeValue")
-				.build()))
-			.withSources(List.of(SourceStatus.builder().withSource(SOURCE_CASE_MANAGEMENT).withStatus(STATUS_OK).build()))
-			.build());
+		when(mockCaseStatusService.getCaseStatuses(any(String.class), any(String.class))).thenReturn(new AggregatedCases(List.of(CaseStatusResponse.builder()
+			.withCaseId("someId")
+			.withExternalCaseId("someExternalCaseId")
+			.withStatus("someStatus")
+			.withCaseType("someCaseType")
+			.withFirstSubmitted("someFirstSubmittedValue")
+			.withLastStatusChange("someLastStatusChangeValue")
+			.build()), List.of()));
 
 		webTestClient.get()
 			.uri(PATH + "/statuses", MUNICIPALITY_ID, "5591621234")
@@ -154,15 +148,15 @@ class CaseStatusResourceTests {
 			.isOk()
 			.expectHeader()
 			.contentType(APPLICATION_JSON)
+			.expectHeader()
+			.doesNotExist(UNAVAILABLE_SOURCES_HEADER)
 			.expectBody()
-			.jsonPath("$.cases").isArray()
-			.jsonPath("$.cases[0].caseId").isEqualTo("someId")
-			.jsonPath("$.cases[0].externalCaseId").isEqualTo("someExternalCaseId")
-			.jsonPath("$.cases[0].caseType").isEqualTo("someCaseType")
-			.jsonPath("$.cases[0].firstSubmitted").isEqualTo("someFirstSubmittedValue")
-			.jsonPath("$.cases[0].lastStatusChange").isEqualTo("someLastStatusChangeValue")
-			.jsonPath("$.sources[0].source").isEqualTo(SOURCE_CASE_MANAGEMENT)
-			.jsonPath("$.sources[0].status").isEqualTo(STATUS_OK);
+			.jsonPath("$").isArray()
+			.jsonPath("$[0].caseId").isEqualTo("someId")
+			.jsonPath("$[0].externalCaseId").isEqualTo("someExternalCaseId")
+			.jsonPath("$[0].caseType").isEqualTo("someCaseType")
+			.jsonPath("$[0].firstSubmitted").isEqualTo("someFirstSubmittedValue")
+			.jsonPath("$[0].lastStatusChange").isEqualTo("someLastStatusChangeValue");
 
 		verify(mockCaseStatusService).getCaseStatuses(caseStatusServiceArgumentCaptor.capture(), eq("2281"));
 		verifyNoMoreInteractions(mockCaseStatusService);
@@ -183,10 +177,8 @@ class CaseStatusResourceTests {
 			.build();
 
 		// An unavailable source is carried through to the caller so a partial result is never read as a complete one
-		final var sourceStatus = SourceStatus.builder().withSource(SOURCE_OPEN_E_PLATFORM).withStatus(STATUS_UNAVAILABLE).build();
-
 		when(mockCaseStatusService.getCaseStatusesForParty(any(String.class), any(String.class), anyBoolean()))
-			.thenReturn(CaseStatusesResponse.builder().withCases(List.of(caseStatusResponse)).withSources(List.of(sourceStatus)).build());
+			.thenReturn(new AggregatedCases(List.of(caseStatusResponse), List.of(SOURCE_OPEN_E_PLATFORM)));
 
 		final var partyId = UUID.randomUUID().toString();
 
@@ -197,13 +189,13 @@ class CaseStatusResourceTests {
 			.isOk()
 			.expectHeader()
 			.contentType(APPLICATION_JSON)
-			.expectBody(CaseStatusesResponse.class)
+			.expectHeader()
+			.valueEquals(UNAVAILABLE_SOURCES_HEADER, SOURCE_OPEN_E_PLATFORM)
+			.expectBodyList(CaseStatusResponse.class)
 			.returnResult()
 			.getResponseBody();
 
-		assertThat(result).isNotNull();
-		assertThat(result.getCases()).containsExactly(caseStatusResponse);
-		assertThat(result.getSources()).containsExactly(sourceStatus);
+		assertThat(result).isNotNull().containsExactly(caseStatusResponse);
 
 		verify(mockCaseStatusService).getCaseStatusesForParty(caseStatusServiceArgumentCaptor.capture(), eq("2281"), eq(false));
 		verifyNoMoreInteractions(mockCaseStatusService);
