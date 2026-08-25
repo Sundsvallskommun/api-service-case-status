@@ -21,5 +21,17 @@ public final class Constants {
 	public static final Set<String> VALID_CHANNELS = Set.of(EXTERNAL_CHANNEL_E_SERVICE, INTERNAL_CHANNEL_E_SERVICE);
 	public static final String DEFAULT_EXTERNAL_STATUS = "Handläggning pågår";
 
+	/**
+	 * Names the sources that did not answer, comma separated. Sent only when the aggregated result is incomplete;
+	 * absent means every source contributed. A response header rather than a body field so that adding the signal
+	 * does not change the response shape for existing subscribers.
+	 */
+	public static final String UNAVAILABLE_SOURCES_HEADER = "X-Unavailable-Sources";
+
+	// Source identifiers reported in the UNAVAILABLE_SOURCES_HEADER
+	public static final String SOURCE_CASE_MANAGEMENT = "CASE_MANAGEMENT";
+	public static final String SOURCE_OPEN_E_PLATFORM = "OPEN_E_PLATFORM";
+	public static final String SOURCE_SUPPORT_MANAGEMENT = "SUPPORT_MANAGEMENT";
+
 	private Constants() {}
 }

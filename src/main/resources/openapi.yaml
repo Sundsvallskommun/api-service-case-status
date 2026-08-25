@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "4.3"
+  version: "4.4"
 servers:
 - url: http://localhost:51236
   description: Generated server url
@@ -32,6 +32,14 @@ paths:
       responses:
         "200":
           description: Successful Operation
+          headers:
+            X-Unavailable-Sources:
+              description: "Comma separated list of sources that did not answer, whose\
+                \ cases are therefore missing from the response. Absent when every\
+                \ source contributed."
+              style: simple
+              schema:
+                type: string
           content:
             application/json:
               schema:
@@ -222,6 +230,14 @@ paths:
       responses:
         "200":
           description: Successful Operation
+          headers:
+            X-Unavailable-Sources:
+              description: "Comma separated list of sources that did not answer, whose\
+                \ cases are therefore missing from the response. Absent when every\
+                \ source contributed."
+              style: simple
+              schema:
+                type: string
           content:
             application/json:
               schema:

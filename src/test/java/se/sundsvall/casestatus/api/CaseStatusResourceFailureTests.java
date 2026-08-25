@@ -1,5 +1,6 @@
 package se.sundsvall.casestatus.api;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,11 +11,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.service.AggregatedCases;
 import se.sundsvall.casestatus.service.CaseStatusService;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 
 @ActiveProfiles("junit")
 @AutoConfigureWebTestClient
@@ -29,6 +33,8 @@ class CaseStatusResourceFailureTests {
 
 	@Test
 	void getOrganisationStatusesWithInvalidOrganizationNumber() {
+		when(mockCaseStatusService.getCaseStatuses(any(String.class), any(String.class))).thenReturn(new AggregatedCases(List.of(), List.of()));
+
 		final var response = webTestClient.get()
 			.uri("/{municipalityId}/{organizationNumber}/statuses", "2281", "invalid-org-no")
 			.exchange()

@@ -91,11 +91,11 @@ public class CaseStatusService {
 		}
 	}
 
-	public List<CaseStatusResponse> getCaseStatuses(final String organizationNumber, final String municipalityId) {
+	public AggregatedCases getCaseStatuses(final String organizationNumber, final String municipalityId) {
 		return caseAggregator.aggregateForOrg(organizationNumber, municipalityId);
 	}
 
-	public List<CaseStatusResponse> getCaseStatusesForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
+	public AggregatedCases getCaseStatusesForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		return caseAggregator.aggregateForParty(partyId, municipalityId, includeDrafts);
 	}
 

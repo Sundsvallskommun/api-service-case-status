@@ -1,8 +1,11 @@
 package se.sundsvall.casestatus.service;
 
+import feign.RetryableException;
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.supportmanagement.Errand;
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -10,9 +13,13 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
@@ -22,20 +29,33 @@ import se.sundsvall.casestatus.integration.party.PartyIntegration;
 import se.sundsvall.casestatus.service.mapper.CaseManagementMapper;
 import se.sundsvall.casestatus.service.mapper.OpenEMapper;
 import se.sundsvall.casestatus.service.mapper.SupportManagementMapper;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 
 import static java.util.Collections.emptyList;
 import static java.util.Optional.ofNullable;
 import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.toList;
 import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_SUPPORT_MANAGEMENT;
 
 /**
  * Aggregates {@link CaseStatusResponse} entries across all backing systems (CaseManagement, OeP, SupportManagement and
  * the local Open-E cache) for a given party or organization. The same pipeline — parallel fetch, multi-sign override,
  * OPEN_E_PLATFORM duplicate filter and optional draft filter — is applied to both flows.
+ *
+ * <p>
+ * A source that does not answer degrades to an empty contribution rather than failing the whole request, and the
+ * outcome per source is reported back to the caller in {@link CaseStatusesResponse#getSources()} so a partial result is
+ * never mistaken for a complete one.
+ * </p>
  */
 @Component
 public class CaseAggregator {
+
+	private static final Logger LOG = LoggerFactory.getLogger(CaseAggregator.class);
 
 	private static final Set<String> DRAFT_STATUSES = Set.of("utkast");
 
@@ -72,7 +92,7 @@ public class CaseAggregator {
 		this.taskExecutor = taskExecutor;
 	}
 
-	public List<CaseStatusResponse> aggregateForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
+	public AggregatedCases aggregateForParty(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		final var cmFuture = caseManagementByPartyAsync(partyId, municipalityId);
 		final var oepFuture = oepByPartyAsync(partyId, municipalityId, includeDrafts);
 		final var multisignFuture = oepMultisignByPartyAsync(partyId, municipalityId);
@@ -80,33 +100,91 @@ public class CaseAggregator {
 		// SupportManagement stores partyId in stakeholders.externalId for both private persons and enterprises
 		final var supportFuture = supportManagementByExternalIdAsync(partyId, municipalityId);
 
-		return runPipeline(List.of(cmFuture, oepFuture, supportFuture), multisignFuture, includeDrafts);
+		final var multisignResult = multisignFuture.join();
+		final var primaryResults = Stream.of(cmFuture, oepFuture, supportFuture).map(CompletableFuture::join).toList();
+
+		return toResult(
+			runPipeline(primaryResults, multisignResult.responses(), includeDrafts),
+			Stream.concat(primaryResults.stream(), Stream.of(multisignResult)).toList());
 	}
 
-	public List<CaseStatusResponse> aggregateForOrg(final String organizationNumber, final String municipalityId) {
+	public AggregatedCases aggregateForOrg(final String organizationNumber, final String municipalityId) {
 		final var cmFuture = caseManagementByOrgAsync(organizationNumber, municipalityId);
 		final var localOpenEFuture = localOpenEByOrgAsync(organizationNumber, municipalityId);
 		final var supportFuture = supportManagementByOrganizationNumberAsync(organizationNumber, municipalityId);
 
+		final var results = Stream.of(cmFuture, localOpenEFuture, supportFuture).map(CompletableFuture::join).toList();
+
 		// Org flow has no multi-sign source and preserves the historical "no draft filtering" behavior.
-		return runPipeline(List.of(cmFuture, localOpenEFuture, supportFuture), CompletableFuture.completedFuture(emptyList()), true);
+		return toResult(runPipeline(results, emptyList(), true), results);
 	}
 
 	/**
-	 * Joins all primary source futures, removes any regular entry that is shadowed by a multi-sign entry for the same
+	 * Runs one source on the shared task executor. A source that does not answer contributes an empty list and is
+	 * reported as UNAVAILABLE, so a single unreachable backing system produces a partial result instead of failing the
+	 * whole aggregate.
+	 */
+	private CompletableFuture<SourceResult> sourceAsync(final String source, final Supplier<List<CaseStatusResponse>> supplier) {
+		return CompletableFuture.supplyAsync(() -> {
+			try {
+				return new SourceResult(source, supplier.get(), true);
+			} catch (final RuntimeException e) {
+				if (!isSourceUnavailable(e)) {
+					throw e;
+				}
+				LOG.warn("Case status source {} is unavailable and is excluded from the aggregated result", source, e);
+				return new SourceResult(source, emptyList(), false);
+			}
+		}, taskExecutor);
+	}
+
+	/**
+	 * Only a failure of the call itself degrades a source: any problem response from the source, an open circuit breaker,
+	 * a connect/read failure, or the local cache being unreachable. Anything else — a NullPointerException, a mapper bug,
+	 * any defect of ours — propagates and fails the request rather than being reported as somebody else's outage.
+	 *
+	 * <p>
+	 * A 4xx is included here even though it means we sent a request the source rejected. That is our defect, but this is
+	 * a citizen-facing endpoint: turning it into a 500 would deny someone their case list over a bug that costs them
+	 * nothing to route around. It is logged at WARN and named in the unavailable-sources header instead.
+	 * </p>
+	 */
+	private static boolean isSourceUnavailable(final RuntimeException e) {
+		return e instanceof ThrowableProblem
+			|| e instanceof CallNotPermittedException
+			|| e instanceof RetryableException
+			|| e instanceof DataAccessException;
+	}
+
+	/**
+	 * A source counts as unavailable when any fetch made against it failed — Open-E is read more than once per request,
+	 * and a partial Open-E answer is still an incomplete one.
+	 */
+	private static AggregatedCases toResult(final List<CaseStatusResponse> cases, final List<SourceResult> results) {
+		final var unavailableSources = results.stream()
+			.collect(groupingBy(SourceResult::source, LinkedHashMap::new, toList()))
+			.entrySet().stream()
+			.filter(entry -> !entry.getValue().stream().allMatch(SourceResult::ok))
+			.map(Map.Entry::getKey)
+			.toList();
+
+		return new AggregatedCases(cases, unavailableSources);
+	}
+
+	/**
+	 * Joins all primary source results, removes any regular entry that is shadowed by a multi-sign entry for the same
 	 * flowInstanceId, applies the OPEN_E_PLATFORM duplicate + draft filter, then appends the multi-sign entries last so
 	 * they bypass both filters.
 	 */
-	private List<CaseStatusResponse> runPipeline(final List<CompletableFuture<List<CaseStatusResponse>>> primarySources, final CompletableFuture<List<CaseStatusResponse>> multisignSource, final boolean includeDrafts) {
+	private List<CaseStatusResponse> runPipeline(final List<SourceResult> primarySources, final List<CaseStatusResponse> multisignStatuses, final boolean includeDrafts) {
 
-		final var multisignStatuses = multisignSource.join();
 		final var multisignIds = multisignStatuses.stream()
 			.map(CaseStatusResponse::getExternalCaseId)
 			.filter(Objects::nonNull)
 			.collect(Collectors.toSet());
 
 		final var primaryStatuses = primarySources.stream()
-			.map(CompletableFuture::join)
+			.map(SourceResult::responses)
 			.flatMap(List::stream)
 			.filter(response -> isNotOverriddenByMultisign(response, multisignIds))
 			.toList();
@@ -164,16 +242,16 @@ public class CaseAggregator {
 		return response -> includeDrafts || !DRAFT_STATUSES.contains(ofNullable(response.getStatus()).orElse("").toLowerCase());
 	}
 
-	private CompletableFuture<List<CaseStatusResponse>> caseManagementByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
+	private CompletableFuture<SourceResult> caseManagementByPartyAsync(final String partyId, final String municipalityId) {
+		return sourceAsync(SOURCE_CASE_MANAGEMENT, () -> caseManagementIntegration.getCaseStatusForPartyId(partyId, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.toList(), taskExecutor);
+			.toList());
 	}
 
-	private CompletableFuture<List<CaseStatusResponse>> caseManagementByOrgAsync(final String organizationNumber, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
+	private CompletableFuture<SourceResult> caseManagementByOrgAsync(final String organizationNumber, final String municipalityId) {
+		return sourceAsync(SOURCE_CASE_MANAGEMENT, () -> caseManagementIntegration.getCaseStatusForOrganizationNumber(organizationNumber, municipalityId).stream()
 			.map(dto -> caseManagementMapper.toCaseStatusResponse(dto, municipalityId))
-			.toList(), taskExecutor);
+			.toList());
 	}
 
 	/**
@@ -186,14 +264,14 @@ public class CaseAggregator {
 	 * initialized after the first decode). includeStatus is requested so the mapper can populate a status (envelopes
 	 * without a status are dropped).
 	 */
-	private CompletableFuture<List<CaseStatusResponse>> oepByPartyAsync(final String partyId, final String municipalityId, final boolean includeDrafts) {
+	private CompletableFuture<SourceResult> oepByPartyAsync(final String partyId, final String municipalityId, final boolean includeDrafts) {
 		// The OeP client dismisses 404 responses, which yields a null list
-		return CompletableFuture.supplyAsync(() -> Stream.concat(
+		return sourceAsync(SOURCE_OPEN_E_PLATFORM, () -> Stream.concat(
 			ofNullable(oepIntegratorClient.getCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream(),
 			unsubmittedCasesByPartyId(partyId, municipalityId, includeDrafts).stream())
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), taskExecutor);
+			.toList());
 	}
 
 	private List<CaseEnvelope> unsubmittedCasesByPartyId(final String partyId, final String municipalityId, final boolean includeDrafts) {
@@ -203,34 +281,35 @@ public class CaseAggregator {
 		return ofNullable(oepIntegratorClient.getUnsubmittedCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList());
 	}
 
-	private CompletableFuture<List<CaseStatusResponse>> oepMultisignByPartyAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> ofNullable(oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
+	private CompletableFuture<SourceResult> oepMultisignByPartyAsync(final String partyId, final String municipalityId) {
+		return sourceAsync(SOURCE_OPEN_E_PLATFORM, () -> ofNullable(oepIntegratorClient.getMultisignCasesByPartyId(municipalityId, InstanceType.EXTERNAL, partyId, true)).orElse(emptyList()).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), taskExecutor);
+			.toList());
 	}
 
-	private CompletableFuture<List<CaseStatusResponse>> localOpenEByOrgAsync(final String organizationNumber, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
+	private CompletableFuture<SourceResult> localOpenEByOrgAsync(final String organizationNumber, final String municipalityId) {
+		return sourceAsync(SOURCE_OPEN_E_PLATFORM, () -> caseRepository.findByOrganisationNumberAndMunicipalityId(organizationNumber, municipalityId).stream()
 			.map(openEMapper::toCaseStatusResponse)
 			.filter(Objects::nonNull)
-			.toList(), taskExecutor);
+			.toList());
 	}
 
-	private CompletableFuture<List<CaseStatusResponse>> supportManagementByExternalIdAsync(final String partyId, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)),
-			taskExecutor);
+	private CompletableFuture<SourceResult> supportManagementByExternalIdAsync(final String partyId, final String municipalityId) {
+		return sourceAsync(SOURCE_SUPPORT_MANAGEMENT,
+			() -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)));
 	}
 
 	/**
 	 * SupportManagement stores partyId (not organization number) in stakeholders.externalId, so the organization number
 	 * must be translated via Party before searching. An organization number unknown to Party yields no SupportManagement
-	 * matches while the other sources still contribute.
+	 * matches while the other sources still contribute. A Party lookup that fails outright makes the SupportManagement
+	 * contribution unobtainable, so it is reported as an unavailable SupportManagement source.
 	 */
-	private CompletableFuture<List<CaseStatusResponse>> supportManagementByOrganizationNumberAsync(final String organizationNumber, final String municipalityId) {
-		return CompletableFuture.supplyAsync(() -> partyIntegration.getPartyIdByOrganizationNumber(municipalityId, organizationNumber)
+	private CompletableFuture<SourceResult> supportManagementByOrganizationNumberAsync(final String organizationNumber, final String municipalityId) {
+		return sourceAsync(SOURCE_SUPPORT_MANAGEMENT, () -> partyIntegration.getPartyIdByOrganizationNumber(municipalityId, organizationNumber)
 			.map(partyId -> mapSupportManagementErrands(municipalityId, supportManagementService.getSupportManagementCasesByExternalId(municipalityId, partyId)))
-			.orElse(emptyList()), taskExecutor);
+			.orElse(emptyList()));
 	}
 
 	public List<CaseStatusResponse> mapSupportManagementErrands(final String municipalityId, final Map<String, List<Errand>> errandsByNamespace) {
@@ -242,5 +321,8 @@ public class CaseAggregator {
 					statusVocabulary.lookupBySupportManagementStatus(errand.getStatus()),
 					supportManagementService.getClassificationDisplayName(municipalityId, entry.getKey(), errand))))
 			.toList();
+	}
+
+	private record SourceResult(String source, List<CaseStatusResponse> responses, boolean ok) {
 	}
 }
