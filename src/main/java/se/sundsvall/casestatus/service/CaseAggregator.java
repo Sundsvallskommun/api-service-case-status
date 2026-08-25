@@ -132,7 +132,7 @@ public class CaseAggregator {
 				if (!isSourceUnavailable(e)) {
 					throw e;
 				}
-				LOG.warn("Case status source {} is unavailable and is excluded from the aggregated result: {}", source, e.getMessage());
+				LOG.warn("Case status source {} is unavailable and is excluded from the aggregated result", source, e);
 				return new SourceResult(source, emptyList(), false);
 			}
 		}, taskExecutor);

@@ -1,0 +1,35 @@
+[
+	{
+		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
+		"caseType": "Frågor om öppettider",
+		"errandNumber": "KC-23030013",
+		"externalStatus": "Avslutat",
+		"firstSubmitted": "2023-03-14 11:21",
+		"lastStatusChange": "2023-03-14 13:27",
+		"namespace": "MYNAMESPACE",
+		"status": "Klart",
+		"system": "SUPPORT_MANAGEMENT"
+	},
+	{
+		"caseId": "4999",
+		"caseType": "Anmälan om sjukfrånvaro (medsignering)",
+		"errandNumber": "4999",
+		"externalCaseId": "4999",
+		"externalStatus": "Handläggning pågår",
+		"firstSubmitted": "2025-03-10 08:00",
+		"lastStatusChange": "2025-03-10 08:00",
+		"status": "Väntar på signering",
+		"system": "OPEN_E_PLATFORM"
+	},
+	{
+		"caseId": "5101",
+		"caseType": "Bygglovsansökan med medsökande",
+		"errandNumber": "5101",
+		"externalCaseId": "5101",
+		"externalStatus": "Handläggning pågår",
+		"firstSubmitted": "2025-04-10 08:00",
+		"lastStatusChange": "2025-04-10 08:00",
+		"status": "Utkast",
+		"system": "OPEN_E_PLATFORM"
+	}
+]
