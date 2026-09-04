@@ -28,7 +28,7 @@ class PaginationUtilTest {
 	void stopsWhenThereIsNoNextPage() {
 		final var calls = new AtomicInteger();
 
-		final var result = fetchAllPages(pageNumber -> {
+		final var result = fetchAllPages(_ -> {
 			calls.incrementAndGet();
 			return new PageImpl<>(List.of("only"));
 		}, DESCRIPTION);
@@ -41,7 +41,7 @@ class PaginationUtilTest {
 	void stopsOnNullPage() {
 		final var calls = new AtomicInteger();
 
-		final var result = fetchAllPages(pageNumber -> {
+		final var result = fetchAllPages(_ -> {
 			calls.incrementAndGet();
 			return null;
 		}, DESCRIPTION);
@@ -79,7 +79,7 @@ class PaginationUtilTest {
 		final var calls = new AtomicInteger();
 
 		final Page<String> runawayPage = new PageImpl<>(List.of("x"), PageRequest.of(0, 1), 1000);
-		final var result = fetchAllPages(pageNumber -> {
+		final var result = fetchAllPages(_ -> {
 			calls.incrementAndGet();
 			return runawayPage;
 		}, DESCRIPTION);

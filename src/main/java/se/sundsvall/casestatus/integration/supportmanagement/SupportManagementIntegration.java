@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.integration.supportmanagement;
 
 import generated.se.sundsvall.supportmanagement.Category;
 import generated.se.sundsvall.supportmanagement.Errand;
+import generated.se.sundsvall.supportmanagement.Labels;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import java.util.List;
 import org.springframework.cache.annotation.Cacheable;
@@ -30,5 +31,10 @@ public class SupportManagementIntegration {
 	@Cacheable("supportmanagement-categories")
 	public List<Category> findCategoriesForNamespace(final String municipalityId, final String namespace) {
 		return client.findCategoriesForNamespace(municipalityId, namespace);
+	}
+
+	@Cacheable("supportmanagement-labels")
+	public Labels findLabelsForNamespace(final String municipalityId, final String namespace) {
+		return client.findLabelsForNamespace(municipalityId, namespace);
 	}
 }

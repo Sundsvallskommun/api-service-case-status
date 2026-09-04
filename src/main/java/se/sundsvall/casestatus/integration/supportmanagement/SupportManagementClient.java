@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.integration.supportmanagement;
 
 import generated.se.sundsvall.supportmanagement.Category;
 import generated.se.sundsvall.supportmanagement.Errand;
+import generated.se.sundsvall.supportmanagement.Labels;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.util.List;
@@ -27,6 +28,11 @@ interface SupportManagementClient {
 
 	@GetMapping(path = "/{municipalityId}/{namespace}/metadata/categories")
 	List<Category> findCategoriesForNamespace(
+		@PathVariable String municipalityId,
+		@PathVariable String namespace);
+
+	@GetMapping(path = "/{municipalityId}/{namespace}/metadata/labels")
+	Labels findLabelsForNamespace(
 		@PathVariable String municipalityId,
 		@PathVariable String namespace);
 
