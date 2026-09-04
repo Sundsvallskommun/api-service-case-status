@@ -2,6 +2,7 @@ package se.sundsvall.casestatus.integration.supportmanagement;
 
 import generated.se.sundsvall.supportmanagement.Category;
 import generated.se.sundsvall.supportmanagement.Errand;
+import generated.se.sundsvall.supportmanagement.Labels;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -82,6 +83,24 @@ class SupportManagementIntegrationTest {
 		// Assert
 		assertThat(result).isEqualTo(mockedResult);
 		verify(supportManagementClientMock).findCategoriesForNamespace(municipalityId, namespace);
+		verifyNoMoreInteractions(supportManagementClientMock);
+	}
+
+	@Test
+	void findLabelsForNamespace() {
+
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var namespace = "namespace";
+		final var mockedResult = new Labels();
+		when(supportManagementClientMock.findLabelsForNamespace(any(), any())).thenReturn(mockedResult);
+
+		// Act
+		final var result = supportManagementIntegration.findLabelsForNamespace(municipalityId, namespace);
+
+		// Assert
+		assertThat(result).isEqualTo(mockedResult);
+		verify(supportManagementClientMock).findLabelsForNamespace(municipalityId, namespace);
 		verifyNoMoreInteractions(supportManagementClientMock);
 	}
 }

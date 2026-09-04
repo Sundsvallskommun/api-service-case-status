@@ -1,9 +1,16 @@
 package se.sundsvall.casestatus.service;
 
+import generated.se.sundsvall.supportmanagement.Category;
+import generated.se.sundsvall.supportmanagement.Classification;
 import generated.se.sundsvall.supportmanagement.Errand;
+import generated.se.sundsvall.supportmanagement.ErrandLabel;
+import generated.se.sundsvall.supportmanagement.Label;
+import generated.se.sundsvall.supportmanagement.Labels;
 import generated.se.sundsvall.supportmanagement.NamespaceConfig;
+import generated.se.sundsvall.supportmanagement.Type;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -172,6 +179,100 @@ class SupportManagementServiceTest {
 	@Test
 	void getClassificationDisplayNameWhenErrandHasNoClassification() {
 		assertThat(supportManagementService.getClassificationDisplayName("municipalityId", "namespace", new Errand())).isNull();
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameFromCategoryMetadata() {
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var namespace = "namespace";
+		final var errand = new Errand().classification(new Classification().category("SUPPORT-CASE").type("OPEN-HOURS"));
+		when(supportManagementIntegrationMock.findCategoriesForNamespace(municipalityId, namespace))
+			.thenReturn(List.of(new Category().name("SUPPORT-CASE").types(Set.of(new Type().name("OPEN-HOURS").displayName("Questions on opening hours")))));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Questions on opening hours");
+		verify(supportManagementIntegrationMock).findCategoriesForNamespace(municipalityId, namespace);
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameFromDeepestErrandLabel() {
+		// Arrange - a label based namespace, where the classification holds the technical resource path
+		final var municipalityId = "municipalityId";
+		final var namespace = "BOU";
+		final var errand = new Errand()
+			.classification(new Classification().category("BOU").type("BOU/FEE_CONTROL_CHILDCARE"))
+			.labels(List.of(
+				new ErrandLabel().resourcePath("BOU").displayName("Barn och utbildning"),
+				new ErrandLabel().resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg")));
+		when(supportManagementIntegrationMock.findCategoriesForNamespace(municipalityId, namespace)).thenReturn(List.of());
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Avgiftskontroll barnomsorg");
+		verify(supportManagementIntegrationMock).findCategoriesForNamespace(municipalityId, namespace);
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameFromErrandLabelWhenClassificationIsMissing() {
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var namespace = "BOU";
+		final var errand = new Errand().labels(List.of(new ErrandLabel().resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg")));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Avgiftskontroll barnomsorg");
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameFromNamespaceLabelStructure() {
+		// Arrange - errand without labels, leaving the label structure as the only place to translate the resource path
+		final var municipalityId = "municipalityId";
+		final var namespace = "BOU";
+		final var errand = new Errand().classification(new Classification().category("BOU").type("BOU/FEE_CONTROL_CHILDCARE"));
+		when(supportManagementIntegrationMock.findCategoriesForNamespace(municipalityId, namespace)).thenReturn(List.of());
+		when(supportManagementIntegrationMock.findLabelsForNamespace(municipalityId, namespace)).thenReturn(new Labels().labelStructure(List.of(
+			new Label().resourcePath("BOU").displayName("Barn och utbildning").labels(List.of(
+				new Label().resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg"))))));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Avgiftskontroll barnomsorg");
+		verify(supportManagementIntegrationMock).findCategoriesForNamespace(municipalityId, namespace);
+		verify(supportManagementIntegrationMock).findLabelsForNamespace(municipalityId, namespace);
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameFallsBackToClassificationTypeWhenNothingMatches() {
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var namespace = "namespace";
+		final var errand = new Errand().classification(new Classification().category("UNKNOWN").type("UNKNOWN_TYPE"));
+		when(supportManagementIntegrationMock.findCategoriesForNamespace(municipalityId, namespace)).thenReturn(null);
+		when(supportManagementIntegrationMock.findLabelsForNamespace(municipalityId, namespace)).thenReturn(null);
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("UNKNOWN_TYPE");
+	}
+
+	@Test
+	void getClassificationDisplayNameFromNamespaceLabelStructureWithLeadingSeparator() {
+		// Arrange - the label structure spells the resource path with a leading separator, the classification without one
+		final var municipalityId = "municipalityId";
+		final var namespace = "BOU";
+		final var errand = new Errand().classification(new Classification().category("BOU").type("BOU/FEE_CONTROL_CHILDCARE"));
+		when(supportManagementIntegrationMock.findCategoriesForNamespace(municipalityId, namespace)).thenReturn(List.of());
+		when(supportManagementIntegrationMock.findLabelsForNamespace(municipalityId, namespace)).thenReturn(new Labels().labelStructure(List.of(
+			new Label().resourcePath("/BOU").displayName("Barn och utbildning").labels(List.of(
+				new Label().resourcePath("/BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg"))))));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Avgiftskontroll barnomsorg");
+		verify(supportManagementIntegrationMock).findCategoriesForNamespace(municipalityId, namespace);
+		verify(supportManagementIntegrationMock).findLabelsForNamespace(municipalityId, namespace);
 		verifyNoMoreInteractions(supportManagementIntegrationMock);
 	}
 }

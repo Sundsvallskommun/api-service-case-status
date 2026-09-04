@@ -57,14 +57,29 @@
 			],
 			"parameters": [],
 			"classification": {
-				"category": "SUPPORT-CASE",
-				"type": "OPEN-HOURS"
+				"category": "SECOND_NAMESPACE",
+				"type": "SECOND_NAMESPACE/FEE_CONTROL_CHILDCARE"
 			},
 			"status": "SOLVED",
 			"reporterUserId": "kctest",
 			"assignedUserId": "kctest",
 			"suspension": {},
-			"labels": [],
+			"labels": [
+				{
+					"id": "8a1c9a3e-0f4e-4d1c-9b0e-1f2a3b4c5d6e",
+					"classification": "CATEGORY",
+					"displayName": "Barn och utbildning",
+					"resourcePath": "SECOND_NAMESPACE",
+					"resourceName": "SECOND_NAMESPACE"
+				},
+				{
+					"id": "aa3048b0-2b77-4542-9735-3f409cc444e2",
+					"classification": "TYPE",
+					"displayName": "Avgiftskontroll barnomsorg",
+					"resourcePath": "SECOND_NAMESPACE/FEE_CONTROL_CHILDCARE",
+					"resourceName": "FEE_CONTROL_CHILDCARE"
+				}
+			],
 			"created": "2023-03-14T11:21:52.507+01:00",
 			"modified": "2023-03-14T13:27:31.017+01:00",
 			"touched": "2023-03-14T13:27:31+01:00"

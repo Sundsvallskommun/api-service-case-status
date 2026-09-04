@@ -35,7 +35,7 @@ spring:
   flyway:
     enabled: false
   cache:
-    cache-names: supportmanagement-namespace-configs, supportmanagement-categories
+    cache-names: supportmanagement-namespace-configs, supportmanagement-categories, supportmanagement-labels
     caffeine:
       spec: maximumSize=1000,expireAfterWrite=86400s
   task:
