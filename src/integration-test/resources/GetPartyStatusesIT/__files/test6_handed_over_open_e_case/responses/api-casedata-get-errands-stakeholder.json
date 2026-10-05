@@ -1,0 +1,26 @@
+{
+	"content": [
+		{
+			"id": 5271,
+			"errandNumber": "SGP-2026-000542",
+			"namespace": "SBK_PARKING_PERMIT"
+		}
+	],
+	"pageable": {
+		"pageNumber": 0,
+		"pageSize": 1,
+		"sort": [],
+		"offset": 0,
+		"unpaged": false,
+		"paged": true
+	},
+	"totalPages": 1,
+	"totalElements": 1,
+	"last": true,
+	"size": 1,
+	"number": 0,
+	"sort": [],
+	"first": true,
+	"numberOfElements": 1,
+	"empty": false
+}

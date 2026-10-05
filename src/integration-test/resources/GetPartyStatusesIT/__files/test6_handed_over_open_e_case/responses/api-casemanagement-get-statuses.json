@@ -1,0 +1,43 @@
+[
+	{
+		"system": "BYGGR",
+		"externalCaseId": "12345",
+		"caseId": "KKLLMM112233",
+		"serviceName": "Installation av bidé",
+		"caseType": "TOALETT_ANSOKAN",
+		"status": "Avslutad",
+		"timestamp": "2022-01-01T00:00:00.000Z",
+		"errandNumber": "BYGG 2022-12345"
+	},
+	{
+		"system": "ECOS",
+		"externalCaseId": "12346",
+		"caseId": "GGHHJJ112233",
+		"serviceName": "Godkännande av ny te- och kaffemaskin",
+		"caseType": "TE_KAFFE_MASKIN",
+		"status": "Pågående",
+		"timestamp": "2022-01-01T00:00:00.000Z",
+		"errandNumber": "ECOS 2022-12346"
+	},
+	{
+		"system": "CASE_DATA",
+		"externalCaseId": "12347",
+		"caseId": "DDEEFF112233",
+		"serviceName": "Parkering och reparation",
+		"caseType": "PARKERING_REPARATION",
+		"status": "Pågående",
+		"timestamp": "2022-01-01T00:00:00.000Z",
+		"errandNumber": "CD 2022-12347",
+		"namespace": "the-greatest-namespace"
+	},
+	{
+		"system": "ALKT",
+		"externalCaseId": "12348",
+		"caseId": "AABBCC112233",
+		"serviceName": "Öl- och vinprovning",
+		"caseType": "ANSOKAN_OM_LOV",
+		"status": "Avböjd",
+		"timestamp": "2022-01-01T00:00:00.000Z",
+		"errandNumber": "ALK 2022-12348"
+	}
+]

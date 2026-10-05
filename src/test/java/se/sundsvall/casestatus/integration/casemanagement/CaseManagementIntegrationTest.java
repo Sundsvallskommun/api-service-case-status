@@ -20,7 +20,7 @@ import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @ExtendWith(MockitoExtension.class)
-class CaseManagementIntegrationTests {
+class CaseManagementIntegrationTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
 
@@ -56,6 +56,60 @@ class CaseManagementIntegrationTests {
 		final var result = caseManagementIntegration.getCaseStatusForExternalId(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
 
 		assertThat(result).isNotNull().isNotPresent();
+
+		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	@Test
+	void findCaseStatusForExternalId_ok() {
+		final var caseStatus = new CaseStatusDTO().externalCaseId(EXTERNAL_CASE_ID);
+
+		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID)).thenReturn(caseStatus);
+
+		final var result = caseManagementIntegration.findCaseStatusForExternalId(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
+
+		assertThat(result).containsSame(caseStatus);
+
+		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	/**
+	 * A flow instance that was never handed over has no case mapping, which CaseManagement answers with 404.
+	 */
+	@Test
+	void findCaseStatusForExternalId_notHandedOver() {
+		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID))
+			.thenThrow(new ClientProblem(NOT_FOUND, "No case mapping found"));
+
+		final var result = caseManagementIntegration.findCaseStatusForExternalId(EXTERNAL_CASE_ID, MUNICIPALITY_ID);
+
+		assertThat(result).isEmpty();
+
+		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	@Test
+	void findCaseStatusForExternalId_clientErrorPropagates() {
+		final var problem = new ClientProblem(BAD_REQUEST, "Bad request");
+		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID)).thenThrow(problem);
+
+		assertThatThrownBy(() -> caseManagementIntegration.findCaseStatusForExternalId(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
+			.isSameAs(problem);
+
+		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID);
+		verifyNoMoreInteractions(mockCaseManagementClient);
+	}
+
+	@Test
+	void findCaseStatusForExternalId_errorPropagates() {
+		final var problem = Problem.builder().build();
+		when(mockCaseManagementClient.getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID)).thenThrow(problem);
+
+		assertThatThrownBy(() -> caseManagementIntegration.findCaseStatusForExternalId(EXTERNAL_CASE_ID, MUNICIPALITY_ID))
+			.isSameAs(problem);
 
 		verify(mockCaseManagementClient).getCaseStatusForExternalCaseId(MUNICIPALITY_ID, EXTERNAL_CASE_ID);
 		verifyNoMoreInteractions(mockCaseManagementClient);

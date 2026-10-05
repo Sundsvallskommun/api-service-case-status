@@ -36,7 +36,7 @@ import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
 @AutoConfigureWebTestClient
 @ExtendWith(MockitoExtension.class)
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-class CaseStatusResourceTests {
+class CaseStatusResourceTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
 

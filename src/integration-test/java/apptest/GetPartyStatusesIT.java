@@ -3,6 +3,7 @@ package apptest;
 import static org.springframework.http.HttpMethod.GET;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
 
@@ -89,6 +90,55 @@ class GetPartyStatusesIT extends AbstractAppTest {
 	 */
 	@Test
 	void test5_case_management_no_cases() {
+		setupCall()
+			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+
+		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
+	}
+
+	/**
+	 * Test scenario where the party submitted Open-E case 4999 on someone else's behalf. CaseManagement's party search
+	 * does not return it, but the case was handed over to CaseData and the party is a stakeholder of that errand, so the
+	 * Open-E entry is replaced with that case — the same case the lookup by externalCaseId returns, with the target
+	 * system's errand number.
+	 */
+	@Test
+	void test6_handed_over_open_e_case() {
+		setupCall()
+			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+
+		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
+	}
+
+	/**
+	 * Test scenario where CaseManagement fails the hand-over lookup for Open-E case 4999. The Open-E entry is kept, and
+	 * CaseManagement is named as unavailable so the caller can tell the entry may not be the whole story.
+	 */
+	@Test
+	void test7_hand_over_lookup_unavailable() {
+		setupCall()
+			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponseHeader(UNAVAILABLE_SOURCES_HEADER, List.of(SOURCE_CASE_MANAGEMENT))
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	/**
+	 * Test scenario where Open-E case 4999 was handed over to a CaseData errand the party is not a stakeholder of. Having
+	 * submitted it does not make the party a party to that errand, so the Open-E entry is kept as it is.
+	 */
+	@Test
+	void test8_handed_over_case_of_another_party() {
 		setupCall()
 			.withServicePath(PATH)
 			.withHttpMethod(GET)

@@ -23,7 +23,7 @@ import static org.mockito.Mockito.when;
 @ActiveProfiles("junit")
 @AutoConfigureWebTestClient
 @SpringBootTest(classes = Application.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-class CaseStatusResourceFailureTests {
+class CaseStatusResourceFailureTest {
 
 	@MockitoBean
 	private CaseStatusService mockCaseStatusService;
