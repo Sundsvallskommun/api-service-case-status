@@ -36,6 +36,23 @@ public class CaseManagementIntegration {
 	}
 
 	/**
+	 * Looks up the case an Open-E flow instance was handed over to. Unlike {@link #getCaseStatusForExternalId}, only a 404
+	 * — the flow instance was never handed over — reads as empty. Any other failure propagates so that
+	 * {@link se.sundsvall.casestatus.service.CaseAggregator} can report CaseManagement as unavailable rather than silently
+	 * keep the Open-E row as if the case had never left Open-E.
+	 */
+	public Optional<CaseStatusDTO> findCaseStatusForExternalId(final String externalCaseId, final String municipalityId) {
+		try {
+			return ofNullable(client.getCaseStatusForExternalCaseId(municipalityId, externalCaseId));
+		} catch (final ClientProblem e) {
+			if (NOT_FOUND.equals(e.getStatus())) {
+				return empty();
+			}
+			throw e;
+		}
+	}
+
+	/**
 	 * Apart from "no cases" (see {@link #noCasesAsEmptyList}) failures are deliberately not swallowed here:
 	 * {@link se.sundsvall.casestatus.service.CaseAggregator} classifies them, so that an unreachable CaseManagement is
 	 * reported to the caller as an unavailable source rather than as an empty result indistinguishable from "this

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -20,6 +21,7 @@ import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.task.TaskRejectedException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -41,6 +43,7 @@ import se.sundsvall.dept44.exception.ServerProblem;
 import se.sundsvall.dept44.problem.Problem;
 
 import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
+import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.CASE_DATA;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -60,6 +63,8 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
 import static se.sundsvall.TestDataFactory.createErrand;
+import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_SUPPORT_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
@@ -463,7 +468,9 @@ class CaseStatusServiceTest {
 		verify(supportManagementMapperMock).toCaseStatusResponse(errand, NAMESPACE_1, statuses, classificationDisplayName);
 		verify(statusVocabularyMock).lookupBySupportManagementStatus(smStatus);
 		verify(statusVocabularyMock).translateOepStatus(any(CaseStatus.class));
-		verify(taskExecutorSpy, times(4)).execute(any());
+		verify(caseManagementIntegrationMock).findCaseStatusForExternalId("someFlowInstanceId", MUNICIPALITY_ID);
+		// Four sources plus the hand-over lookup of the Open-E case that no other source accounted for
+		verify(taskExecutorSpy, times(5)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock, statusVocabularyMock);
 	}
 
@@ -492,7 +499,9 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(taskExecutorSpy, times(4)).execute(any());
+		verify(caseManagementIntegrationMock).findCaseStatusForExternalId("someFlowInstanceId", MUNICIPALITY_ID);
+		// Four sources plus the hand-over lookup of the Open-E case that no other source accounted for
+		verify(taskExecutorSpy, times(5)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -516,7 +525,9 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(taskExecutorSpy, times(4)).execute(any());
+		verify(caseManagementIntegrationMock).findCaseStatusForExternalId("someFlowInstanceId", MUNICIPALITY_ID);
+		// Four sources plus the hand-over lookup of the Open-E case that no other source accounted for
+		verify(taskExecutorSpy, times(5)).execute(any());
 		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, openEIntegrationMock);
 	}
 
@@ -564,7 +575,8 @@ class CaseStatusServiceTest {
 		verify(openEIntegrationMock).getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
 		verify(openEIntegrationMock).getUnsubmittedCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true);
-		verify(taskExecutorSpy, times(4)).execute(any());
+		// Four sources plus the hand-over lookup of the Open-E case
+		verify(taskExecutorSpy, times(5)).execute(any());
 		verifyNoMoreInteractions(partyIntegrationMock, spy);
 	}
 
@@ -958,5 +970,238 @@ class CaseStatusServiceTest {
 
 		assertThatThrownBy(() -> caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, true))
 			.hasRootCauseInstanceOf(IllegalStateException.class);
+	}
+
+	/**
+	 * An agent (ombud) who submitted a case on someone else's behalf is not the applicant in the target system, so the
+	 * CaseManagement party search does not return it and only the raw Open-E entry is left. It is replaced with the case
+	 * it was handed over to, the same case the lookup by externalCaseId returns.
+	 */
+	@Test
+	void getCaseStatusesForParty_handedOverOpenECaseIsReplaced() {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "5796";
+		final var handedOverCase = createCaseStatusDTO(CASE_DATA).externalCaseId(flowInstanceId);
+		final var handedOverResponse = createCaseStatusResponse("CASE_DATA", flowInstanceId);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
+		when(caseManagementMapperMock.toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID)).thenReturn(handedOverResponse);
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).containsExactly(handedOverResponse);
+		assertThat(result.unavailableSources()).isEmpty();
+
+		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
+		verify(caseManagementIntegrationMock).findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID);
+		verify(caseManagementMapperMock).toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID);
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock);
+	}
+
+	/**
+	 * Several flow instances can be handed over to the same case, and the party search may already list that case under
+	 * another flow instance id. The case is shown once and the Open-E entry is dropped.
+	 */
+	@Test
+	void getCaseStatusesForParty_handedOverCaseAlreadyListedIsShownOnce() {
+		final var partyId = "somePartyId";
+		final var listedCase = createCaseStatusDTO(BYGGR).externalCaseId("187000");
+		final var listedResponse = createCaseStatusResponse("BYGGR", "187000");
+		final var handedOverCase = createCaseStatusDTO(BYGGR).externalCaseId("187688");
+		final var handedOverResponse = createCaseStatusResponse("BYGGR", "187688");
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(List.of(listedCase));
+		when(caseManagementMapperMock.toCaseStatusResponse(listedCase, MUNICIPALITY_ID)).thenReturn(listedResponse);
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Bygglov").status(new CaseStatus().name("Inskickat")).flowInstanceId("187688")));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId("187688", MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
+		when(caseManagementMapperMock.toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID)).thenReturn(handedOverResponse);
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).containsExactly(listedResponse);
+		assertThat(result.unavailableSources()).isEmpty();
+	}
+
+	/**
+	 * A CaseManagement that cannot answer the hand-over lookup leaves the Open-E entry in place and is reported as
+	 * unavailable, so the caller can tell the entry might not be the whole story.
+	 */
+	@Test
+	void getCaseStatusesForParty_handOverLookupFailureKeepsOpenECaseAndReportsCaseManagement() {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "5796";
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID))
+			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "CaseManagement is down"));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().satisfies(response -> {
+			assertThat(response.getSystem()).isEqualTo(OPEN_E_PLATFORM);
+			assertThat(response.getExternalCaseId()).isEqualTo(flowInstanceId);
+		});
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_CASE_MANAGEMENT);
+	}
+
+	/**
+	 * A defect of ours in the hand-over lookup is not a CaseManagement outage and must not be reported as one.
+	 */
+	@Test
+	void getCaseStatusesForParty_handOverLookupPropagatesProgrammingErrors() {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "5796";
+
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID))
+			.thenThrow(new IllegalStateException("mapper blew up"));
+
+		assertThatThrownBy(() -> caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false))
+			.hasRootCauseInstanceOf(IllegalStateException.class);
+	}
+
+	/**
+	 * Multi-sign cases await signatures and have not been submitted, so there is nothing to look up for them.
+	 */
+	@Test
+	void getCaseStatusesForParty_multisignCasesAreNotLookedUp() {
+		final var partyId = "somePartyId";
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getMultisignCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("multisign").status(new CaseStatus().name("Väntar på signering")).flowInstanceId("multisignFlowInstanceId")));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getExternalCaseId).isEqualTo("multisignFlowInstanceId");
+
+		verify(caseManagementIntegrationMock, never()).findCaseStatusForExternalId(any(), any());
+	}
+
+	/**
+	 * The lookups are spread over at most three lanes, so a party with many Open-E entries takes a bounded number of the
+	 * shared executor's tasks: four sources plus three lanes here, not one task per entry.
+	 */
+	@Test
+	void getCaseStatusesForParty_handOverLookupsAreSpreadOverAtMostThreeLanes() {
+		final var partyId = "somePartyId";
+		final var flowInstanceIds = List.of("1", "2", "3", "4", "5", "6", "7");
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(flowInstanceIds.stream().map(id -> new CaseEnvelope().displayName("Ansökan").status(new CaseStatus().name("Inskickat")).flowInstanceId(id)).toList());
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).hasSize(7);
+		assertThat(result.unavailableSources()).isEmpty();
+		flowInstanceIds.forEach(id -> verify(caseManagementIntegrationMock).findCaseStatusForExternalId(id, MUNICIPALITY_ID));
+		verify(taskExecutorSpy, times(7)).execute(any());
+	}
+
+	/**
+	 * When the CaseManagement party search already failed in this request, CaseManagement is not asked once per Open-E
+	 * entry on top of it: the entries are kept and CaseManagement is reported once.
+	 */
+	@Test
+	void getCaseStatusesForParty_noHandOverLookupsWhenCaseManagementIsUnavailable() {
+		final var partyId = "somePartyId";
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID))
+			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "CaseManagement is down"));
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId("5796")));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getSystem).isEqualTo(OPEN_E_PLATFORM);
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_CASE_MANAGEMENT);
+		verify(caseManagementIntegrationMock, never()).findCaseStatusForExternalId(any(), any());
+	}
+
+	/**
+	 * Once a lookup fails, the lane stops asking: a hanging CaseManagement would otherwise cost one read timeout per
+	 * entry. With four entries the first lane holds entries 1 and 4, so entry 4 is never looked up.
+	 */
+	@Test
+	void getCaseStatusesForParty_laneStopsLookingUpAfterAFailure() {
+		final var partyId = "somePartyId";
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(Stream.of("1", "2", "3", "4").map(id -> new CaseEnvelope().displayName("Ansökan").status(new CaseStatus().name("Inskickat")).flowInstanceId(id)).toList());
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(any(), eq(MUNICIPALITY_ID)))
+			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "CaseManagement is down"));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).hasSize(4).allSatisfy(response -> assertThat(response.getSystem()).isEqualTo(OPEN_E_PLATFORM));
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_CASE_MANAGEMENT);
+		verify(caseManagementIntegrationMock).findCaseStatusForExternalId("1", MUNICIPALITY_ID);
+		verify(caseManagementIntegrationMock, never()).findCaseStatusForExternalId("4", MUNICIPALITY_ID);
+	}
+
+	/**
+	 * The shared executor has a bounded queue. A task it rejects degrades that source to unavailable instead of failing
+	 * the request.
+	 */
+	@Test
+	void getCaseStatusesForParty_rejectedTaskDegradesToUnavailableSource() {
+		final var partyId = "somePartyId";
+
+		Mockito.doThrow(new TaskRejectedException("Executor is saturated")).when(taskExecutorSpy).execute(any());
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).isEmpty();
+		assertThat(result.unavailableSources()).containsExactlyInAnyOrder(SOURCE_CASE_MANAGEMENT, SOURCE_OPEN_E_PLATFORM, SOURCE_SUPPORT_MANAGEMENT);
+		verifyNoInteractions(caseManagementIntegrationMock, openEIntegrationMock, supportManagementServiceMock);
+	}
+
+	/**
+	 * When the executor rejects a lookup lane, the request does not fail: the lane's entries are kept as Open-E entries and
+	 * CaseManagement is reported as unavailable.
+	 */
+	@Test
+	void getCaseStatusesForParty_rejectedLookupLaneKeepsOpenECases() {
+		final var partyId = "somePartyId";
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId("5796")));
+		// The four sources are submitted first, the lookup lane fifth
+		Mockito.doCallRealMethod().doCallRealMethod().doCallRealMethod().doCallRealMethod()
+			.doThrow(new TaskRejectedException("Executor is saturated"))
+			.when(taskExecutorSpy).execute(any());
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getSystem).isEqualTo(OPEN_E_PLATFORM);
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_CASE_MANAGEMENT);
+		verify(caseManagementIntegrationMock, never()).findCaseStatusForExternalId(any(), any());
+	}
+
+	/**
+	 * An Open-E entry without a flow instance id cannot have been handed over and is not looked up.
+	 */
+	@Test
+	void getCaseStatusesForParty_openECaseWithoutFlowInstanceIdIsNotLookedUp() {
+		final var partyId = "somePartyId";
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat"))));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getSystem).isEqualTo(OPEN_E_PLATFORM);
+		verify(caseManagementIntegrationMock, never()).findCaseStatusForExternalId(any(), any());
 	}
 }

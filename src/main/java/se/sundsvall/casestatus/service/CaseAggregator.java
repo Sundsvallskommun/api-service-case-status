@@ -5,6 +5,9 @@ import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.InstanceType;
 import generated.se.sundsvall.supportmanagement.Errand;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +15,12 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +50,9 @@ import static se.sundsvall.casestatus.util.Constants.SOURCE_SUPPORT_MANAGEMENT;
 /**
  * Aggregates {@link CaseStatusResponse} entries across all backing systems (CaseManagement, OeP, SupportManagement and
  * the local Open-E cache) for a given party or organization. The same pipeline — parallel fetch, multi-sign override,
- * OPEN_E_PLATFORM duplicate filter and optional draft filter — is applied to both flows.
+ * OPEN_E_PLATFORM duplicate filter and optional draft filter — is applied to both flows. The party flow additionally
+ * resolves the Open-E entries that remain to the case they were handed over to, see
+ * {@link #resolveHandedOverOpenECases}.
  *
  * <p>
  * A source that does not answer degrades to an empty contribution rather than failing the whole request, and the
@@ -58,6 +66,10 @@ public class CaseAggregator {
 	private static final Logger LOG = LoggerFactory.getLogger(CaseAggregator.class);
 
 	private static final Set<String> DRAFT_STATUSES = Set.of("utkast");
+
+	// The shared task executor has a bounded queue (spring.task.execution), and the party flow already takes four of its
+	// tasks
+	private static final int HAND_OVER_LOOKUP_LANES = 3;
 
 	private final PartyIntegration partyIntegration;
 	private final CaseManagementIntegration caseManagementIntegration;
@@ -101,11 +113,15 @@ public class CaseAggregator {
 		final var supportFuture = supportManagementByExternalIdAsync(partyId, municipalityId);
 
 		final var multisignResult = multisignFuture.join();
+		final var caseManagementResult = cmFuture.join();
 		final var primaryResults = Stream.of(cmFuture, oepFuture, supportFuture).map(CompletableFuture::join).toList();
 
+		final var resolutions = resolveHandedOverOpenECases(filterPrimary(primaryResults, multisignResult.responses(), includeDrafts), municipalityId, caseManagementResult.ok());
+		final var handOverResult = new SourceResult(SOURCE_CASE_MANAGEMENT, emptyList(), resolutions.stream().allMatch(Resolution::ok));
+
 		return toResult(
-			runPipeline(primaryResults, multisignResult.responses(), includeDrafts),
-			Stream.concat(primaryResults.stream(), Stream.of(multisignResult)).toList());
+			Stream.concat(withoutAlreadyListedCases(resolutions).stream(), multisignResult.responses().stream()).toList(),
+			Stream.concat(primaryResults.stream(), Stream.of(multisignResult, handOverResult)).toList());
 	}
 
 	public AggregatedCases aggregateForOrg(final String organizationNumber, final String municipalityId) {
@@ -125,7 +141,7 @@ public class CaseAggregator {
 	 * whole aggregate.
 	 */
 	private CompletableFuture<SourceResult> sourceAsync(final String source, final Supplier<List<CaseStatusResponse>> supplier) {
-		return CompletableFuture.supplyAsync(() -> {
+		return submit(() -> {
 			try {
 				return new SourceResult(source, supplier.get(), true);
 			} catch (final RuntimeException e) {
@@ -135,7 +151,20 @@ public class CaseAggregator {
 				LOG.warn("Case status source {} is unavailable and is excluded from the aggregated result", source, e);
 				return new SourceResult(source, emptyList(), false);
 			}
-		}, taskExecutor);
+		}, () -> new SourceResult(source, emptyList(), false));
+	}
+
+	/**
+	 * Runs a task on the shared task executor. Its queue is bounded, so a burst of requests can make it reject a task;
+	 * that degrades to {@code onRejected} like any other unavailable source instead of failing the request.
+	 */
+	private <T> CompletableFuture<T> submit(final Supplier<T> task, final Supplier<T> onRejected) {
+		try {
+			return CompletableFuture.supplyAsync(task, taskExecutor);
+		} catch (final RejectedExecutionException e) {
+			LOG.warn("The task executor is saturated, a case status lookup is skipped and reported as unavailable", e);
+			return CompletableFuture.completedFuture(onRejected.get());
+		}
 	}
 
 	/**
@@ -172,11 +201,18 @@ public class CaseAggregator {
 	}
 
 	/**
-	 * Joins all primary source results, removes any regular entry that is shadowed by a multi-sign entry for the same
-	 * flowInstanceId, applies the OPEN_E_PLATFORM duplicate + draft filter, then appends the multi-sign entries last so
-	 * they bypass both filters.
+	 * Runs {@link #filterPrimary} and appends the multi-sign entries last so they bypass both of its filters.
 	 */
 	private List<CaseStatusResponse> runPipeline(final List<SourceResult> primarySources, final List<CaseStatusResponse> multisignStatuses, final boolean includeDrafts) {
+		return Stream.concat(filterPrimary(primarySources, multisignStatuses, includeDrafts).stream(), multisignStatuses.stream())
+			.toList();
+	}
+
+	/**
+	 * Joins all primary source results, removes any regular entry that is shadowed by a multi-sign entry for the same
+	 * flowInstanceId, and applies the OPEN_E_PLATFORM duplicate + draft filter.
+	 */
+	private List<CaseStatusResponse> filterPrimary(final List<SourceResult> primarySources, final List<CaseStatusResponse> multisignStatuses, final boolean includeDrafts) {
 
 		final var multisignIds = multisignStatuses.stream()
 			.map(CaseStatusResponse::getExternalCaseId)
@@ -189,8 +225,120 @@ public class CaseAggregator {
 			.filter(response -> isNotOverriddenByMultisign(response, multisignIds))
 			.toList();
 
-		return Stream.concat(filterResponses(primaryStatuses, includeDrafts).stream(), multisignStatuses.stream())
+		return filterResponses(primaryStatuses, includeDrafts);
+	}
+
+	/**
+	 * Replaces every Open-E entry that no other source accounted for with the case it was handed over to, if any.
+	 *
+	 * <p>
+	 * Open-E lists the flow instances the party submitted, while CaseManagement lists the cases where the party is a
+	 * stakeholder with a role its search covers. The two disagree whenever the submitter is not that stakeholder — an
+	 * agent (ombud) applying on someone else's behalf, or a role the target system search does not include — and the
+	 * party then only sees the raw Open-E entry: the flow instance id instead of the target system's case number, and
+	 * Open-E messaging that no case worker reads. Looking each remaining entry up by externalCaseId is what
+	 * {@code GET /{externalCaseId}/status} does, so the list agrees with it, independent of roles and target system.
+	 * </p>
+	 *
+	 * <p>
+	 * There is one lookup per remaining Open-E entry; an entry that was never handed over answers 404 from the case mapping
+	 * alone. They are spread over at most {@value #HAND_OVER_LOOKUP_LANES} lanes run on the shared task executor, each lane
+	 * looking its entries up one after another, so a party with many entries cannot flood the executor's bounded queue or
+	 * CaseManagement. Nothing is looked up when the CaseManagement party search already failed in this request, and once
+	 * a lookup fails the rest are skipped — otherwise a hanging CaseManagement would cost one read timeout per entry. A
+	 * skipped entry is kept as the Open-E entry it is, and CaseManagement is reported as unavailable.
+	 * </p>
+	 *
+	 * <p>
+	 * Multi-sign entries are not looked up: they await signatures and have not been submitted yet. Only the party flow
+	 * does this — the organization flow reads Open-E from the local cache, which can hold many entries per organization,
+	 * and one CaseManagement call per entry is not affordable there.
+	 * </p>
+	 */
+	private List<Resolution> resolveHandedOverOpenECases(final List<CaseStatusResponse> responses, final String municipalityId, final boolean caseManagementAvailable) {
+		final var openECases = responses.stream()
+			.filter(CaseAggregator::isOpenECase)
 			.toList();
+
+		final var resolved = new IdentityHashMap<CaseStatusResponse, Resolution>();
+		if (caseManagementAvailable) {
+			final var lookupFailed = new AtomicBoolean();
+			// Collected before joining so that every lane is started before the first one is waited on
+			final var lanes = IntStream.range(0, Math.min(HAND_OVER_LOOKUP_LANES, openECases.size()))
+				// A rejected lane resolves as if a lookup had already failed: its entries are kept and reported, not looked up
+				.mapToObj(lane -> submit(() -> resolveLane(openECases, lane, municipalityId, lookupFailed), () -> resolveLane(openECases, lane, municipalityId, new AtomicBoolean(true))))
+				.toList();
+			lanes.stream()
+				.map(CompletableFuture::join)
+				.forEach(resolved::putAll);
+		}
+
+		return responses.stream()
+			.map(response -> ofNullable(resolved.get(response)).orElseGet(() -> Resolution.unchanged(response)))
+			.toList();
+	}
+
+	private static boolean isOpenECase(final CaseStatusResponse response) {
+		return OPEN_E_PLATFORM.equals(response.getSystem()) && response.getExternalCaseId() != null;
+	}
+
+	/**
+	 * Looks up every {@value #HAND_OVER_LOOKUP_LANES}th entry starting at {@code lane}, keyed by the entry itself.
+	 */
+	private Map<CaseStatusResponse, Resolution> resolveLane(final List<CaseStatusResponse> openECases, final int lane, final String municipalityId, final AtomicBoolean lookupFailed) {
+		final var resolved = new IdentityHashMap<CaseStatusResponse, Resolution>();
+		for (var index = lane; index < openECases.size(); index += HAND_OVER_LOOKUP_LANES) {
+			final var openECase = openECases.get(index);
+			if (lookupFailed.get()) {
+				resolved.put(openECase, Resolution.failed(openECase));
+			} else {
+				resolved.put(openECase, resolve(openECase, municipalityId, lookupFailed));
+			}
+		}
+		return resolved;
+	}
+
+	/**
+	 * A CaseManagement that does not answer keeps the Open-E entry and is reported as unavailable, the same way a failing
+	 * source is — see {@link #isSourceUnavailable}.
+	 */
+	private Resolution resolve(final CaseStatusResponse openECase, final String municipalityId, final AtomicBoolean lookupFailed) {
+		try {
+			return caseManagementIntegration.findCaseStatusForExternalId(openECase.getExternalCaseId(), municipalityId)
+				.map(dto -> Resolution.handedOver(caseManagementMapper.toCaseStatusResponse(dto, municipalityId)))
+				.orElseGet(() -> Resolution.unchanged(openECase));
+		} catch (final RuntimeException e) {
+			if (!isSourceUnavailable(e)) {
+				throw e;
+			}
+			lookupFailed.set(true);
+			LOG.warn("Open-E case {} could not be resolved through CaseManagement and is kept as an Open-E case", openECase.getExternalCaseId(), e);
+			return Resolution.failed(openECase);
+		}
+	}
+
+	/**
+	 * Drops a handed-over case that is already listed. Several flow instances can be handed over to the same case — a
+	 * ByggR case receives later submissions under the same diary number — and the case may already be in the list from
+	 * the party search under another flow instance id. It is shown once.
+	 */
+	private static List<CaseStatusResponse> withoutAlreadyListedCases(final List<Resolution> resolutions) {
+		final var listedCases = resolutions.stream()
+			.filter(resolution -> !resolution.handedOver())
+			.map(resolution -> caseKey(resolution.response()))
+			.collect(Collectors.toCollection(HashSet::new));
+
+		final var cases = new ArrayList<CaseStatusResponse>();
+		for (final var resolution : resolutions) {
+			if (!resolution.handedOver() || listedCases.add(caseKey(resolution.response()))) {
+				cases.add(resolution.response());
+			}
+		}
+		return cases;
+	}
+
+	private static String caseKey(final CaseStatusResponse response) {
+		return response.getSystem() + ":" + response.getCaseId();
 	}
 
 	/**
@@ -324,5 +472,24 @@ public class CaseAggregator {
 	}
 
 	private record SourceResult(String source, List<CaseStatusResponse> responses, boolean ok) {
+	}
+
+	/**
+	 * One entry after the hand-over lookup: the entry itself or the case it was handed over to, and whether the lookup
+	 * succeeded.
+	 */
+	private record Resolution(CaseStatusResponse response, boolean handedOver, boolean ok) {
+
+		static Resolution unchanged(final CaseStatusResponse response) {
+			return new Resolution(response, false, true);
+		}
+
+		static Resolution handedOver(final CaseStatusResponse response) {
+			return new Resolution(response, true, true);
+		}
+
+		static Resolution failed(final CaseStatusResponse response) {
+			return new Resolution(response, false, false);
+		}
 	}
 }

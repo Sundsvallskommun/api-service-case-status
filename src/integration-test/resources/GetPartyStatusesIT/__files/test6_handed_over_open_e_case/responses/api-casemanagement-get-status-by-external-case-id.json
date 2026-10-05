@@ -1,0 +1,11 @@
+{
+	"system": "CASE_DATA",
+	"externalCaseId": "4999",
+	"caseId": "5271",
+	"serviceName": "Färdtjänst",
+	"caseType": "PARATRANSIT",
+	"status": "Ärende inkommit",
+	"timestamp": "2026-10-01T20:16:33.968",
+	"errandNumber": "SGP-2026-000542",
+	"namespace": "SBK_PARKING_PERMIT"
+}
