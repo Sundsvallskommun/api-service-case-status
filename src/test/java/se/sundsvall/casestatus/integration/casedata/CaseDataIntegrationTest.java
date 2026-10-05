@@ -16,6 +16,7 @@ import se.sundsvall.casestatus.integration.casedata.configuration.CaseDataProper
 import se.sundsvall.dept44.problem.Problem;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -243,5 +244,54 @@ class CaseDataIntegrationTest {
 		assertThat(result).isEmpty();
 		verify(clientMock, times(100)).getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(String.class), any(PageRequest.class));
 		verifyNoMoreInteractions(clientMock);
+	}
+
+	@Test
+	void isStakeholder() {
+		final var errandPage = new PageImpl<>(List.of(createCaseDataErrand()));
+		when(clientMock.getErrands(MUNICIPALITY_ID, NAMESPACE, "id:5271 and exists(stakeholders.personId:'somePartyId')", PageRequest.of(0, 1))).thenReturn(errandPage);
+
+		final var result = caseDataIntegration.isStakeholder(MUNICIPALITY_ID, NAMESPACE, 5271L, "somePartyId");
+
+		assertThat(result).isTrue();
+		verify(clientMock).getErrands(MUNICIPALITY_ID, NAMESPACE, "id:5271 and exists(stakeholders.personId:'somePartyId')", PageRequest.of(0, 1));
+		verifyNoMoreInteractions(clientMock);
+	}
+
+	@Test
+	void isStakeholder_notAStakeholder() {
+		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(), any())).thenReturn(new PageImpl<>(List.of()));
+
+		assertThat(caseDataIntegration.isStakeholder(MUNICIPALITY_ID, NAMESPACE, 5271L, "somePartyId")).isFalse();
+	}
+
+	@Test
+	void isStakeholder_noPage() {
+		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(), any())).thenReturn(null);
+
+		assertThat(caseDataIntegration.isStakeholder(MUNICIPALITY_ID, NAMESPACE, 5271L, "somePartyId")).isFalse();
+	}
+
+	/**
+	 * The person id comes from the request path, so it is escaped before it is put into the filter.
+	 */
+	@Test
+	void isStakeholder_escapesPersonId() {
+		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(), any())).thenReturn(new PageImpl<>(List.of()));
+
+		caseDataIntegration.isStakeholder(MUNICIPALITY_ID, NAMESPACE, 5271L, "x') or id:5271 or ('");
+
+		verify(clientMock).getErrands(MUNICIPALITY_ID, NAMESPACE, "id:5271 and exists(stakeholders.personId:'x\\') or id:5271 or (\\'')", PageRequest.of(0, 1));
+	}
+
+	/**
+	 * "Not a stakeholder" and "could not check" must stay apart, so a failure is not swallowed into false.
+	 */
+	@Test
+	void isStakeholder_failurePropagates() {
+		final var problem = Problem.valueOf(NOT_FOUND, "Namespace not found");
+		when(clientMock.getErrands(eq(MUNICIPALITY_ID), eq(NAMESPACE), any(), any())).thenThrow(problem);
+
+		assertThatThrownBy(() -> caseDataIntegration.isStakeholder(MUNICIPALITY_ID, NAMESPACE, 5271L, "somePartyId")).isSameAs(problem);
 	}
 }

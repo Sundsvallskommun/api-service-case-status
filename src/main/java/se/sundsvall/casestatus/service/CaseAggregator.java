@@ -3,6 +3,7 @@ package se.sundsvall.casestatus.service;
 import feign.RetryableException;
 import generated.client.oep_integrator.CaseEnvelope;
 import generated.client.oep_integrator.InstanceType;
+import generated.se.sundsvall.casemanagement.CaseStatusDTO;
 import generated.se.sundsvall.supportmanagement.Errand;
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import java.util.ArrayList;
@@ -16,9 +17,10 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -28,6 +30,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.integration.casedata.CaseDataIntegration;
 import se.sundsvall.casestatus.integration.casemanagement.CaseManagementIntegration;
 import se.sundsvall.casestatus.integration.db.CaseRepository;
 import se.sundsvall.casestatus.integration.oepintegrator.OepIntegratorClient;
@@ -43,6 +46,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.toList;
 import static org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_DATA;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_SUPPORT_MANAGEMENT;
@@ -71,9 +75,13 @@ public class CaseAggregator {
 	// tasks
 	private static final int HAND_OVER_LOOKUP_LANES = 3;
 
+	// A CaseData errand id; at most 18 digits so that it always fits a long
+	private static final Pattern ERRAND_ID_PATTERN = Pattern.compile("\\d{1,18}");
+
 	private final PartyIntegration partyIntegration;
 	private final CaseManagementIntegration caseManagementIntegration;
 	private final CaseManagementMapper caseManagementMapper;
+	private final CaseDataIntegration caseDataIntegration;
 	private final OepIntegratorClient oepIntegratorClient;
 	private final OpenEMapper openEMapper;
 	private final CaseRepository caseRepository;
@@ -85,6 +93,7 @@ public class CaseAggregator {
 	public CaseAggregator(final PartyIntegration partyIntegration,
 		final CaseManagementIntegration caseManagementIntegration,
 		final CaseManagementMapper caseManagementMapper,
+		final CaseDataIntegration caseDataIntegration,
 		final OepIntegratorClient oepIntegratorClient,
 		final OpenEMapper openEMapper,
 		final CaseRepository caseRepository,
@@ -95,6 +104,7 @@ public class CaseAggregator {
 		this.partyIntegration = partyIntegration;
 		this.caseManagementIntegration = caseManagementIntegration;
 		this.caseManagementMapper = caseManagementMapper;
+		this.caseDataIntegration = caseDataIntegration;
 		this.oepIntegratorClient = oepIntegratorClient;
 		this.openEMapper = openEMapper;
 		this.caseRepository = caseRepository;
@@ -116,12 +126,17 @@ public class CaseAggregator {
 		final var caseManagementResult = cmFuture.join();
 		final var primaryResults = Stream.of(cmFuture, oepFuture, supportFuture).map(CompletableFuture::join).toList();
 
-		final var resolutions = resolveHandedOverOpenECases(filterPrimary(primaryResults, multisignResult.responses(), includeDrafts), municipalityId, caseManagementResult.ok());
-		final var handOverResult = new SourceResult(SOURCE_CASE_MANAGEMENT, emptyList(), resolutions.stream().allMatch(Resolution::ok));
+		final var resolutions = resolveHandedOverOpenECases(filterPrimary(primaryResults, multisignResult.responses(), includeDrafts), partyId, municipalityId, caseManagementResult.ok());
+		final var lookupResults = resolutions.stream()
+			.map(Resolution::unavailableSource)
+			.filter(Objects::nonNull)
+			.distinct()
+			.map(source -> new SourceResult(source, emptyList(), false))
+			.toList();
 
 		return toResult(
 			Stream.concat(withoutAlreadyListedCases(resolutions).stream(), multisignResult.responses().stream()).toList(),
-			Stream.concat(primaryResults.stream(), Stream.of(multisignResult, handOverResult)).toList());
+			Stream.of(primaryResults, List.of(multisignResult), lookupResults).flatMap(List::stream).toList());
 	}
 
 	public AggregatedCases aggregateForOrg(final String organizationNumber, final String municipalityId) {
@@ -237,7 +252,14 @@ public class CaseAggregator {
 	 * agent (ombud) applying on someone else's behalf, or a role the target system search does not include — and the
 	 * party then only sees the raw Open-E entry: the flow instance id instead of the target system's case number, and
 	 * Open-E messaging that no case worker reads. Looking each remaining entry up by externalCaseId is what
-	 * {@code GET /{externalCaseId}/status} does, so the list agrees with it, independent of roles and target system.
+	 * {@code GET /{externalCaseId}/status} does.
+	 * </p>
+	 *
+	 * <p>
+	 * Having submitted a case is not the same as being a party to it, and consumers treat this list as the cases the party
+	 * may open — Mina sidor reads and writes a CaseData errand's conversations for any CaseData case in it. So the handed
+	 * over case only replaces the entry when it may be shown to the party, see {@link #resolveHandedOverCase}; otherwise
+	 * the entry is kept as the Open-E entry it was.
 	 * </p>
 	 *
 	 * <p>
@@ -255,18 +277,19 @@ public class CaseAggregator {
 	 * and one CaseManagement call per entry is not affordable there.
 	 * </p>
 	 */
-	private List<Resolution> resolveHandedOverOpenECases(final List<CaseStatusResponse> responses, final String municipalityId, final boolean caseManagementAvailable) {
+	private List<Resolution> resolveHandedOverOpenECases(final List<CaseStatusResponse> responses, final String partyId, final String municipalityId, final boolean caseManagementAvailable) {
 		final var openECases = responses.stream()
 			.filter(CaseAggregator::isOpenECase)
 			.toList();
 
 		final var resolved = new IdentityHashMap<CaseStatusResponse, Resolution>();
 		if (caseManagementAvailable) {
-			final var lookupFailed = new AtomicBoolean();
+			final var lookupFailure = new AtomicReference<String>();
 			// Collected before joining so that every lane is started before the first one is waited on
 			final var lanes = IntStream.range(0, Math.min(HAND_OVER_LOOKUP_LANES, openECases.size()))
 				// A rejected lane resolves as if a lookup had already failed: its entries are kept and reported, not looked up
-				.mapToObj(lane -> submit(() -> resolveLane(openECases, lane, municipalityId, lookupFailed), () -> resolveLane(openECases, lane, municipalityId, new AtomicBoolean(true))))
+				.mapToObj(lane -> submit(() -> resolveLane(openECases, lane, partyId, municipalityId, lookupFailure),
+					() -> resolveLane(openECases, lane, partyId, municipalityId, new AtomicReference<>(SOURCE_CASE_MANAGEMENT))))
 				.toList();
 			lanes.stream()
 				.map(CompletableFuture::join)
@@ -285,36 +308,82 @@ public class CaseAggregator {
 	/**
 	 * Looks up every {@value #HAND_OVER_LOOKUP_LANES}th entry starting at {@code lane}, keyed by the entry itself.
 	 */
-	private Map<CaseStatusResponse, Resolution> resolveLane(final List<CaseStatusResponse> openECases, final int lane, final String municipalityId, final AtomicBoolean lookupFailed) {
+	private Map<CaseStatusResponse, Resolution> resolveLane(final List<CaseStatusResponse> openECases, final int lane, final String partyId, final String municipalityId,
+		final AtomicReference<String> lookupFailure) {
 		final var resolved = new IdentityHashMap<CaseStatusResponse, Resolution>();
 		for (var index = lane; index < openECases.size(); index += HAND_OVER_LOOKUP_LANES) {
 			final var openECase = openECases.get(index);
-			if (lookupFailed.get()) {
-				resolved.put(openECase, Resolution.failed(openECase));
+			final var failedSource = lookupFailure.get();
+			if (failedSource != null) {
+				resolved.put(openECase, Resolution.failed(openECase, failedSource));
 			} else {
-				resolved.put(openECase, resolve(openECase, municipalityId, lookupFailed));
+				resolved.put(openECase, resolve(openECase, partyId, municipalityId, lookupFailure));
 			}
 		}
 		return resolved;
 	}
 
 	/**
-	 * A CaseManagement that does not answer keeps the Open-E entry and is reported as unavailable, the same way a failing
-	 * source is — see {@link #isSourceUnavailable}.
+	 * A source that does not answer keeps the Open-E entry and is reported as unavailable, the same way a failing source
+	 * is — see {@link #isSourceUnavailable}.
 	 */
-	private Resolution resolve(final CaseStatusResponse openECase, final String municipalityId, final AtomicBoolean lookupFailed) {
+	private Resolution resolve(final CaseStatusResponse openECase, final String partyId, final String municipalityId, final AtomicReference<String> lookupFailure) {
 		try {
 			return caseManagementIntegration.findCaseStatusForExternalId(openECase.getExternalCaseId(), municipalityId)
-				.map(dto -> Resolution.handedOver(caseManagementMapper.toCaseStatusResponse(dto, municipalityId)))
+				.map(handedOverCase -> resolveHandedOverCase(openECase, handedOverCase, partyId, municipalityId, lookupFailure))
 				.orElseGet(() -> Resolution.unchanged(openECase));
 		} catch (final RuntimeException e) {
-			if (!isSourceUnavailable(e)) {
-				throw e;
-			}
-			lookupFailed.set(true);
-			LOG.warn("Open-E case {} could not be resolved through CaseManagement and is kept as an Open-E case", openECase.getExternalCaseId(), e);
-			return Resolution.failed(openECase);
+			return unavailable(openECase, SOURCE_CASE_MANAGEMENT, e, lookupFailure);
 		}
+	}
+
+	/**
+	 * Decides whether the case an Open-E entry was handed over to may be shown to the party in its place.
+	 * <ul>
+	 * <li>ByggR: yes. The case shows a diary number and a status, and its messages are still read from the Open-E flow
+	 * instance the party submitted.</li>
+	 * <li>CaseData: only when the party is a stakeholder of the errand, in any role — the agent who submitted on someone's
+	 * behalf is one, a submitter the errand does not know is not. Checked by personId, so an enterprise party keeps its
+	 * Open-E entry.</li>
+	 * <li>Anything else, e.g. Ecos: no. Case-status cannot check who its parties are.</li>
+	 * </ul>
+	 */
+	private Resolution resolveHandedOverCase(final CaseStatusResponse openECase, final CaseStatusDTO handedOverCase, final String partyId, final String municipalityId,
+		final AtomicReference<String> lookupFailure) {
+		return switch (handedOverCase.getSystem()) {
+			case BYGGR -> Resolution.handedOver(caseManagementMapper.toCaseStatusResponse(handedOverCase, municipalityId));
+			case CASE_DATA -> resolveCaseDataCase(openECase, handedOverCase, partyId, municipalityId, lookupFailure);
+			case null, default -> Resolution.unchanged(openECase);
+		};
+	}
+
+	/**
+	 * Without an errand id and a namespace to check against — a CaseManagement that predates returning the namespace for a
+	 * lookup by externalCaseId leaves it out — the party cannot be checked, so the entry is kept.
+	 */
+	private Resolution resolveCaseDataCase(final CaseStatusResponse openECase, final CaseStatusDTO handedOverCase, final String partyId, final String municipalityId,
+		final AtomicReference<String> lookupFailure) {
+		final var errandId = ofNullable(handedOverCase.getCaseId()).filter(ERRAND_ID_PATTERN.asMatchPredicate()).map(Long::valueOf);
+		if (errandId.isEmpty() || handedOverCase.getNamespace() == null) {
+			return Resolution.unchanged(openECase);
+		}
+		try {
+			if (caseDataIntegration.isStakeholder(municipalityId, handedOverCase.getNamespace(), errandId.get(), partyId)) {
+				return Resolution.handedOver(caseManagementMapper.toCaseStatusResponse(handedOverCase, municipalityId));
+			}
+			return Resolution.unchanged(openECase);
+		} catch (final RuntimeException e) {
+			return unavailable(openECase, SOURCE_CASE_DATA, e, lookupFailure);
+		}
+	}
+
+	private static Resolution unavailable(final CaseStatusResponse openECase, final String source, final RuntimeException e, final AtomicReference<String> lookupFailure) {
+		if (!isSourceUnavailable(e)) {
+			throw e;
+		}
+		lookupFailure.compareAndSet(null, source);
+		LOG.warn("Open-E case {} could not be resolved, {} is unavailable, and is kept as an Open-E case", openECase.getExternalCaseId(), source, e);
+		return Resolution.failed(openECase, source);
 	}
 
 	/**
@@ -475,21 +544,21 @@ public class CaseAggregator {
 	}
 
 	/**
-	 * One entry after the hand-over lookup: the entry itself or the case it was handed over to, and whether the lookup
-	 * succeeded.
+	 * One entry after the hand-over lookup: the entry itself or the case it was handed over to, and the source that kept
+	 * the lookup from completing, if any.
 	 */
-	private record Resolution(CaseStatusResponse response, boolean handedOver, boolean ok) {
+	private record Resolution(CaseStatusResponse response, boolean handedOver, String unavailableSource) {
 
 		static Resolution unchanged(final CaseStatusResponse response) {
-			return new Resolution(response, false, true);
+			return new Resolution(response, false, null);
 		}
 
 		static Resolution handedOver(final CaseStatusResponse response) {
-			return new Resolution(response, true, true);
+			return new Resolution(response, true, null);
 		}
 
-		static Resolution failed(final CaseStatusResponse response) {
-			return new Resolution(response, false, false);
+		static Resolution failed(final CaseStatusResponse response, final String unavailableSource) {
+			return new Resolution(response, false, unavailableSource);
 		}
 	}
 }

@@ -1,0 +1,29 @@
+{
+	"request": {
+		"method": "GET",
+		"urlPath": "/case-data/2281/SBK_PARKING_PERMIT/errands",
+		"queryParameters": {
+			"filter": {
+				"equalTo": "id:5271 and exists(stakeholders.personId:'a893dfa2-f781-49a9-9c5f-cba6353cf059')"
+			},
+			"page": {
+				"equalTo": "0"
+			},
+			"size": {
+				"equalTo": "1"
+			}
+		},
+		"headers": {
+			"Authorization": {
+				"equalTo": "Bearer MTQ0NjJkZmQ5OTM2NDE1ZTZjNGZmZjI3"
+			}
+		}
+	},
+	"response": {
+		"headers": {
+			"Content-Type": "application/json"
+		},
+		"bodyFileName": "test8_handed_over_case_of_another_party/responses/api-casedata-get-errands-stakeholder.json",
+		"status": 200
+	}
+}

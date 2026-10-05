@@ -4,6 +4,7 @@ import generated.se.sundsvall.casedata.Errand;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
@@ -26,6 +27,7 @@ public class CaseDataIntegration {
 
 	static final String PROPERTY_DESIGNATION_FILTER = "facilities.address.propertyDesignation~'%s'";
 	static final String ERRAND_NUMBER_FILTER = "errandNumber:'%s'";
+	static final String STAKEHOLDER_FILTER = "id:%d and exists(stakeholders.personId:'%s')";
 
 	public CaseDataIntegration(final CaseDataClient client, final CaseDataProperties properties, final CaseDataMapper caseDataMapper) {
 		this.client = client;
@@ -35,6 +37,16 @@ public class CaseDataIntegration {
 
 	public List<String> getNamespaces() {
 		return ofNullable(properties.namespaces()).orElse(emptyList());
+	}
+
+	/**
+	 * Tells whether the person is a stakeholder of the errand, in any role. Unlike the searches below, a failure is not
+	 * swallowed: the caller has to tell "not a stakeholder" apart from "could not check", and only the former may be
+	 * answered with false.
+	 */
+	public boolean isStakeholder(final String municipalityId, final String namespace, final long errandId, final String personId) {
+		final var page = client.getErrands(municipalityId, namespace, STAKEHOLDER_FILTER.formatted(errandId, escapeFilterValue(personId)), PageRequest.of(0, 1));
+		return ofNullable(page).map(Page::hasContent).orElse(false);
 	}
 
 	public List<CaseStatusResponse> getCaseDataCaseByPropertyDesignation(final String municipalityId, final String namespace, final String propertyDesignation) {

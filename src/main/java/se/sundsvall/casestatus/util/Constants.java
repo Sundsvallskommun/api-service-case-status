@@ -29,6 +29,7 @@ public final class Constants {
 	public static final String UNAVAILABLE_SOURCES_HEADER = "X-Unavailable-Sources";
 
 	// Source identifiers reported in the UNAVAILABLE_SOURCES_HEADER
+	public static final String SOURCE_CASE_DATA = "CASE_DATA";
 	public static final String SOURCE_CASE_MANAGEMENT = "CASE_MANAGEMENT";
 	public static final String SOURCE_OPEN_E_PLATFORM = "OPEN_E_PLATFORM";
 	public static final String SOURCE_SUPPORT_MANAGEMENT = "SUPPORT_MANAGEMENT";

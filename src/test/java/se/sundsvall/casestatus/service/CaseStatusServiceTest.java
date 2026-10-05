@@ -43,6 +43,7 @@ import se.sundsvall.dept44.problem.Problem;
 
 import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.BYGGR;
 import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.CASE_DATA;
+import static generated.se.sundsvall.casemanagement.CaseStatusDTO.SystemEnum.ECOS;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -68,6 +69,7 @@ import static se.sundsvall.TestDataFactory.createCaseStatusDTO;
 import static se.sundsvall.TestDataFactory.createCaseStatusResponse;
 import static se.sundsvall.TestDataFactory.createErrand;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_DATA;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_SUPPORT_MANAGEMENT;
@@ -85,6 +87,7 @@ class CaseStatusServiceTest {
 	private static final String MUNICIPALITY_ID = "2281";
 	private static final String NAMESPACE_1 = "namespace1";
 	private static final String NAMESPACE_2 = "namespace2";
+	private static final String CASE_DATA_NAMESPACE = "SBK_PARKING_PERMIT";
 	private static final InstanceType INSTANCE_TYPE = InstanceType.EXTERNAL;
 
 	@MockitoBean
@@ -978,14 +981,14 @@ class CaseStatusServiceTest {
 
 	/**
 	 * An agent (ombud) who submitted a case on someone else's behalf is not the applicant in the target system, so the
-	 * CaseManagement party search does not return it and only the raw Open-E entry is left. It is replaced with the case
-	 * it was handed over to, the same case the lookup by externalCaseId returns.
+	 * CaseManagement party search does not return it and only the raw Open-E entry is left. The agent is a stakeholder of
+	 * the CaseData errand in another role, so the entry is replaced with the case it was handed over to.
 	 */
 	@Test
 	void getCaseStatusesForParty_handedOverOpenECaseIsReplaced() {
 		final var partyId = "somePartyId";
 		final var flowInstanceId = "5796";
-		final var handedOverCase = createCaseStatusDTO(CASE_DATA).externalCaseId(flowInstanceId);
+		final var handedOverCase = createCaseStatusDTO(CASE_DATA).externalCaseId(flowInstanceId).caseId("5271").namespace(CASE_DATA_NAMESPACE);
 		final var handedOverResponse = createCaseStatusResponse("CASE_DATA", flowInstanceId);
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
@@ -993,6 +996,7 @@ class CaseStatusServiceTest {
 			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
 		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
 		when(caseManagementMapperMock.toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID)).thenReturn(handedOverResponse);
+		when(caseDataIntegrationMock.isStakeholder(MUNICIPALITY_ID, CASE_DATA_NAMESPACE, 5271L, partyId)).thenReturn(true);
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
 
@@ -1001,8 +1005,103 @@ class CaseStatusServiceTest {
 
 		verify(caseManagementIntegrationMock).getCaseStatusForPartyId(partyId, MUNICIPALITY_ID);
 		verify(caseManagementIntegrationMock).findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID);
+		verify(caseDataIntegrationMock).isStakeholder(MUNICIPALITY_ID, CASE_DATA_NAMESPACE, 5271L, partyId);
 		verify(caseManagementMapperMock).toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID);
-		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock);
+		verifyNoMoreInteractions(caseManagementIntegrationMock, caseManagementMapperMock, caseDataIntegrationMock);
+	}
+
+	/**
+	 * Having submitted a case does not make the submitter a party to it. A CaseData errand the party is not a stakeholder
+	 * of is not shown in place of the Open-E entry — consumers open and message any CaseData case in the list.
+	 */
+	@Test
+	void getCaseStatusesForParty_caseDataCaseOfAnotherPartyIsNotShown() {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "5731";
+		final var handedOverCase = createCaseStatusDTO(CASE_DATA).externalCaseId(flowInstanceId).caseId("5019").namespace(CASE_DATA_NAMESPACE);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
+		when(caseDataIntegrationMock.isStakeholder(MUNICIPALITY_ID, CASE_DATA_NAMESPACE, 5019L, partyId)).thenReturn(false);
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().satisfies(response -> {
+			assertThat(response.getSystem()).isEqualTo(OPEN_E_PLATFORM);
+			assertThat(response.getExternalCaseId()).isEqualTo(flowInstanceId);
+		});
+		assertThat(result.unavailableSources()).isEmpty();
+		verify(caseManagementMapperMock, never()).toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID);
+	}
+
+	/**
+	 * Without a namespace, or an errand id that is not a CaseData id, the party cannot be checked, so the entry is kept
+	 * and CaseData is not asked.
+	 */
+	@ParameterizedTest
+	@CsvSource(value = {
+		"5019, null", "not-a-number, SBK_PARKING_PERMIT", "null, SBK_PARKING_PERMIT", "1234567890123456789, SBK_PARKING_PERMIT"
+	}, nullValues = "null")
+	void getCaseStatusesForParty_caseDataCaseThatCannotBeCheckedIsNotShown(final String caseId, final String namespace) {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "5731";
+		final var handedOverCase = createCaseStatusDTO(CASE_DATA).externalCaseId(flowInstanceId).caseId(caseId).namespace(namespace);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getSystem).isEqualTo(OPEN_E_PLATFORM);
+		assertThat(result.unavailableSources()).isEmpty();
+		verifyNoInteractions(caseDataIntegrationMock);
+	}
+
+	/**
+	 * A CaseData that cannot answer the stakeholder check keeps the entry and is reported as unavailable.
+	 */
+	@Test
+	void getCaseStatusesForParty_stakeholderCheckFailureKeepsOpenECaseAndReportsCaseData() {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "5796";
+		final var handedOverCase = createCaseStatusDTO(CASE_DATA).externalCaseId(flowInstanceId).caseId("5271").namespace(CASE_DATA_NAMESPACE);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
+		when(caseDataIntegrationMock.isStakeholder(MUNICIPALITY_ID, CASE_DATA_NAMESPACE, 5271L, partyId))
+			.thenThrow(new ServerProblem(INTERNAL_SERVER_ERROR, "CaseData is down"));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getSystem).isEqualTo(OPEN_E_PLATFORM);
+		assertThat(result.unavailableSources()).containsExactly(SOURCE_CASE_DATA);
+	}
+
+	/**
+	 * Case-status cannot check who the parties of an Ecos case are, so an entry handed over to Ecos is kept.
+	 */
+	@Test
+	void getCaseStatusesForParty_ecosCaseIsNotShown() {
+		final var partyId = "somePartyId";
+		final var flowInstanceId = "5787";
+		final var handedOverCase = createCaseStatusDTO(ECOS).externalCaseId(flowInstanceId);
+
+		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
+		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
+			.thenReturn(List.of(new CaseEnvelope().displayName("Anmälan").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
+
+		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
+
+		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getSystem).isEqualTo(OPEN_E_PLATFORM);
+		verify(caseManagementMapperMock, never()).toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID);
+		verifyNoInteractions(caseDataIntegrationMock);
 	}
 
 	/**
