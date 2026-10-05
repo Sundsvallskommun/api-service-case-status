@@ -14,7 +14,6 @@ import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
@@ -50,7 +49,12 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.doCallRealMethod;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -563,7 +567,7 @@ class CaseStatusServiceTest {
 		final var partyId = "somePartyId";
 		final var includeDrafts = true;
 
-		final var spy = Mockito.spy(caseStatusService);
+		final var spy = spy(caseStatusService);
 		final var title = "someTitle";
 
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true)).thenReturn(List.of(new CaseEnvelope().displayName(title).status(new CaseStatus().name("someStatus")).flowInstanceId("someFlowInstanceId")));
@@ -1127,8 +1131,9 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Once a lookup fails, the lane stops asking: a hanging CaseManagement would otherwise cost one read timeout per
-	 * entry. With four entries the first lane holds entries 1 and 4, so entry 4 is never looked up.
+	 * Once a lookup fails, no lane asks again: a hanging CaseManagement would otherwise cost one read timeout per entry.
+	 * With every lookup failing, each of the three lanes makes at most one lookup — which ones depends on how the lanes
+	 * race — so four entries never cost four lookups.
 	 */
 	@Test
 	void getCaseStatusesForParty_laneStopsLookingUpAfterAFailure() {
@@ -1144,8 +1149,8 @@ class CaseStatusServiceTest {
 
 		assertThat(result.cases()).hasSize(4).allSatisfy(response -> assertThat(response.getSystem()).isEqualTo(OPEN_E_PLATFORM));
 		assertThat(result.unavailableSources()).containsExactly(SOURCE_CASE_MANAGEMENT);
-		verify(caseManagementIntegrationMock).findCaseStatusForExternalId("1", MUNICIPALITY_ID);
-		verify(caseManagementIntegrationMock, never()).findCaseStatusForExternalId("4", MUNICIPALITY_ID);
+		verify(caseManagementIntegrationMock, atLeastOnce()).findCaseStatusForExternalId(any(), eq(MUNICIPALITY_ID));
+		verify(caseManagementIntegrationMock, atMost(3)).findCaseStatusForExternalId(any(), eq(MUNICIPALITY_ID));
 	}
 
 	/**
@@ -1156,7 +1161,7 @@ class CaseStatusServiceTest {
 	void getCaseStatusesForParty_rejectedTaskDegradesToUnavailableSource() {
 		final var partyId = "somePartyId";
 
-		Mockito.doThrow(new TaskRejectedException("Executor is saturated")).when(taskExecutorSpy).execute(any());
+		doThrow(new TaskRejectedException("Executor is saturated")).when(taskExecutorSpy).execute(any());
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
 
@@ -1177,7 +1182,7 @@ class CaseStatusServiceTest {
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
 			.thenReturn(List.of(new CaseEnvelope().displayName("Färdtjänst").status(new CaseStatus().name("Inskickat")).flowInstanceId("5796")));
 		// The four sources are submitted first, the lookup lane fifth
-		Mockito.doCallRealMethod().doCallRealMethod().doCallRealMethod().doCallRealMethod()
+		doCallRealMethod().doCallRealMethod().doCallRealMethod().doCallRealMethod()
 			.doThrow(new TaskRejectedException("Executor is saturated"))
 			.when(taskExecutorSpy).execute(any());
 
