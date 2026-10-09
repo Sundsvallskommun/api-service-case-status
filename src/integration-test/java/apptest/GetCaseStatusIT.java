@@ -1,7 +1,5 @@
 package apptest;
 
-import static apptest.CommonStubs.stubForAccessToken;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -9,11 +7,15 @@ import org.springframework.test.context.jdbc.Sql;
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+
+import static apptest.CommonStubs.stubForAccessToken;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.http.HttpStatus.OK;
 
 @WireMockAppTestSuite(files = "classpath:/GetCaseStatusIT/", classes = Application.class)
-@Sql(scripts = { "/db/truncate.sql", "/db/casestatus.sql" })
+@Sql(scripts = {
+	"/db/truncate.sql", "/db/casestatus.sql"
+})
 class GetCaseStatusIT extends AbstractAppTest {
 
 	private static final String MUNICIPALITY_ID = "2281";
