@@ -1,17 +1,17 @@
 package apptest;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpStatus.OK;
-import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
-import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
-import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
-
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.casestatus.Application;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.OK;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
+import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
+import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
 
 @WireMockAppTestSuite(files = "classpath:/GetPartyStatusesIT/", classes = Application.class)
 class GetPartyStatusesIT extends AbstractAppTest {
@@ -80,7 +80,6 @@ class GetPartyStatusesIT extends AbstractAppTest {
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}
-
 
 	/**
 	 * Test scenario where CaseManagement has no cases for the party. CaseManagement signals that with a 404 rather than an
