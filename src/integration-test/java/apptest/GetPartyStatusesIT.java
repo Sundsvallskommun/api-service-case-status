@@ -148,4 +148,20 @@ class GetPartyStatusesIT extends AbstractAppTest {
 		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
 	}
 
+	/**
+	 * Test scenario where Open-E case 309204 was handed over to Ecos. Like a ByggR case, an Ecos case only shows a case
+	 * number and a status, so it replaces the Open-E entry without a party check.
+	 */
+	@Test
+	void test9_handed_over_ecos_case() {
+		setupCall()
+			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+
+		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
+	}
+
 }

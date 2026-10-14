@@ -1084,23 +1084,26 @@ class CaseStatusServiceTest {
 	}
 
 	/**
-	 * Case-status cannot check who the parties of an Ecos case are, so an entry handed over to Ecos is kept.
+	 * Like ByggR, an Ecos case shows only a case number and a status, so an entry handed over to Ecos is replaced by it
+	 * without a party check.
 	 */
 	@Test
-	void getCaseStatusesForParty_ecosCaseIsNotShown() {
+	void getCaseStatusesForParty_ecosCaseReplacesOpenECase() {
 		final var partyId = "somePartyId";
-		final var flowInstanceId = "5787";
+		final var flowInstanceId = "309204";
 		final var handedOverCase = createCaseStatusDTO(ECOS).externalCaseId(flowInstanceId);
+		final var handedOverResponse = createCaseStatusResponse("ECOS", flowInstanceId);
 
 		when(caseManagementIntegrationMock.getCaseStatusForPartyId(partyId, MUNICIPALITY_ID)).thenReturn(emptyList());
 		when(openEIntegrationMock.getCasesByPartyId(MUNICIPALITY_ID, INSTANCE_TYPE, partyId, true))
-			.thenReturn(List.of(new CaseEnvelope().displayName("Anmälan").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
+			.thenReturn(List.of(new CaseEnvelope().displayName("Ansökan/anmälan eget avlopp").status(new CaseStatus().name("Inskickat")).flowInstanceId(flowInstanceId)));
 		when(caseManagementIntegrationMock.findCaseStatusForExternalId(flowInstanceId, MUNICIPALITY_ID)).thenReturn(Optional.of(handedOverCase));
+		when(caseManagementMapperMock.toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID)).thenReturn(handedOverResponse);
 
 		final var result = caseStatusService.getCaseStatusesForParty(partyId, MUNICIPALITY_ID, false);
 
-		assertThat(result.cases()).singleElement().extracting(CaseStatusResponse::getSystem).isEqualTo(OPEN_E_PLATFORM);
-		verify(caseManagementMapperMock, never()).toCaseStatusResponse(handedOverCase, MUNICIPALITY_ID);
+		assertThat(result.cases()).containsExactly(handedOverResponse);
+		assertThat(result.unavailableSources()).isEmpty();
 		verifyNoInteractions(caseDataIntegrationMock);
 	}
 
