@@ -340,18 +340,18 @@ public class CaseAggregator {
 	/**
 	 * Decides whether the case an Open-E entry was handed over to may be shown to the party in its place.
 	 * <ul>
-	 * <li>ByggR: yes. The case shows a diary number and a status, and its messages are still read from the Open-E flow
-	 * instance the party submitted.</li>
+	 * <li>ByggR and Ecos: yes. The case shows a case number and a status, and its messages are still read from the Open-E
+	 * flow instance the party submitted.</li>
 	 * <li>CaseData: only when the party is a stakeholder of the errand, in any role — the agent who submitted on someone's
 	 * behalf is one, a submitter the errand does not know is not. Checked by personId, so an enterprise party keeps its
 	 * Open-E entry.</li>
-	 * <li>Anything else, e.g. Ecos: no. Case-status cannot check who its parties are.</li>
+	 * <li>Anything else: no. CaseManagement has no status for it to show.</li>
 	 * </ul>
 	 */
 	private Resolution resolveHandedOverCase(final CaseStatusResponse openECase, final CaseStatusDTO handedOverCase, final String partyId, final String municipalityId,
 		final AtomicReference<String> lookupFailure) {
 		return switch (handedOverCase.getSystem()) {
-			case BYGGR -> Resolution.handedOver(caseManagementMapper.toCaseStatusResponse(handedOverCase, municipalityId));
+			case BYGGR, ECOS -> Resolution.handedOver(caseManagementMapper.toCaseStatusResponse(handedOverCase, municipalityId));
 			case CASE_DATA -> resolveCaseDataCase(openECase, handedOverCase, partyId, municipalityId, lookupFailure);
 			case null, default -> Resolution.unchanged(openECase);
 		};
