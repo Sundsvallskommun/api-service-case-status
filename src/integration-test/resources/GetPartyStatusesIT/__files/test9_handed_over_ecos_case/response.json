@@ -8,7 +8,8 @@
 		"lastStatusChange": "2023-03-14 13:27",
 		"namespace": "MYNAMESPACE",
 		"status": "Klart",
-		"system": "SUPPORT_MANAGEMENT"
+		"system": "SUPPORT_MANAGEMENT",
+		"allowMessages": true
 	},
 	{
 		"caseId": "KKLLMM112233",
@@ -19,7 +20,8 @@
 		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Avslutad",
-		"system": "BYGGR"
+		"system": "BYGGR",
+		"allowMessages": false
 	},
 	{
 		"caseId": "AABBCC112233",
@@ -30,7 +32,8 @@
 		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Avböjd",
-		"system": "ALKT"
+		"system": "ALKT",
+		"allowMessages": false
 	},
 	{
 		"caseId": "421d005b-0ad2-40de-9a65-6a5e0cbe8991",
@@ -41,7 +44,8 @@
 		"firstSubmitted": "2026-09-16 08:26",
 		"lastStatusChange": "2026-09-16 08:26",
 		"status": "Makulerat",
-		"system": "ECOS"
+		"system": "ECOS",
+		"allowMessages": false
 	},
 	{
 		"caseId": "GGHHJJ112233",
@@ -52,7 +56,8 @@
 		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Pågående",
-		"system": "ECOS"
+		"system": "ECOS",
+		"allowMessages": false
 	},
 	{
 		"caseId": "DDEEFF112233",
@@ -64,6 +69,7 @@
 		"lastStatusChange": "2022-01-01 00:00",
 		"namespace": "the-greatest-namespace",
 		"status": "Pågående",
-		"system": "CASE_DATA"
+		"system": "CASE_DATA",
+		"allowMessages": true
 	}
 ]

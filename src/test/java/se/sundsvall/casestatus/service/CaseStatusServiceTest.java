@@ -117,6 +117,9 @@ class CaseStatusServiceTest {
 	@MockitoBean
 	private SupportManagementMapper supportManagementMapperMock;
 
+	@MockitoBean
+	private MessagingPolicy messagingPolicyMock;
+
 	@MockitoSpyBean
 	@Qualifier(APPLICATION_TASK_EXECUTOR_BEAN_NAME)
 	private Executor taskExecutorSpy;

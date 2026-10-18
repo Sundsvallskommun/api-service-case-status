@@ -437,6 +437,11 @@ components:
             description: List of property designations
             examples:
             - Residential
+        allowMessages:
+          type: boolean
+          description: If messages can be managed
+          examples:
+          - true
     CasePdfResponse:
       type: object
       description: Case status response

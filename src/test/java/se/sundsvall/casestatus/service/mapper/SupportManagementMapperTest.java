@@ -7,14 +7,19 @@ import java.time.OffsetDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
 
 @ExtendWith(MockitoExtension.class)
 class SupportManagementMapperTest {
+
+	@Mock
+	private MessagingPolicy messagingPolicyMock;
 
 	@InjectMocks
 	private SupportManagementMapper supportManagementMapper;

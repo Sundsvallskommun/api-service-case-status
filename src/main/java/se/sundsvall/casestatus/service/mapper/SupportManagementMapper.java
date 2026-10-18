@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 
 import static java.util.Collections.emptySet;
 import static java.util.Objects.isNull;
@@ -19,6 +20,12 @@ import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
 public class SupportManagementMapper {
 
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
+
+	private final MessagingPolicy messagingPolicy;
+
+	public SupportManagementMapper(MessagingPolicy messagingPolicy) {
+		this.messagingPolicy = messagingPolicy;
+	}
 
 	/**
 	 * Returns the caseId external tag, but only for errands that originate from Open-E (identified by the presence of a
@@ -63,6 +70,7 @@ public class SupportManagementMapper {
 			.withErrandNumber(errand.getErrandNumber())
 			.withNamespace(namespace)
 			.withPropertyDesignations(null)
+			.withAllowMessages(messagingPolicy.allowMessages(SUPPORT_MANAGEMENT_SYSTEM, null))
 			.build();
 	}
 

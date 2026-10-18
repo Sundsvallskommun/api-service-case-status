@@ -12,16 +12,21 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.InputStreamResource;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 
 @ExtendWith(MockitoExtension.class)
 class OpenEMapperTest {
 
 	@Mock
 	private StatusVocabulary statusVocabulary;
+
+	@Mock
+	private MessagingPolicy messagingPolicy;
 
 	@InjectMocks
 	private OpenEMapper openEMapper;
@@ -61,10 +66,12 @@ class OpenEMapperTest {
 	void toCaseStatusResponse_caseEnvelope() {
 		final var envelope = new CaseEnvelope()
 			.flowInstanceId("999")
+			.familyId("333")
 			.displayName("displayName")
 			.status(new CaseStatus().name("Inskickat"));
 
 		when(statusVocabulary.translateOepStatus(envelope.getStatus())).thenReturn("Inskickat");
+		when(messagingPolicy.allowMessages(OPEN_E_PLATFORM, "333")).thenReturn(true);
 
 		final var response = openEMapper.toCaseStatusResponse(envelope);
 
@@ -76,6 +83,7 @@ class OpenEMapperTest {
 		assertThat(response.getSystem()).isEqualTo("OPEN_E_PLATFORM");
 		assertThat(response.getExternalCaseId()).isEqualTo("999");
 		assertThat(response.getErrandNumber()).isEqualTo("999");
+		assertThat(response.isAllowMessages()).isTrue();
 	}
 
 	@Test

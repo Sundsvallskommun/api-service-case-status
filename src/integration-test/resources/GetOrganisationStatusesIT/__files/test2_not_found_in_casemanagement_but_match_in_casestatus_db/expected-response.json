@@ -8,7 +8,8 @@
 		"lastStatusChange": "2022-02-09 09:51",
 		"status": "Inskickat",
 		"externalStatus": "Inskickat",
-		"system": "OPEN_E_PLATFORM"
+		"system": "OPEN_E_PLATFORM",
+		"allowMessages": false
 	},
 	{
 		"caseId": "89767",
@@ -19,7 +20,8 @@
 		"lastStatusChange": "2022-02-09 09:51",
 		"status": "Inskickat",
 		"externalStatus": "Inskickat",
-		"system": "OPEN_E_PLATFORM"
+		"system": "OPEN_E_PLATFORM",
+		"allowMessages": false
 	},
 	{
 		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
@@ -30,6 +32,7 @@
 		"namespace": "MYNAMESPACE",
 		"status": "Klart",
 		"externalStatus": "Avslutat",
-		"system": "SUPPORT_MANAGEMENT"
+		"system": "SUPPORT_MANAGEMENT",
+		"allowMessages": true
 	}
 ]

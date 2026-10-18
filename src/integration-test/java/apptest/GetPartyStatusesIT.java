@@ -164,4 +164,28 @@ class GetPartyStatusesIT extends AbstractAppTest {
 		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
 	}
 
+	@Test
+	void test10_messagesAllowed_per_system() {
+		setupCall()
+			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+
+		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
+	}
+
+	@Test
+	void test11_open_e_services_blocked() {
+		setupCall()
+			.withServicePath(PATH)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+
+		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
+	}
+
 }
