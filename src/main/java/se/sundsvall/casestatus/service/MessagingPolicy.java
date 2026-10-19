@@ -26,7 +26,7 @@ public class MessagingPolicy {
 	private boolean isSystemAllowed(final String system) {
 		return findPermission(system)
 			.map(AllowMessagesProperties.SystemMessagingPermission::allowed)
-			.orElse(allowMessagesProperties.defaultConfig());
+			.orElse(allowMessagesProperties.defaultAllowed());
 	}
 
 	private boolean isEServiceAllowed(final String familyId) {

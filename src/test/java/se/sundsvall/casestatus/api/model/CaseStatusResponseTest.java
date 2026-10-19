@@ -15,6 +15,7 @@ class CaseStatusResponseTest {
 			.withCaseType("someCaseType")
 			.withFirstSubmitted("someValue")
 			.withLastStatusChange("someValue")
+			.withAllowMessages(true)
 			.build();
 
 		assertThat(response.getCaseId()).isEqualTo("someId");
@@ -23,5 +24,6 @@ class CaseStatusResponseTest {
 		assertThat(response.getCaseType()).isEqualTo("someCaseType");
 		assertThat(response.getFirstSubmitted()).isEqualTo("someValue");
 		assertThat(response.getLastStatusChange()).isEqualTo("someValue");
+		assertThat(response.isAllowMessages()).isTrue();
 	}
 }

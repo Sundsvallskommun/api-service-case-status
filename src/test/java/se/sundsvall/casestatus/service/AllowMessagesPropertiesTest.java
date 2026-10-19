@@ -18,7 +18,7 @@ public class AllowMessagesPropertiesTest {
 
 	@Test
 	void testMessagingConfig() {
-		assertThat(properties.defaultConfig()).isFalse();
+		assertThat(properties.defaultAllowed()).isFalse();
 		assertThat(properties.systems()).containsOnlyKeys("BYGGR", "ECOS", "CASE_DATA", "SUPPORT_MANAGEMENT", "OPEN_E_PLATFORM");
 		assertThat(properties.systems().get("BYGGR").allowed()).isFalse();
 		assertThat(properties.systems().get("CASE_DATA").allowed()).isTrue();

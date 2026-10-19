@@ -8,7 +8,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
 
 @ConfigurationProperties(prefix = "case-status.messaging")
-public record AllowMessagesProperties(boolean defaultConfig, Map<String, SystemMessagingPermission> systems) {
+public record AllowMessagesProperties(boolean defaultAllowed, Map<String, SystemMessagingPermission> systems) {
 
 	public AllowMessagesProperties {
 		systems = systems == null ? Map.of() : Map.copyOf(systems);

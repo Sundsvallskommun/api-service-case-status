@@ -115,14 +115,14 @@ case-status:
   messaging:
     default-allowed: false
     systems:
-      [BYGGR]:
+      "[BYGGR]":
         allowed: false
-      [ECOS]:
+      "[ECOS]":
         allowed: false
-      [CASE_DATA]:
+      "[CASE_DATA]":
         allowed: true
-      [SUPPORT_MANAGEMENT]:
+      "[SUPPORT_MANAGEMENT]":
         allowed: true
-      [OPEN_E_PLATFORM]:
+      "[OPEN_E_PLATFORM]":
         allowed: true
         blocked-family-ids:
