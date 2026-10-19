@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 
 import static java.util.Collections.emptySet;
 import static java.util.Optional.ofNullable;
+import static java.util.function.Predicate.not;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 
 @Component
@@ -34,7 +35,9 @@ public class MessagingPolicy {
 			.map(AllowMessagesProperties.SystemMessagingPermission::blockedFamilyIds)
 			.orElse(emptySet());
 
-		return familyId != null && !blockedFamilyIds.contains(familyId);
+		return ofNullable(familyId)
+			.filter(not(blockedFamilyIds::contains))
+			.isPresent();
 	}
 
 	private Optional<AllowMessagesProperties.SystemMessagingPermission> findPermission(String system) {

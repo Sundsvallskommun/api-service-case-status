@@ -13,7 +13,10 @@ import se.sundsvall.casestatus.integration.db.model.StatusesEntity;
 import se.sundsvall.casestatus.service.MessagingPolicy;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
+import static se.sundsvall.casestatus.util.Constants.SUPPORT_MANAGEMENT_SYSTEM;
 
 @ExtendWith(MockitoExtension.class)
 class SupportManagementMapperTest {
@@ -43,6 +46,7 @@ class SupportManagementMapperTest {
 			.addExternalTagsItem(new ExternalTag().key("familyId").value("123"))
 			.addExternalTagsItem(new ExternalTag().key("caseId").value("caseId"));
 
+		when(messagingPolicyMock.allowMessages(SUPPORT_MANAGEMENT_SYSTEM, null)).thenReturn(true);
 		// Act
 		final var response = supportManagementMapper.toCaseStatusResponse(errand, namespace, statuses, classificationDisplayName);
 
@@ -55,6 +59,8 @@ class SupportManagementMapperTest {
 		assertThat(response.getExternalStatus()).isEqualTo(externalStatus);
 		assertThat(response.getLastStatusChange()).isEqualTo("2023-01-02 10:00");
 		assertThat(response.getFirstSubmitted()).isEqualTo("2023-01-01 10:00");
+		assertThat(response.isAllowMessages()).isTrue();
+		verify(messagingPolicyMock).allowMessages(SUPPORT_MANAGEMENT_SYSTEM, null);
 	}
 
 	@Test
