@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,6 +34,9 @@ class CaseManagementMapperTest {
 	@Mock
 	private CaseTypeRepository caseTypeRepositoryMock;
 
+	@Mock
+	private MessagingPolicy messagingPolicyMock;
+
 	@InjectMocks
 	private CaseManagementMapper caseManagementMapper;
 
@@ -46,6 +50,7 @@ class CaseManagementMapperTest {
 		when(spy.getExternalStatus(caseStatus.getStatus())).thenReturn("externalStatus");
 		when(spy.getTimestamp(caseStatus.getTimestamp())).thenReturn("2025-04-01 12:30");
 		when(spy.getServiceName(caseStatus.getServiceName(), caseStatus.getCaseType(), municipalityId)).thenReturn("serviceName");
+		when(messagingPolicyMock.allowMessages(system.getValue(), null)).thenReturn(true);
 
 		final var result = spy.toCaseStatusResponse(caseStatus, municipalityId);
 
@@ -60,7 +65,10 @@ class CaseManagementMapperTest {
 			assertThat(response.getFirstSubmitted()).isEqualTo("2025-04-01 12:30");
 			assertThat(response.getErrandNumber()).isEqualTo("errandNumber");
 			assertThat(response.getNamespace()).isEqualTo("namespace");
+			assertThat(response.isAllowMessages()).isTrue();
 		});
+
+		verify(messagingPolicyMock).allowMessages(system.getValue(), null);
 	}
 
 	/**

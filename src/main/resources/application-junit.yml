@@ -132,3 +132,24 @@ sm-status-search:
     2281:
       MY_NAMESPACE: MY_ROLE
       MY_NAMESPACE2: MY_ROLE2
+
+#----------------------------------------
+# Systems where messages are allowed
+#----------------------------------------
+case-status:
+  messaging:
+    default-allowed: false
+    systems:
+      "[BYGGR]":
+        allowed: false
+      "[ECOS]":
+        allowed: false
+      "[CASE_DATA]":
+        allowed: true
+      "[SUPPORT_MANAGEMENT]":
+        allowed: true
+      "[OPEN_E_PLATFORM]":
+        allowed: true
+        blocked-family-ids:
+          - "111"
+          - "222"

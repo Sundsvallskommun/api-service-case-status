@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.integration.db.CaseTypeRepository;
 import se.sundsvall.casestatus.integration.db.model.CaseTypeEntity;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static java.util.Optional.ofNullable;
@@ -19,15 +20,18 @@ public final class CaseManagementMapper {
 	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 	private final StatusVocabulary statusVocabulary;
 	private final CaseTypeRepository caseTypeRepository;
+	private final MessagingPolicy messagingPolicy;
 
 	public CaseManagementMapper(
 		final StatusVocabulary statusVocabulary,
-		final CaseTypeRepository caseTypeRepository) {
+		final CaseTypeRepository caseTypeRepository, MessagingPolicy messagingPolicy) {
 		this.statusVocabulary = statusVocabulary;
 		this.caseTypeRepository = caseTypeRepository;
+		this.messagingPolicy = messagingPolicy;
 	}
 
 	public CaseStatusResponse toCaseStatusResponse(final CaseStatusDTO caseStatus, final String municipalityId) {
+		final var system = ofNullable(caseStatus.getSystem()).map(CaseStatusDTO.SystemEnum::toString).orElse(UNKNOWN);
 		return CaseStatusResponse.builder()
 			.withCaseId(caseStatus.getCaseId())
 			.withCaseType(getServiceName(caseStatus.getServiceName(), caseStatus.getCaseType(), municipalityId))
@@ -35,11 +39,12 @@ public final class CaseManagementMapper {
 			.withExternalStatus(getExternalStatus(caseStatus.getStatus()))
 			.withLastStatusChange(getTimestamp(caseStatus.getTimestamp()))
 			.withFirstSubmitted(getTimestamp(caseStatus.getTimestamp()))
-			.withSystem(ofNullable(caseStatus.getSystem()).map(CaseStatusDTO.SystemEnum::toString).orElse(UNKNOWN))
+			.withSystem(system)
 			.withExternalCaseId(caseStatus.getExternalCaseId())
 			.withErrandNumber(caseStatus.getErrandNumber())
 			.withNamespace(caseStatus.getNamespace())
 			.withPropertyDesignations(null)
+			.withAllowMessages(messagingPolicy.allowMessages(system, null))
 			.build();
 	}
 

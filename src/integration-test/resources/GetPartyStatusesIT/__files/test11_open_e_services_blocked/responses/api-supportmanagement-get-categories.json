@@ -1,0 +1,28 @@
+[
+	{
+		"name": "SUPPORT-CASE",
+		"displayName": "Supportfrågor",
+		"types": [
+			{
+				"name": "OPEN-HOURS",
+				"displayName": "Frågor om öppettider",
+				"escalationEmail": "test1@sundsvall.se",
+				"created": "2024-06-14T15:14:15.591+02:00"
+			},
+			{
+				"name": "OPEN-HOURS",
+				"displayName": "Frågor om stängttider",
+				"escalationEmail": "test2@sundsvall.se",
+				"created": "2024-06-14T15:14:15.591+02:00"
+			},
+			{
+				"name": "BETTER-HOURS",
+				"displayName": "Frågor om bättre tider",
+				"escalationEmail": "test3@sundsvall.se",
+				"created": "2024-06-14T15:14:15.591+02:00"
+			}
+		],
+		"created": "2024-06-14T13:27:57.084+02:00",
+		"modified": "2024-11-05T10:51:25.918+01:00"
+	}
+]
