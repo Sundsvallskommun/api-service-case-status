@@ -125,17 +125,7 @@ sm-status-search:
 #----------------------------------------
 case-status:
   messaging:
-    default-allowed: false
     systems:
-      "[BYGGR]":
-        allowed: false
-      "[ECOS]":
-        allowed: false
-      "[CASE_DATA]":
-        allowed: true
-      "[SUPPORT_MANAGEMENT]":
-        allowed: true
       "[OPEN_E_PLATFORM]":
-        allowed: true
         blocked-family-ids:
           - "999"

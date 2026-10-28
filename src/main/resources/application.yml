@@ -125,4 +125,6 @@ case-status:
         allowed: true
       "[OPEN_E_PLATFORM]":
         allowed: true
-        blocked-family-ids:
+        # OeP e-services, which get identified by family Id, where messages are not allowed even though OPEN_E_PLATFORM is.
+        blocked-family-ids: []
+
