@@ -6,6 +6,7 @@ import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
@@ -52,6 +53,16 @@ class GetErrandStatusesIT extends AbstractAppTest {
 			.withServicePath(PATH + "?errandNumber=Case123&propertyDesignation=Kattegatt 123")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(BAD_REQUEST)
+			.withExpectedResponse(RESPONSE_FILE)
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test5_supportManagementRespondsNotFound() {
+		setupCall()
+			.withServicePath(PATH + "?errandNumber=Case123")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(BAD_GATEWAY)
 			.withExpectedResponse(RESPONSE_FILE)
 			.sendRequestAndVerifyResponse();
 	}

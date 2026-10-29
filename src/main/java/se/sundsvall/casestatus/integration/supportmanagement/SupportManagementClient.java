@@ -18,7 +18,6 @@ import static se.sundsvall.casestatus.integration.supportmanagement.configuratio
 
 @FeignClient(name = CLIENT_ID,
 	url = "${integration.support-management.base-url}",
-	dismiss404 = true,
 	configuration = SupportManagementConfiguration.class)
 @CircuitBreaker(name = CLIENT_ID)
 interface SupportManagementClient {
