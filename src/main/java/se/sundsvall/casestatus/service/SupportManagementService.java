@@ -37,6 +37,9 @@ public class SupportManagementService {
 	private static final String ROLE_PRIMARY = "PRIMARY";
 	private static final String EXTERNAL_ID_FILTER = "stakeholders.externalId:'%s' and stakeholders.role:'%s'";
 	private static final char RESOURCE_PATH_SEPARATOR = '/';
+	private static final String[] CATEGORIZATION_CLASSIFICATIONS = {
+		"DEPARTMENT", "CATEGORY", "TYPE", "SUBTYPE"
+	};
 
 	private final SupportManagementIntegration supportManagementIntegration;
 	private final RoleSearchProperties searchRoleProperties;
@@ -78,18 +81,18 @@ public class SupportManagementService {
 	/**
 	 * Resolves the display name to present as case type for an errand.
 	 * <p>
-	 * A namespace classifies its errands either with the legacy category/type metadata or with labels. The category/type
-	 * metadata is therefore consulted first, which leaves namespaces using it untouched. Label based namespaces instead
-	 * carry the label resource path (e.g. "BOU/FEE_CONTROL_CHILDCARE") as classification type, a technical name that must
-	 * not reach the consumer, so the labels are resolved instead - primarily from the labels on the errand itself and
-	 * secondarily from the namespace label structure, since an errand can hold the resource path in its classification
-	 * without carrying the label. Only when nothing translates does the raw classification type remain as a last resort.
+	 * The errand's categorization labels (department, category, type, subtype) are consulted first, using the deepest one -
+	 * the same rule Draken applies. Namespaces using label categorization keep a placeholder classification (e.g.
+	 * "SALARY.UNCATEGORIZED") that must not win over the labels. Errands without categorization labels fall back to the
+	 * legacy category/type metadata, and then to the namespace label structure, since an errand can hold the label resource
+	 * path in its classification without carrying the label. Only when nothing translates does the raw classification type
+	 * remain as a last resort.
 	 */
 	public String getClassificationDisplayName(final String municipalityId, final String namespace, final Errand errand) {
 		final var classification = errand.getClassification();
 
-		return findTypeDisplayName(municipalityId, namespace, classification)
-			.or(() -> findErrandLabelDisplayName(errand))
+		return findErrandLabelDisplayName(errand)
+			.or(() -> findTypeDisplayName(municipalityId, namespace, classification))
 			.or(() -> findLabelDisplayName(municipalityId, namespace, classification))
 			.orElseGet(() -> ofNullable(classification).map(Classification::getType).orElse(null));
 	}
@@ -109,12 +112,14 @@ public class SupportManagementService {
 	}
 
 	/**
-	 * Picks the deepest of the errand's labels, i.e. the most specific one ("BOU/FEE_CONTROL_CHILDCARE" rather than
-	 * "BOU"), whose display name SupportManagement has already resolved for us.
+	 * Picks the deepest of the errand's categorization labels, i.e. the most specific one ("BOU/FEE_CONTROL_CHILDCARE"
+	 * rather than "BOU"), whose display name SupportManagement has already resolved for us. Labels of any other
+	 * classification is ignored.
 	 */
 	private static Optional<String> findErrandLabelDisplayName(final Errand errand) {
 		return ofNullable(errand.getLabels()).orElse(emptyList()).stream()
 			.filter(Objects::nonNull)
+			.filter(label -> Strings.CI.equalsAny(label.getClassification(), CATEGORIZATION_CLASSIFICATIONS))
 			.filter(label -> StringUtils.isNotBlank(label.getDisplayName()))
 			.max(comparingInt((ErrandLabel label) -> StringUtils.countMatches(label.getResourcePath(), RESOURCE_PATH_SEPARATOR)))
 			.map(ErrandLabel::getDisplayName);
