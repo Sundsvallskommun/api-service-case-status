@@ -205,13 +205,11 @@ class SupportManagementServiceTest {
 		final var errand = new Errand()
 			.classification(new Classification().category("BOU").type("BOU/FEE_CONTROL_CHILDCARE"))
 			.labels(List.of(
-				new ErrandLabel().resourcePath("BOU").displayName("Barn och utbildning"),
-				new ErrandLabel().resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg")));
-		when(supportManagementIntegrationMock.findCategoriesForNamespace(municipalityId, namespace)).thenReturn(List.of());
+				new ErrandLabel().classification("CATEGORY").resourcePath("BOU").displayName("Barn och utbildning"),
+				new ErrandLabel().classification("TYPE").resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg")));
 
 		// Act & Assert
 		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Avgiftskontroll barnomsorg");
-		verify(supportManagementIntegrationMock).findCategoriesForNamespace(municipalityId, namespace);
 		verifyNoMoreInteractions(supportManagementIntegrationMock);
 	}
 
@@ -220,7 +218,7 @@ class SupportManagementServiceTest {
 		// Arrange
 		final var municipalityId = "municipalityId";
 		final var namespace = "BOU";
-		final var errand = new Errand().labels(List.of(new ErrandLabel().resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg")));
+		final var errand = new Errand().labels(List.of(new ErrandLabel().classification("TYPE").resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg")));
 
 		// Act & Assert
 		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Avgiftskontroll barnomsorg");
@@ -273,6 +271,65 @@ class SupportManagementServiceTest {
 		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Avgiftskontroll barnomsorg");
 		verify(supportManagementIntegrationMock).findCategoriesForNamespace(municipalityId, namespace);
 		verify(supportManagementIntegrationMock).findLabelsForNamespace(municipalityId, namespace);
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNamePrefersErrandLabelsOverPlaceholderClassification() {
+		// Arrange - label categorization leaves the placeholder classification set when the errand was created
+		final var municipalityId = "municipalityId";
+		final var namespace = "SALARYANDPENSION";
+		final var errand = new Errand()
+			.classification(new Classification().category("SALARY").type("SALARY.UNCATEGORIZED"))
+			.labels(List.of(
+				new ErrandLabel().classification("CATEGORY").resourcePath("SALARY").displayName("Lön"),
+				new ErrandLabel().classification("TYPE").resourcePath("SALARY/AUTHORITY_LETTER").displayName("Myndighetspost"),
+				new ErrandLabel().classification("SUBTYPE").resourcePath("SALARY/AUTHORITY_LETTER/EMPLOYER_CERTIFICATE").displayName("Arbetsgivarintyg")));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Arbetsgivarintyg");
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameFallsBackToClassificationWhenNoLabelIsCategorization() {
+		// Arrange
+		final var municipalityId = "municipalityId";
+		final var namespace = "namespace";
+		final var errand = new Errand()
+			.classification(new Classification().category("SUPPORT-CASE").type("OPEN-HOURS"))
+			.labels(List.of(new ErrandLabel().classification(null).resourcePath("SOME/LABEL").displayName("Utan klassificering")));
+		when(supportManagementIntegrationMock.findCategoriesForNamespace(municipalityId, namespace))
+			.thenReturn(List.of(new Category().name("SUPPORT-CASE").types(Set.of(new Type().name("OPEN-HOURS").displayName("Questions on opening hours")))));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName(municipalityId, namespace, errand)).isEqualTo("Questions on opening hours");
+		verify(supportManagementIntegrationMock).findCategoriesForNamespace(municipalityId, namespace);
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameMatchesCategorizationClassificationIgnoringCase() {
+		// Arrange
+		final var errand = new Errand().labels(List.of(
+			new ErrandLabel().classification("subtype").resourcePath("BOU/FEE_CONTROL_CHILDCARE/LATE_FEE").displayName("Förseningsavgift")));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName("municipalityId", "BOU", errand)).isEqualTo("Förseningsavgift");
+		verifyNoMoreInteractions(supportManagementIntegrationMock);
+	}
+
+	@Test
+	void getClassificationDisplayNameIgnoresLabelsOutsideTheCategorization() {
+		// Arrange - an errand can carry labels outside the categorization (department, category, type and subtype).
+		// Those outside should not be presented as case type, even if they are deeper.
+		final var errand = new Errand().labels(List.of(
+			new ErrandLabel().classification("CATEGORY").resourcePath("BOU").displayName("Barn och utbildning"),
+			new ErrandLabel().classification("TYPE").resourcePath("BOU/FEE_CONTROL_CHILDCARE").displayName("Avgiftskontroll barnomsorg"),
+			new ErrandLabel().classification("OTHER").resourcePath("OTHER/FIRST/SECOND/THIRD").displayName("Annan kommentar")));
+
+		// Act & Assert
+		assertThat(supportManagementService.getClassificationDisplayName("municipalityId", "BOU", errand)).isEqualTo("Avgiftskontroll barnomsorg");
 		verifyNoMoreInteractions(supportManagementIntegrationMock);
 	}
 }
