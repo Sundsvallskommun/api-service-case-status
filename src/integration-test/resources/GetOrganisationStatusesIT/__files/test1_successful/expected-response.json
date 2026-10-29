@@ -20,7 +20,7 @@
 		"status": "Inskickat",
 		"externalStatus": "Inskickat",
 		"system": "OPEN_E_PLATFORM",
-		"allowMessages": false
+		"allowMessages": true
 	},
 	{
 		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",

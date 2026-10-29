@@ -16,6 +16,7 @@ import se.sundsvall.casestatus.service.MessagingPolicy;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
 
@@ -39,8 +40,10 @@ class OpenEMapperTest {
 		caseEntity.setStatus("status");
 		caseEntity.setLastStatusChange("lastStatusChange");
 		caseEntity.setFirstSubmitted("firstSubmitted");
+		caseEntity.setFamilyId("123");
 
 		when(statusVocabulary.translateOepStatus("status")).thenReturn("Handläggning pågår");
+		when(messagingPolicy.allowMessages("OPEN_E_PLATFORM", "123")).thenReturn(true);
 
 		final var response = openEMapper.toCaseStatusResponse(caseEntity);
 
@@ -55,6 +58,8 @@ class OpenEMapperTest {
 		assertThat(response.getExternalCaseId()).isEqualTo("flowInstanceId");
 		assertThat(response.getErrandNumber()).isEqualTo("flowInstanceId");
 		assertThat(response.getNamespace()).isNull();
+		assertThat(response.isAllowMessages()).isTrue();
+		verify(messagingPolicy).allowMessages("OPEN_E_PLATFORM", "123");
 	}
 
 	@Test

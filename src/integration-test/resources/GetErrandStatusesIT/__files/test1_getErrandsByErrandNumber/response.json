@@ -36,7 +36,7 @@
 		"propertyDesignations": [
 			"BALDER 1"
 		],
-		"allowMessages": false
+		"allowMessages": true
 	},
 	{
 		"caseId": "774",
@@ -53,6 +53,6 @@
 			"BALDER 2",
 			"BALDER 3"
 		],
-		"allowMessages": false
+		"allowMessages": true
 	}
 ]

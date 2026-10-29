@@ -15,12 +15,14 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static java.time.Month.MARCH;
 import static java.time.Month.MAY;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.TestDataFactory.createCaseDataErrand;
 import static se.sundsvall.casestatus.util.Constants.DEFAULT_EXTERNAL_STATUS;
@@ -30,6 +32,9 @@ class CaseDataMapperTest {
 
 	@Mock
 	private StatusVocabulary statusVocabulary;
+
+	@Mock
+	private MessagingPolicy messagingPolicy;
 
 	@InjectMocks
 	private CaseDataMapper caseDataMapper;
@@ -62,6 +67,7 @@ class CaseDataMapperTest {
 			.max(Comparator.comparing(Status::getCreated))
 			.orElse(null);
 		when(statusVocabulary.translateCaseManagementStatus(latestStatus.getStatusType())).thenReturn("externalStatus");
+		when(messagingPolicy.allowMessages("CASE_DATA", null)).thenReturn(true);
 
 		final var result = caseDataMapper.toCaseStatusResponse(errand);
 
@@ -75,6 +81,8 @@ class CaseDataMapperTest {
 		assertThat(result.getExternalCaseId()).isEqualTo(errand.getExternalCaseId());
 		assertThat(result.getErrandNumber()).isEqualTo(errand.getErrandNumber());
 		assertThat(result.getNamespace()).isEqualTo(errand.getNamespace());
+		assertThat(result.isAllowMessages()).isTrue();
+		verify(messagingPolicy).allowMessages("CASE_DATA", null);
 	}
 
 	@ParameterizedTest

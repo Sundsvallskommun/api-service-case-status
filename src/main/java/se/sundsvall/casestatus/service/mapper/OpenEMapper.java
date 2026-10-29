@@ -37,6 +37,7 @@ public class OpenEMapper {
 				.withLastStatusChange(entity.getLastStatusChange())
 				.withFirstSubmitted(entity.getFirstSubmitted())
 				.withSystem(OPEN_E_PLATFORM)
+				.withAllowMessages(messagingPolicy.allowMessages(OPEN_E_PLATFORM, entity.getFamilyId()))
 				.withExternalCaseId(entity.getFlowInstanceId())
 				.withErrandNumber(entity.getFlowInstanceId())
 				.build())
