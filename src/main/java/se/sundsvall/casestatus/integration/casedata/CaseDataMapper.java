@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import org.springframework.stereotype.Component;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static java.util.Collections.emptyList;
@@ -23,11 +24,14 @@ import static java.util.Optional.ofNullable;
 public class CaseDataMapper {
 
 	static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+	private static final String CASE_DATA_SYSTEM = "CASE_DATA";
 
 	private final StatusVocabulary statusVocabulary;
+	private final MessagingPolicy messagingPolicy;
 
-	public CaseDataMapper(final StatusVocabulary statusVocabulary) {
+	public CaseDataMapper(final StatusVocabulary statusVocabulary, final MessagingPolicy messagingPolicy) {
 		this.statusVocabulary = statusVocabulary;
+		this.messagingPolicy = messagingPolicy;
 	}
 
 	public List<CaseStatusResponse> toCaseStatusResponses(final List<Errand> errands) {
@@ -58,7 +62,8 @@ public class CaseDataMapper {
 				.map(CaseDataMapper::getTimestamp)
 				.orElse(null))
 			.withFirstSubmitted(getTimestamp(errand.getCreated()))
-			.withSystem("CASE_DATA")
+			.withSystem(CASE_DATA_SYSTEM)
+			.withAllowMessages(messagingPolicy.allowMessages(CASE_DATA_SYSTEM, null))
 			.withExternalCaseId(errand.getExternalCaseId())
 			.withErrandNumber(errand.getErrandNumber())
 			.withNamespace(errand.getNamespace())

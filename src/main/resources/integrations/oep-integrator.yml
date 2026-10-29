@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
   title: api-oep-integrator
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.7"
+  version: "1.8"
 servers:
-  - url: http://localhost:50040
+  - url: http://localhost:61798
     description: Generated server url
 tags:
   - name: Instances
@@ -53,12 +53,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CaseStatus"
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -67,6 +61,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -120,12 +120,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CaseStatusChangeResponse"
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -134,6 +128,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -195,12 +195,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CaseStatusChangeResponse"
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -209,6 +203,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -323,12 +323,6 @@ paths:
       responses:
         "204":
           description: Successful operation
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -337,6 +331,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -806,12 +806,6 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Case"
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -820,6 +814,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -878,12 +878,6 @@ paths:
       responses:
         "200":
           description: Successful operation
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -892,6 +886,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -936,12 +936,6 @@ paths:
       responses:
         "200":
           description: Successful operation
-        "404":
-          description: Not found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad request
           content:
@@ -950,6 +944,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -962,14 +962,157 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/{instanceType}/cases/multisign/parties/{partyId}:
+  /{municipalityId}/{instanceType}/cases/unsubmitted/users/{userId}:
     get:
       tags:
         - Cases
-      summary: Get cases waiting for multi-sign by citizen identifier
-      description: Get a list of case envelopes waiting for multi-sign signing for
-        the given citizen identifier
-      operationId: getMultisignCasesByPartyId
+      summary: Get unsubmitted cases by user ID
+      description: Get a list of case envelopes that are saved but not yet submitted
+        for the given AD user ID
+      operationId: getUnsubmittedCasesByUserId
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality ID
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: instanceType
+          in: path
+          description: The instanceType where case belongs
+          required: true
+          schema:
+            $ref: "#/components/schemas/InstanceType"
+          example: INTERNAL
+        - name: userId
+          in: path
+          description: The AD user ID
+          required: true
+          schema:
+            type: string
+          example: joedoe
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
+  /{municipalityId}/{instanceType}/cases/unsubmitted/parties/{partyId}:
+    get:
+      tags:
+        - Cases
+      summary: Get unsubmitted cases by citizen identifier
+      description: Get a list of case envelopes that are saved but not yet submitted
+        for the given citizen identifier
+      operationId: getUnsubmittedCasesByPartyId
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality ID
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: instanceType
+          in: path
+          description: The instanceType where case belongs
+          required: true
+          schema:
+            $ref: "#/components/schemas/InstanceType"
+          example: INTERNAL
+        - name: partyId
+          in: path
+          description: The party ID
+          required: true
+          schema:
+            type: string
+          example: 5d68eb00-d8da-49a0-a6b5-8d395be34a5e
+        - name: includeStatus
+          in: query
+          description: Should response include status
+          required: false
+          schema:
+            type: boolean
+          example: true
+      responses:
+        "400":
+          description: Bad request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "502":
+          description: Bad gateway
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
+  /{municipalityId}/{instanceType}/cases/parties/{partyId}:
+    get:
+      tags:
+        - Cases
+      summary: Get cases by citizen identifier
+      description: Get a list of case envelopes by citizen identifier
+      operationId: getCasesByPartyId
       parameters:
         - name: municipalityId
           in: path
@@ -1023,14 +1166,6 @@ paths:
             type: boolean
           example: true
       responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CaseEnvelope"
         "400":
           description: Bad request
           content:
@@ -1039,6 +1174,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -1051,6 +1192,14 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
   /{municipalityId}/{instanceType}/cases/multisign/users/{userId}:
     get:
       tags:
@@ -1112,14 +1261,6 @@ paths:
             type: boolean
           example: true
       responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CaseEnvelope"
         "400":
           description: Bad request
           content:
@@ -1128,6 +1269,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -1140,13 +1287,22 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/{instanceType}/cases/parties/{partyId}:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
+  /{municipalityId}/{instanceType}/cases/multisign/parties/{partyId}:
     get:
       tags:
         - Cases
-      summary: Get cases by citizen identifier
-      description: Get a list of case envelopes by citizen identifier
-      operationId: getCasesByPartyId
+      summary: Get cases waiting for multi-sign by citizen identifier
+      description: Get a list of case envelopes waiting for multi-sign signing for
+        the given citizen identifier
+      operationId: getMultisignCasesByPartyId
       parameters:
         - name: municipalityId
           in: path
@@ -1200,14 +1356,6 @@ paths:
             type: boolean
           example: true
       responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CaseEnvelope"
         "400":
           description: Bad request
           content:
@@ -1216,6 +1364,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -1228,44 +1382,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/{instanceType}/cases/unsubmitted/parties/{partyId}:
-    get:
-      tags:
-        - Cases
-      summary: Get unsubmitted cases by citizen identifier
-      description: Get a list of case envelopes that are saved but not yet submitted
-        for the given citizen identifier
-      operationId: getUnsubmittedCasesByPartyId
-      parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality ID
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: instanceType
-          in: path
-          description: The instanceType where case belongs
-          required: true
-          schema:
-            $ref: "#/components/schemas/InstanceType"
-          example: INTERNAL
-        - name: partyId
-          in: path
-          description: The party ID
-          required: true
-          schema:
-            type: string
-          example: 5d68eb00-d8da-49a0-a6b5-8d395be34a5e
-        - name: includeStatus
-          in: query
-          description: Should response include status
-          required: false
-          schema:
-            type: boolean
-          example: true
-      responses:
         "200":
           description: Successful operation
           content:
@@ -1274,92 +1390,6 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/CaseEnvelope"
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-  /{municipalityId}/{instanceType}/cases/unsubmitted/users/{userId}:
-    get:
-      tags:
-        - Cases
-      summary: Get unsubmitted cases by user ID
-      description: Get a list of case envelopes that are saved but not yet submitted
-        for the given AD user ID
-      operationId: getUnsubmittedCasesByUserId
-      parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality ID
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: instanceType
-          in: path
-          description: The instanceType where case belongs
-          required: true
-          schema:
-            $ref: "#/components/schemas/InstanceType"
-          example: INTERNAL
-        - name: userId
-          in: path
-          description: The AD user ID
-          required: true
-          schema:
-            type: string
-          example: joedoe
-        - name: includeStatus
-          in: query
-          description: Should response include status
-          required: false
-          schema:
-            type: boolean
-          example: true
-      responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CaseEnvelope"
-        "400":
-          description: Bad request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "500":
-          description: Internal Server error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "502":
-          description: Bad gateway
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
   /{municipalityId}/{instanceType}/cases/families/{familyId}:
     get:
       tags:
@@ -1413,14 +1443,6 @@ paths:
             type: string
           example: Preliminär
       responses:
-        "200":
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/CaseEnvelope"
         "400":
           description: Bad request
           content:
@@ -1429,6 +1451,12 @@ paths:
                 oneOf:
                   - $ref: "#/components/schemas/Problem"
                   - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "404":
+          description: Not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server error
           content:
@@ -1441,6 +1469,14 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CaseEnvelope"
   /api-docs:
     get:
       tags:
@@ -1459,22 +1495,6 @@ paths:
       x-wso2-mutual-ssl: Optional
 components:
   schemas:
-    Problem:
-      type: object
-      properties:
-        instance:
-          type: string
-          format: uri
-        type:
-          type: string
-          format: uri
-        title:
-          type: string
-        detail:
-          type: string
-        status:
-          type: integer
-          format: int32
     InstanceType:
       type: string
       description: InstanceType type. INTERNAL/EXTERNAL
@@ -1492,7 +1512,7 @@ components:
           format: int32
           description: The status ID
           examples:
-            - "123"
+            - 123
         name:
           type: string
           description: The status name
@@ -1518,6 +1538,22 @@ components:
           minLength: 1
       required:
         - userId
+    Problem:
+      type: object
+      properties:
+        instance:
+          type: string
+          format: uri
+        type:
+          type: string
+          format: uri
+        detail:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+          format: int32
     ConstraintViolationProblem:
       type: object
       properties:
@@ -1536,27 +1572,8 @@ components:
         instance:
           type: string
           format: uri
-        causeAsProblem:
-          $ref: "#/components/schemas/ThrowableProblem"
         detail:
           type: string
-    ThrowableProblem:
-      type: object
-      properties:
-        type:
-          type: string
-          format: uri
-        title:
-          type: string
-        status:
-          type: integer
-          format: int32
-        detail:
-          type: string
-        instance:
-          type: string
-          format: uri
-        causeAsProblem: { }
     Violation:
       type: object
       properties:
@@ -1573,7 +1590,7 @@ components:
           format: int32
           description: Event id
           examples:
-            - "123"
+            - 123
     ExternalReference:
       type: object
       description: ExternalReference model
@@ -1643,7 +1660,7 @@ components:
           type: boolean
           description: If the case was delivered
           examples:
-            - "true"
+            - true
         logMessage:
           type: string
           description: Any log message
@@ -1699,7 +1716,8 @@ components:
           type: array
           description: List with family IDs
           examples:
-            - "[\"family1\", \"family2\"]"
+            - - family1
+              - family2
           items:
             type: string
         connectTimeout:
@@ -1707,13 +1725,13 @@ components:
           format: int32
           description: Connection timeout in seconds
           examples:
-            - "5"
+            - 5
         readTimeout:
           type: integer
           format: int32
           description: Read timeout in seconds
           examples:
-            - "60"
+            - 60
     IntegrationType:
       type: string
       description: IntegrationType model
@@ -1739,7 +1757,7 @@ components:
           format: int32
           description: The webMessageCollector Id for the message
           examples:
-            - "1"
+            - 1
         direction:
           $ref: "#/components/schemas/Direction"
           description: If the message is inbound or outbound. Inbound means coming
@@ -1823,7 +1841,7 @@ components:
           format: int32
           description: The Id for the attachment
           examples:
-            - "1"
+            - 1
         name:
           type: string
           description: The name of the file
@@ -1858,7 +1876,7 @@ components:
           format: int32
           description: Version of the case
           examples:
-            - "4"
+            - 4
         flowId:
           type: string
           description: The flowId
@@ -1894,7 +1912,7 @@ components:
           format: int32
           description: The status ID
           examples:
-            - "123"
+            - 123
         name:
           type: string
           description: The status name
@@ -1938,6 +1956,11 @@ components:
           description: The case status change date
           examples:
             - 2023-11-16T12:01
+        familyId:
+          type: string
+          description: The familyId
+          examples:
+            - "832"
         displayName:
           type: string
           description: The display name for the family the case belongs to
@@ -1946,4 +1969,4 @@ components:
         status:
           $ref: "#/components/schemas/CaseStatus"
           description: The case status
-  securitySchemes: { }
+  securitySchemes: {}

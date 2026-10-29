@@ -7,7 +7,8 @@
 		"lastStatusChange": "2022-09-01 10:48",
 		"status": "Pågående",
 		"externalStatus": "Handläggning pågår",
-		"system": "BYGGR"
+		"system": "BYGGR",
+		"allowMessages": false
 	},
 	{
 		"caseId": "100757",
@@ -18,7 +19,8 @@
 		"lastStatusChange": "2022-05-11 14:24",
 		"status": "Inskickat",
 		"externalStatus": "Inskickat",
-		"system": "OPEN_E_PLATFORM"
+		"system": "OPEN_E_PLATFORM",
+		"allowMessages": true
 	},
 	{
 		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
@@ -29,6 +31,7 @@
 		"namespace": "MYNAMESPACE",
 		"status": "Klart",
 		"externalStatus": "Avslutat",
-		"system": "SUPPORT_MANAGEMENT"
+		"system": "SUPPORT_MANAGEMENT",
+		"allowMessages": true
 	}
 ]

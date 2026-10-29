@@ -8,7 +8,8 @@
 		"lastStatusChange": "2023-03-14 13:27",
 		"namespace": "MYNAMESPACE",
 		"status": "Klart",
-		"system": "SUPPORT_MANAGEMENT"
+		"system": "SUPPORT_MANAGEMENT",
+		"allowMessages": true
 	},
 	{
 		"caseId": "KKLLMM112233",
@@ -19,7 +20,8 @@
 		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Avslutad",
-		"system": "BYGGR"
+		"system": "BYGGR",
+		"allowMessages": false
 	},
 	{
 		"caseId": "AABBCC112233",
@@ -30,7 +32,8 @@
 		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Avböjd",
-		"system": "ALKT"
+		"system": "ALKT",
+		"allowMessages": false
 	},
 	{
 		"caseId": "GGHHJJ112233",
@@ -41,6 +44,7 @@
 		"firstSubmitted": "2022-01-01 00:00",
 		"lastStatusChange": "2022-01-01 00:00",
 		"status": "Pågående",
-		"system": "ECOS"
+		"system": "ECOS",
+		"allowMessages": false
 	}
 ]

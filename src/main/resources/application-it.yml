@@ -119,3 +119,13 @@ sm-status-search:
   roles:
     2281:
       MY_NAMESPACE: MY_ROLE
+
+#----------------------------------------
+# Systems where messages are allowed
+#----------------------------------------
+case-status:
+  messaging:
+    systems:
+      "[OPEN_E_PLATFORM]":
+        blocked-family-ids:
+          - "999"

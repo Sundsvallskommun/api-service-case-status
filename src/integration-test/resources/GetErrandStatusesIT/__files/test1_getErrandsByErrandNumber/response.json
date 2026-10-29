@@ -8,7 +8,8 @@
 		"lastStatusChange": "2023-03-14 13:27",
 		"system": "SUPPORT_MANAGEMENT",
 		"namespace": "SECOND_NAMESPACE",
-		"errandNumber": "KC-23030013"
+		"errandNumber": "KC-23030013",
+		"allowMessages": true
 	},
 	{
 		"caseId": "3f0e57b2-2876-4cb8-aa71-537b5805be27",
@@ -19,7 +20,8 @@
 		"lastStatusChange": "2023-03-14 13:27",
 		"system": "SUPPORT_MANAGEMENT",
 		"namespace": "FIRST_NAMESPACE",
-		"errandNumber": "KC-23030013"
+		"errandNumber": "KC-23030013",
+		"allowMessages": true
 	},
 	{
 		"caseId": "766",
@@ -33,7 +35,8 @@
 		"errandNumber": "MEX-2024-000152",
 		"propertyDesignations": [
 			"BALDER 1"
-		]
+		],
+		"allowMessages": true
 	},
 	{
 		"caseId": "774",
@@ -49,6 +52,7 @@
 		"propertyDesignations": [
 			"BALDER 2",
 			"BALDER 3"
-		]
+		],
+		"allowMessages": true
 	}
 ]

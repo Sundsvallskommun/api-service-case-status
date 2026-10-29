@@ -11,7 +11,8 @@
 		"errandNumber": "MEX-2024-000152",
 		"propertyDesignations": [
 			"BALDER 1"
-		]
+		],
+		"allowMessages": true
 	},
 	{
 		"caseId": "774",
@@ -27,6 +28,7 @@
 		"propertyDesignations": [
 			"BALDER 2",
 			"BALDER 3"
-		]
+		],
+		"allowMessages": true
 	}
 ]

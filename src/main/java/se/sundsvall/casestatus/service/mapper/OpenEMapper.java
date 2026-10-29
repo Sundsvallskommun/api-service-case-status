@@ -10,6 +10,7 @@ import se.sundsvall.casestatus.api.model.CasePdfResponse;
 import se.sundsvall.casestatus.api.model.CaseStatusResponse;
 import se.sundsvall.casestatus.api.model.OepStatusResponse;
 import se.sundsvall.casestatus.integration.db.model.CaseEntity;
+import se.sundsvall.casestatus.service.MessagingPolicy;
 import se.sundsvall.casestatus.service.StatusVocabulary;
 
 import static se.sundsvall.casestatus.util.Constants.OPEN_E_PLATFORM;
@@ -19,9 +20,11 @@ import static se.sundsvall.casestatus.util.FormattingUtil.formatDateTime;
 public class OpenEMapper {
 
 	private final StatusVocabulary statusVocabulary;
+	private final MessagingPolicy messagingPolicy;
 
-	public OpenEMapper(final StatusVocabulary statusVocabulary) {
+	public OpenEMapper(final StatusVocabulary statusVocabulary, MessagingPolicy messagingPolicy) {
 		this.statusVocabulary = statusVocabulary;
+		this.messagingPolicy = messagingPolicy;
 	}
 
 	public CaseStatusResponse toCaseStatusResponse(final CaseEntity caseEntity) {
@@ -34,6 +37,7 @@ public class OpenEMapper {
 				.withLastStatusChange(entity.getLastStatusChange())
 				.withFirstSubmitted(entity.getFirstSubmitted())
 				.withSystem(OPEN_E_PLATFORM)
+				.withAllowMessages(messagingPolicy.allowMessages(OPEN_E_PLATFORM, entity.getFamilyId()))
 				.withExternalCaseId(entity.getFlowInstanceId())
 				.withErrandNumber(entity.getFlowInstanceId())
 				.build())
@@ -67,6 +71,7 @@ public class OpenEMapper {
 				.withSystem(OPEN_E_PLATFORM)
 				.withExternalCaseId(caseEnvelope.getFlowInstanceId())
 				.withErrandNumber(caseEnvelope.getFlowInstanceId())
+				.withAllowMessages(messagingPolicy.allowMessages(OPEN_E_PLATFORM, caseEnvelope.getFamilyId()))
 				.build())
 			.orElse(null);
 	}

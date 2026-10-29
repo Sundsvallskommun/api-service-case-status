@@ -8,6 +8,7 @@
 		"namespace": "MYNAMESPACE",
 		"status": "Klart",
 		"externalStatus": "Avslutat",
-		"system": "SUPPORT_MANAGEMENT"
+		"system": "SUPPORT_MANAGEMENT",
+		"allowMessages": true
 	}
 ]

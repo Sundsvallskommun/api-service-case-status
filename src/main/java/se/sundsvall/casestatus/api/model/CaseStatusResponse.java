@@ -28,6 +28,9 @@ public class CaseStatusResponse {
 	@Schema(description = "Status", examples = "In progress")
 	private String status;
 
+	@Schema(description = "If messages can be managed", examples = "true")
+	private boolean allowMessages;
+
 	@Schema(description = "External status", examples = "Handläggning pågår")
 	private String externalStatus;
 
