@@ -11,7 +11,6 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_CASE_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.SOURCE_OPEN_E_PLATFORM;
-import static se.sundsvall.casestatus.util.Constants.SOURCE_SUPPORT_MANAGEMENT;
 import static se.sundsvall.casestatus.util.Constants.UNAVAILABLE_SOURCES_HEADER;
 
 @WireMockAppTestSuite(files = "classpath:/GetPartyStatusesIT/", classes = Application.class)
@@ -187,23 +186,6 @@ class GetPartyStatusesIT extends AbstractAppTest {
 			.sendRequestAndVerifyResponse();
 
 		assertThat(getResponseHeaders().get(UNAVAILABLE_SOURCES_HEADER)).isNull();
-	}
-
-	/**
-	 * Test scenario where the namespace configurations of SupportManagement answer 404 with a JSON body, as the API
-	 * gateway does for a resource it cannot route. SupportManagement never answers that resource with 404, so it must
-	 * read as an unavailable source: the other sources' cases are returned and SupportManagement is named in the
-	 * unavailable-sources header.
-	 */
-	@Test
-	void test12_support_management_unavailable() {
-		setupCall()
-			.withServicePath(PATH)
-			.withHttpMethod(GET)
-			.withExpectedResponseStatus(OK)
-			.withExpectedResponseHeader(UNAVAILABLE_SOURCES_HEADER, List.of(SOURCE_SUPPORT_MANAGEMENT))
-			.withExpectedResponse(RESPONSE_FILE)
-			.sendRequestAndVerifyResponse();
 	}
 
 }

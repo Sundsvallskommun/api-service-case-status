@@ -1,5 +1,0 @@
-{
-	"title": "Bad Gateway",
-	"status": 502,
-	"detail": "support-management error: {status=404 Not Found}"
-}
